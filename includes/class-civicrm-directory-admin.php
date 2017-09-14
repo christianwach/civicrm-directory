@@ -814,16 +814,151 @@ class CiviCRM_Directory_Admin {
 			$contacts = $result['values'];
 		}
 
-		/*
+		///*
 		error_log( print_r( array(
 			'method' => __METHOD__,
 			'params' => $params,
 			'contacts' => $contacts,
 		), true ) );
-		*/
+		//*/
 
 		// --<
 		return $contacts;
+
+	}
+
+
+
+	//##########################################################################
+
+
+
+	/**
+	 * Get top-level CiviCRM contact types.
+	 *
+	 * @since 0.1
+	 *
+	 * @return array $contact_types The top-level CiviCRM contact types.
+	 */
+	public function contact_types_get() {
+
+		// init return
+		$contact_types = array();
+
+		// try and init CiviCRM
+		if ( ! function_exists( 'civi_wp' ) ) return $contact_types;
+		if ( ! civi_wp()->initialize() ) return $contact_types;
+
+		// define params to get all contact types
+		$params = array(
+			'version' => 3,
+			'sequential' => 1,
+			'is_active' => 1,
+			'parent_id' => array( 'IS NULL' => 1 ),
+			'options' => array(
+				'limit' => '0', // no limit
+			),
+		);
+
+		// get all contact_types
+		$result = civicrm_api( 'ContactType', 'get', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+			$contact_types = $result['values'];
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+		), true ) );
+		*/
+
+		// --<
+		return $contact_types;
+
+	}
+
+
+
+	/**
+	 * Get all CiviCRM contact types, nested by parent.
+	 *
+	 * CiviCRM only allows one level of nesting, so we can parse the results
+	 * into a nested array to return.
+	 *
+	 * @since 0.1
+	 *
+	 * @return array $nested The nested CiviCRM contact types.
+	 */
+	public function contact_types_get_nested() {
+
+		// init return
+		$contact_types = array();
+
+		// try and init CiviCRM
+		if ( ! function_exists( 'civi_wp' ) ) return $contact_types;
+		if ( ! civi_wp()->initialize() ) return $contact_types;
+
+		// define params to get all contact types
+		$params = array(
+			'version' => 3,
+			'sequential' => 1,
+			'is_active' => 1,
+			'options' => array(
+				'limit' => '0', // no limit
+			),
+		);
+
+		// get all contact_types
+		$result = civicrm_api( 'ContactType', 'get', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+			$contact_types = $result['values'];
+		}
+
+		// let's get the top level types
+		$top_level = array();
+		foreach( $contact_types AS $contact_type ) {
+			if ( ! isset( $contact_type['parent_id'] ) ) {
+				$top_level[] = $contact_type;
+			}
+		}
+
+		// make a nested array
+		$nested = array();
+		foreach( $top_level AS $item ) {
+			$item['children'] = array();
+			foreach( $contact_types AS $contact_type ) {
+				if ( isset( $contact_type['parent_id'] ) AND $contact_type['parent_id'] == $item['id'] ) {
+					$item['children'][] = $contact_type;
+				}
+			}
+			$nested[] = $item;
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			'nested' => $nested,
+		), true ) );
+		*/
+
+		// --<
+		return $nested;
 
 	}
 

@@ -19,6 +19,15 @@ class CiviCRM_Directory_Metaboxes {
 	public $post_type_name = 'directory';
 
 	/**
+	 * CiviCRM Contact Types meta key.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var str
+	 */
+	public $contact_types_meta_key = 'civicrm_directory_contact_types';
+
+	/**
 	 * CiviCRM Group ID meta key.
 	 *
 	 * @since 0.1
@@ -74,6 +83,16 @@ class CiviCRM_Directory_Metaboxes {
 	 */
 	public function add_meta_boxes() {
 
+		// add our Config meta box
+		add_meta_box(
+			'civicrm_directory_contact_types',
+			__( 'Directory Configuration', 'civicrm-directory' ),
+			array( $this, 'config_metabox' ),
+			$this->post_type_name,
+			'normal', // column: options are 'normal' and 'side'
+			'core' // vertical placement: options are 'core', 'high', 'low'
+		);
+
 		// add our Group ID meta box
 		add_meta_box(
 			'civicrm_directory_group_id',
@@ -83,6 +102,72 @@ class CiviCRM_Directory_Metaboxes {
 			'normal', // column: options are 'normal' and 'side'
 			'core' // vertical placement: options are 'core', 'high', 'low'
 		);
+
+	}
+
+
+
+	/**
+	 * Adds a metabox to CPT edit screens for Configuration.
+	 *
+	 * @since 0.1
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 */
+	public function config_metabox( $post ) {
+
+		// Use nonce for verification
+		wp_nonce_field( 'civicrm_directory_config_box', 'civicrm_directory_config_nonce' );
+
+		// set key
+		$db_key = '_' . $this->contact_types_meta_key;
+
+		// default to empty
+		$contact_types = array();
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post->ID, $db_key, true );
+		if ( ! empty( $existing ) ) {
+			$contact_types = get_post_meta( $post->ID, $db_key, true );
+		}
+
+		///*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'contact_types' => $contact_types,
+		), true ) );
+		//*/
+
+		// get all contact types
+		$all_contact_types = $this->plugin->admin->contact_types_get();
+
+		// instructions
+		echo '<p>' . __( 'Choose the kinds of CiviCRM Contact Types for the Contacts in this Directory. This is useful because if, for example, you know that all of the Contacts in this Directory will be Organisations then it makes searching the Directory more efficient. You can change this setting if you need to.', 'civicrm-directory' ) . '</p>';
+
+		// open a list
+		echo '<ul>';
+
+		// show checkboxes for each contact type
+		foreach( $all_contact_types AS $contact_type ) {
+
+			// is it checked?
+			$checked = '';
+			if ( in_array( $contact_type['id'], $contact_types ) ) {
+				$checked = ' checked="checked"';
+			}
+
+			//  show checkbox
+			echo '<li>' .
+					'<label>' .
+						'<input type="checkbox" name="' . $this->contact_types_meta_key . '[]" value="' . esc_attr( $contact_type['id'] ) . '"' . $checked . '> ' .
+						'<strong>' . esc_html( $contact_type['name'] ) . '</strong>' .
+					'</label>' .
+				 '</li>';
+
+		}
+
+		// close list
+		echo '<ul>';
 
 	}
 
@@ -151,10 +236,37 @@ class CiviCRM_Directory_Metaboxes {
 	 */
 	public function save_post( $post_id, $post ) {
 
-		// we don't use post_id because we're not interested in revisions
+		// if no post, kick out
+		if ( ! $post ) return;
+
+		// is this an auto save routine?
+		if ( defined( 'DOING_AUTOSAVE' ) AND DOING_AUTOSAVE ) return;
+
+		// check permissions
+		if ( ! current_user_can( 'edit_page', $post->ID ) ) return;
+
+		// bail if not our post type
+		if ( $post->post_type != $this->post_type_name ) return;
+
+		// check for revision
+		if ( $post->post_type == 'revision' ) {
+
+			// get parent
+			if ( $post->post_parent != 0 ) {
+				$post_obj = get_post( $post->post_parent );
+			} else {
+				$post_obj = $post;
+			}
+
+		} else {
+			$post_obj = $post;
+		}
 
 		// store our CiviCRM Group ID metadata
-		$this->save_group_id_meta( $post );
+		$this->save_group_id_meta( $post_obj );
+
+		// store our CiviCRM Contact Types metadata
+		$this->save_contact_types_meta( $post_obj );
 
 	}
 
@@ -165,41 +277,13 @@ class CiviCRM_Directory_Metaboxes {
 	 *
 	 * @since 0.1
 	 *
-	 * @param WP_Post $post_obj The object for the post (or revision)
+	 * @param WP_Post $post The object for the post.
 	 */
-	private function save_group_id_meta( $post_obj ) {
-
-		// if no post, kick out
-		if ( ! $post_obj ) return;
+	private function save_group_id_meta( $post ) {
 
 		// authenticate
 		$nonce = isset( $_POST['civicrm_directory_group_id_nonce'] ) ? $_POST['civicrm_directory_group_id_nonce'] : '';
 		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_group_id_box' ) ) return;
-
-		// is this an auto save routine?
-		if ( defined( 'DOING_AUTOSAVE' ) AND DOING_AUTOSAVE ) return;
-
-		// check permissions
-		if ( ! current_user_can( 'edit_page', $post_obj->ID ) ) return;
-
-		// check for revision
-		if ( $post_obj->post_type == 'revision' ) {
-
-			// get parent
-			if ( $post_obj->post_parent != 0 ) {
-				$post = get_post( $post_obj->post_parent );
-			} else {
-				$post = $post_obj;
-			}
-
-		} else {
-			$post = $post_obj;
-		}
-
-		// bail if not our post type
-		if ( $post->post_type != $this->post_type_name ) return;
-
-		// now process metadata
 
 		// define key
 		$db_key = '_' . $this->group_id_meta_key;
@@ -209,6 +293,51 @@ class CiviCRM_Directory_Metaboxes {
 
 		// save for this post
 		$this->_save_meta( $post, $db_key, $value );
+
+	}
+
+
+
+	/**
+	 * When a post is saved, this also saves the Contact Type metadata.
+	 *
+	 * @since 0.1
+	 *
+	 * @param WP_Post $post The object for the post.
+	 */
+	private function save_contact_types_meta( $post ) {
+
+		// authenticate
+		$nonce = isset( $_POST['civicrm_directory_config_nonce'] ) ? $_POST['civicrm_directory_config_nonce'] : '';
+		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_config_box' ) ) return;
+
+		// define key
+		$db_key = '_' . $this->contact_types_meta_key;
+
+		// init as empty
+		$contact_types = array();
+
+		// which post types are we enabling the CiviCRM button on?
+		if (
+			isset( $_POST[$this->contact_types_meta_key] ) AND
+			count( $_POST[$this->contact_types_meta_key] ) > 0
+		) {
+
+			// grab the array
+			$contact_types = $_POST[$this->contact_types_meta_key];
+
+			// sanitise it
+			array_walk(
+				$contact_types,
+				function( &$item ) {
+					$item = absint( trim( $item ) );
+				}
+			);
+
+		}
+
+		// save for this post
+		$this->_save_meta( $post, $db_key, $contact_types );
 
 	}
 
