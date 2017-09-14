@@ -5,6 +5,8 @@
 
 	<?php civicrm_directory_map() ?>
 
+	<?php civicrm_directory_browser() ?>
+
 </div><!-- /.civicrm-directory -->
 
 

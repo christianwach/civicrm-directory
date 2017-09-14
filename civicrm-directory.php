@@ -93,6 +93,15 @@ class CiviCRM_Directory {
 	 */
 	public $map;
 
+	/**
+	 * Browse object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $map The Browse object.
+	 */
+	public $browse;
+
 
 
 	/**
@@ -186,6 +195,9 @@ class CiviCRM_Directory {
 		// load our Map class
 		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-map.php' );
 
+		// load our Browse class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-browse.php' );
+
 	}
 
 
@@ -216,8 +228,9 @@ class CiviCRM_Directory {
 		$this->metaboxes = new CiviCRM_Directory_Metaboxes( $this );
 		$this->metaboxes->register_hooks();
 
+		// these classes need no hooks
 		$this->map = new CiviCRM_Directory_Map( $this );
-		// map class needs no hooks
+		$this->browse = new CiviCRM_Directory_Browse( $this );
 
 		// we're done
 		$done = true;
