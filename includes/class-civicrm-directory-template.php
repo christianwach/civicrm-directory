@@ -94,27 +94,12 @@ class CiviCRM_Directory_Template {
 			return $content;
 		}
 
-		// get stack
-		$stack = $this->template_stack();
-
-		// constuct templates array
-		$templates = array();
-		foreach( $stack As $location ) {
-			$templates[] = trailingslashit( $location ) . 'single-directory.php';
-		}
-
-		// let's look for it
-		$full_path = false;
-		foreach ( $templates AS $template ) {
-			if ( file_exists( $template ) ) {
-				$full_path = $template;
-				break;
-			}
-		}
+		// get template
+		$template = $this->find_file( 'single-directory.php' );
 
 		// buffer the template part
 		ob_start();
-		include( $full_path );
+		include( $template );
 		$content = ob_get_contents();
 		ob_end_clean();
 
@@ -126,12 +111,48 @@ class CiviCRM_Directory_Template {
 
 
 	/**
+	 * Find a template given a relative path.
+	 *
+	 * Example: 'civicrm-directory/directory-search.php'
+	 *
+	 * @since 0.1
+	 *
+	 * @param str $template_path The relative path to the template.
+	 * @return str|bool $full_path The absolute path to the template, or false on failure.
+	 */
+	function find_file( $template_path ) {
+
+		// get stack
+		$stack = $this->template_stack();
+
+		// constuct templates array
+		$templates = array();
+		foreach( $stack As $location ) {
+			$templates[] = trailingslashit( $location ) . $template_path;
+		}
+
+		// let's look for it
+		$full_path = false;
+		foreach ( $templates AS $template ) {
+			if ( file_exists( $template ) ) {
+				$full_path = $template;
+				break;
+			}
+		}
+
+		// --<
+		return $full_path;
+
+	}
+
+
+
+	/**
 	 * Construct template stack.
 	 *
 	 * @since 0.1
 	 *
-	 * @param array $stack The
-	 * @return array $stack
+	 * @return array $stack The stack of locations to look for a template in.
 	 */
 	function template_stack() {
 
