@@ -49,17 +49,58 @@ if ( ! defined( 'CIVICRM_DIRECTORY_PATH' ) ) {
 class CiviCRM_Directory {
 
 	/**
+	 * Admin object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $plugin The Admin object.
+	 */
+	public $admin;
+
+	/**
+	 * Custom Post Type object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $plugin The Custom Post Type object.
+	 */
+	public $cpt;
+
+	/**
+	 * Metaboxes object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $metaboxes The Metaboxes object.
+	 */
+	public $metaboxes;
+
+	/**
+	 * Map object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $map The Map object.
+	 */
+	public $map;
+
+
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 0.1
 	 */
 	public function __construct() {
 
+		// initialise
+		$this->initialise();
+
 		// use translation files
 		add_action( 'plugins_loaded', array( $this, 'enable_translation' ) );
 
-		// register hooks when all plugins are loaded
-		add_action( 'plugins_loaded', array( $this, 'register_civi_hooks' ) );
+		// set up objects when all plugins are loaded
+		add_action( 'plugins_loaded', array( $this, 'setup_objects' ), 20 );
 
 	}
 
@@ -72,7 +113,12 @@ class CiviCRM_Directory {
 	 */
 	public function activate() {
 
-		// nothing
+		// set up objects
+		$this->setup_objects();
+
+		// pass to classes that need activation
+		$this->admin->activate();
+		$this->cpt->activate();
 
 	}
 
@@ -85,7 +131,79 @@ class CiviCRM_Directory {
 	 */
 	public function deactivate() {
 
-		// nothing
+		// pass to classes that need deactivation
+		$this->cpt->deactivate();
+
+	}
+
+
+
+	/**
+	 * Do stuff on plugin init.
+	 *
+	 * @since 0.1
+	 */
+	public function initialise() {
+
+		// include files
+		$this->include_files();
+
+		// add actions and filters
+		$this->register_hooks();
+
+	}
+
+
+
+	/**
+	 * Include files.
+	 *
+	 * @since 0.1
+	 */
+	public function include_files() {
+
+		// load our Admin class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-admin.php' );
+
+		// load our CPT class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-cpt.php' );
+
+		// load our Metaboxes class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-metaboxes.php' );
+
+		// load our Map class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-map.php' );
+
+	}
+
+
+
+	/**
+	 * Set up this plugin's objects.
+	 *
+	 * @since 0.1
+	 */
+	public function setup_objects() {
+
+		// init flag
+		static $done;
+
+		// only do this once
+		if ( isset( $done ) AND $done === true ) return;
+
+		// init objects
+		$this->admin = new CiviCRM_Directory_Admin( $this );
+		$this->admin->register_hooks();
+		$this->cpt = new CiviCRM_Directory_CPT( $this );
+		$this->cpt->register_hooks();
+		$this->metaboxes = new CiviCRM_Directory_Metaboxes( $this );
+		$this->metaboxes->register_hooks();
+
+		// map class needs no hooks
+		$this->map = new CiviCRM_Directory_Map( $this );
+
+		// we're done
+		$done = true;
 
 	}
 
@@ -98,18 +216,11 @@ class CiviCRM_Directory {
 	 */
 	public function enable_translation() {
 
-		// there are no translations as yet, here for completeness
+		// load translations
 		load_plugin_textdomain(
-
-			// unique name
-			'civicrm-directory',
-
-			// deprecated argument
-			false,
-
-			// relative path to directory containing translation files
-			dirname( plugin_basename( __FILE__ ) ) . '/languages/'
-
+			'civicrm-directory', // unique name
+			false, // deprecated argument
+			dirname( plugin_basename( __FILE__ ) ) . '/languages/' // relative path
 		);
 
 	}
@@ -121,11 +232,11 @@ class CiviCRM_Directory {
 
 
 	/**
-	 * Register hooks if CiviCRM is present.
+	 * Register hooks.
 	 *
 	 * @since 0.1
 	 */
-	public function register_civi_hooks() {
+	public function register_hooks() {
 
 		// bail if CiviCRM is not present
 		if ( ! function_exists( 'civi_wp' ) ) return;
@@ -150,6 +261,23 @@ register_deactivation_hook( __FILE__, array( $civicrm_directory, 'deactivate' ) 
 
 // uninstall will use the 'uninstall.php' method when fully built
 // see: http://codex.wordpress.org/Function_Reference/register_uninstall_hook
+
+
+
+/**
+ * Utility to get a reference to this plugin.
+ *
+ * @since 0.1
+ *
+ * @return object $civicrm_directory The plugin reference.
+ */
+function civicrm_directory() {
+
+	// return instance
+	global $civicrm_directory;
+	return $civicrm_directory;
+
+}
 
 
 

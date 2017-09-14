@@ -18,3 +18,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) exit();
 
 
 
+// delete installed flag
+delete_option( 'civicrm_directory_version' );
+
+// delete settings
+delete_option( 'civicrm_directory_settings' );
+
+
+
