@@ -280,7 +280,7 @@ class CiviCRM_Directory_CPT {
 		// constuct templates array
 		$templates = array();
 		foreach( $stack As $location ) {
-			$templates[] = trailingslashit( $location ) . 'directory-index.php';
+			$templates[] = trailingslashit( $location ) . 'single-directory.php';
 		}
 
 		// let's look for it

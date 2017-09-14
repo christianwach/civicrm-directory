@@ -805,15 +805,6 @@ class CiviCRM_Directory_Admin {
 		// get result
 		$result = civicrm_api( 'contact', 'get', $params );
 
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			'backtrace' => $trace,
-		), true ) );
-
 		// override return if we get some
 		if (
 			$result['is_error'] == 0 AND
