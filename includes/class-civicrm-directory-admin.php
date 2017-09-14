@@ -814,13 +814,13 @@ class CiviCRM_Directory_Admin {
 			$contacts = $result['values'];
 		}
 
-		///*
+		/*
 		error_log( print_r( array(
 			'method' => __METHOD__,
 			'params' => $params,
 			'contacts' => $contacts,
 		), true ) );
-		//*/
+		*/
 
 		// --<
 		return $contacts;

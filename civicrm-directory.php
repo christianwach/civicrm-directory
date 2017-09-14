@@ -67,6 +67,15 @@ class CiviCRM_Directory {
 	public $cpt;
 
 	/**
+	 * Template object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $map The Template object.
+	 */
+	public $template;
+
+	/**
 	 * Metaboxes object.
 	 *
 	 * @since 0.1
@@ -169,6 +178,9 @@ class CiviCRM_Directory {
 		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-cpt.php' );
 
 		// load our Metaboxes class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-template.php' );
+
+		// load our Metaboxes class
 		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-metaboxes.php' );
 
 		// load our Map class
@@ -194,13 +206,18 @@ class CiviCRM_Directory {
 		// init objects
 		$this->admin = new CiviCRM_Directory_Admin( $this );
 		$this->admin->register_hooks();
+
 		$this->cpt = new CiviCRM_Directory_CPT( $this );
 		$this->cpt->register_hooks();
+
+		$this->template = new CiviCRM_Directory_Template( $this );
+		$this->template->register_hooks();
+
 		$this->metaboxes = new CiviCRM_Directory_Metaboxes( $this );
 		$this->metaboxes->register_hooks();
 
-		// map class needs no hooks
 		$this->map = new CiviCRM_Directory_Map( $this );
+		// map class needs no hooks
 
 		// we're done
 		$done = true;

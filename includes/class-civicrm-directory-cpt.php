@@ -3,7 +3,7 @@
 /**
  * CiviCRM Directory Custom Post Type Class.
  *
- * A class that encapsulates a Custom Post Types for CiviCRM Directory. This is
+ * A class that encapsulates a Custom Post Type for CiviCRM Directory. This is
  * used to provide multiple Directories per WordPress install, each of which has
  * a unique permalink and ID.
  *
@@ -59,9 +59,6 @@ class CiviCRM_Directory_CPT {
 
 		// make sure our feedback is appropriate
 		add_filter( 'post_updated_messages', array( $this, 'post_type_messages' ) );
-
-		// filter the content
-		add_filter( 'the_content', array( $this, 'directory_render' ) );
 
 	}
 
@@ -251,93 +248,6 @@ class CiviCRM_Directory_CPT {
 
 		// --<
 		return $messages;
-
-	}
-
-
-
-	/**
-	 * Callback filter to display a Directory.
-	 *
-	 * @param str $content The existing content.
-	 * @return str $content The modified content.
-	 */
-	function directory_render( $content ) {
-
-		// only on canonical Directory pages
-		if ( ! is_singular( $this->post_type_name ) ) {
-			return $content;
-		}
-
-		// only for our post type
-		if ( get_post_type( get_the_ID() ) !== $this->post_type_name ) {
-			return $content;
-		}
-
-		// get stack
-		$stack = $this->template_stack();
-
-		// constuct templates array
-		$templates = array();
-		foreach( $stack As $location ) {
-			$templates[] = trailingslashit( $location ) . 'single-directory.php';
-		}
-
-		// let's look for it
-		$full_path = false;
-		foreach ( $templates AS $template ) {
-			if ( file_exists( $template ) ) {
-				$full_path = $template;
-				break;
-			}
-		}
-
-		// buffer the template part
-		ob_start();
-		include( $full_path );
-		$content = ob_get_contents();
-		ob_end_clean();
-
-		// --<
-		return $content;
-
-	}
-
-
-
-	/**
-	 * Construct template stack.
-	 *
-	 * @since 0.1
-	 *
-	 * @param array $stack The
-	 * @return array $stack
-	 */
-	function template_stack() {
-
-		// define paths
-		$template_dir = get_stylesheet_directory();
-		$parent_template_dir = get_template_directory();
-		$plugin_template_directory = CIVICRM_DIRECTORY_PATH . 'assets/templates/theme';
-
-		// construct stack
-		$stack = array( $template_dir, $parent_template_dir, $plugin_template_directory );
-
-		/**
-		 * Allow stack to be filtered.
-		 *
-		 * @since 0.1
-		 *
-		 * @param array $stack The default template stack.
-		 * @return array $stack The filtered template stack.
-		 */
-		$stack = apply_filters( 'civicrm_directory_template_stack', $stack );
-
-		// sanity check
-		$stack = array_unique( $stack );
-
-		// --<
-		return $stack;
 
 	}
 
