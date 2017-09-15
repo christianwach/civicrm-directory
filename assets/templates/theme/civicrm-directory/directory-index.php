@@ -1,4 +1,4 @@
-<!-- assets/templates/theme/directory-index.php -->
+<!-- assets/templates/theme/civicrm-directory/directory-index.php -->
 <div class="civicrm-directory directory-index">
 
 	<p>Hello world</p>

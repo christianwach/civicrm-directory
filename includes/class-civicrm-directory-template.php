@@ -95,7 +95,7 @@ class CiviCRM_Directory_Template {
 		}
 
 		// get template
-		$template = $this->find_file( 'single-directory.php' );
+		$template = $this->find_file( 'civicrm-directory/directory-index.php' );
 
 		// buffer the template part
 		ob_start();
