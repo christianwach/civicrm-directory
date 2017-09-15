@@ -9,7 +9,7 @@
 
 
 /**
- * Create CiviCRM Directory object.
+ * Create CiviCRM Directory Map object.
  *
  * This works as a "namespace" of sorts, allowing us to hang properties, methods
  * and "sub-namespaces" from it.
