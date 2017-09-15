@@ -284,30 +284,40 @@ class CiviCRM_Directory_Browse {
 		// init markup
 		$markup = '<h3>' . __( 'Results' ) . '</h3>';
 
-		// if this is this not the 'ALL' filter and we have results
-		if ( $letter !== 'ALL' AND count( $results ) > 0 ) {
+		// no need for feedback with ALL
+		if ( $letter !== 'ALL'  ) {
 
-			// build listings array
-			$listings = array();
-			foreach( $results AS $contact ) {
-				$listings[] = $this->get_item_markup( $contact );
+			// if we have results
+			if ( count( $results ) > 0 ) {
+
+				// build listings array
+				$listings = array();
+				foreach( $results AS $contact ) {
+					$listings[] = $this->get_item_markup( $contact );
+				}
+
+				// build markup
+				$markup .= '<ul><li>';
+				$markup .= implode( '</li><li>', $listings );
+				$markup .= '</li></ul>';
+
+			} else {
+
+				// contstruct message
+				$message = sprintf(
+					__( 'No results found for %s', 'civicrm-directory' ),
+					$letter
+				);
+
+				// no results markup
+				$markup .= '<p>' . $message . '<p>';
+
 			}
-
-			// build markup
-			$markup .= '<ul><li>';
-			$markup .= implode( '</li><li>', $listings );
-			$markup .= '</li></ul>';
 
 		} else {
 
-			// contstruct message
-			$message = sprintf(
-				__( 'No results found for %s', 'civicrm-directory' ),
-				$letter
-			);
-
-			// no results markup
-			$markup .= '<p>' . $message . '<p>';
+			// ALL results markup
+			$markup .= '<p>' . __( 'Please choose a filter', 'civicrm-directory' ) . '<p>';
 
 		}
 
