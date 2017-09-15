@@ -168,7 +168,7 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 			links.on( 'click', function( event ) {
 
 				// declare vars
-				var letter, data = {};
+				var letter;
 
 				// prevent form submission
 				if ( event.preventDefault ) {
@@ -179,7 +179,6 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 				letter = $(this).html();
 
 				// send
-				console.log( 'letter clicked', letter );
 				me.send( letter );
 
 			});
@@ -195,7 +194,7 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 		 */
 		this.update = function( data ) {
 
-			console.log( 'letter data loaded', data );
+			//console.log( 'letter data loaded', data );
 
 			// broadcast
 			$(document).trigger( 'civicrm-letter-loaded', [ data ] );

@@ -151,6 +151,12 @@ class CiviCRM_Directory_Browse {
 
 		}
 
+			// set href
+			$href = $url . '/?browse=letter&name_id=ALL';
+
+		// add anchor for all letters
+		$letters[] = '<a href="' . esc_url( $href ) . '" class="first-letter-link">' . __( 'ALL', 'civicrm-directory' ) . '</a>';
+
 		// construct character filter
 		$filter = implode( ' ', $letters );
 
@@ -169,10 +175,15 @@ class CiviCRM_Directory_Browse {
 	public function get_data() {
 
 		// get letter
-		$letter = isset( $_POST['first_letter'] ) ? $_POST['first_letter'] : '';
+		$letter = isset( $_POST['first_letter'] ) ? trim( $_POST['first_letter'] ) : '';
 
-		// sanitise
-		$letter = substr( trim( $letter ), 0, 1 );
+		// is this the 'ALL' filter?
+		if ( $letter !== 'ALL' ) {
+
+			// sanitise
+			$letter = substr( $letter, 0, 1 );
+
+		}
 
 		// init data
 		$data = array(
@@ -199,21 +210,83 @@ class CiviCRM_Directory_Browse {
 			$group_id = get_post_meta( $post_id, $db_key, true );
 		}
 
+		// sanity check
+		if ( ! empty( $group_id ) AND $letter !== 'ALL' ) {
+
+			/*
+			 * These queries will be chosen optionally based on the contact types
+			 * that have been enabled for this Directory.
+			 *
+			 * Including them all for now...
+			 */
+
+			// get contacts in this group filtered by first letter
+			$contacts = $plugin->admin->contacts_get_for_group(
+				$group_id,
+				'first_letter',
+				'last_name',
+				$letter
+			);
+
+			// get households in this group filtered by first letter
+			$households = $plugin->admin->contacts_get_for_group(
+				$group_id,
+				'first_letter',
+				'household_name',
+				$letter
+			);
+
+			// get organisations in this group filtered by first letter
+			$organisations = $plugin->admin->contacts_get_for_group(
+				$group_id,
+				'first_letter',
+				'organization_name',
+				$letter
+			);
+
+			// combine the results
+			$results = array_merge( $contacts, $households, $organisations );
+
+		} else {
+
+			// get all contacts in this group
+			$results = $plugin->admin->contacts_get_for_group( $group_id, 'all', '', '' );
+
+		}
+
+		// build locations array
+		$locations = array();
+		foreach( $results AS $contact ) {
+
+			// construct address
+			$address_raw = array();
+			if ( ! empty( $contact['street_address'] ) ) $address_raw[] = $contact['street_address'];
+			if ( ! empty( $contact['city'] ) ) $address_raw[] = $contact['city'];
+			if ( ! empty( $contact['state_province_name'] ) ) $address_raw[] = $contact['state_province_name'];
+			$address = implode( '<br>', $address_raw );
+
+			// add to locations
+			$locations[] = array(
+				'latitude' => $contact['geo_code_1'],
+				'longitude' => $contact['geo_code_2'],
+				'name' => $contact['display_name'],
+				'address' => $address,
+				'permalink' => get_permalink( get_the_ID() ),
+			);
+
+		}
+
+		// add to data array
+		$data['locations'] = $locations;
+
 		/*
 		error_log( print_r( array(
 			'method' => __METHOD__,
 			'POST' => $_POST,
 			'group_id' => $group_id,
+			'data' => $data,
 		), true ) );
 		*/
-
-		// sanity check
-		if ( ! empty( $group_id ) ) {
-
-			// get contacts in this group filtered by first letter
-			$data['contacts'] = $plugin->admin->contacts_get_for_group( $group_id, 'first_letter', $letter );
-
-		}
 
 		// send data to browser
 		$this->send_data( $data );

@@ -172,8 +172,8 @@ function civicrm_directory_map() {
 	// sanity check
 	if ( empty( $group_id ) ) return;
 
-	// get contacts in this group - can be filtered e.g. ( $group_id 'first_letter', 'G')
-	$contacts = $plugin->admin->contacts_get_for_group( $group_id, 'all', '' );
+	// get contacts in this group - can be filtered e.g. ( $group_id 'first_letter', 'organization_name', 'G' )
+	$contacts = $plugin->admin->contacts_get_for_group( $group_id, 'all', '', '' );
 
 	// build locations array
 	$locations = array();

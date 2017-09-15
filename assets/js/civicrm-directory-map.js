@@ -198,7 +198,14 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 			 */
 			$( document ).on( 'civicrm-letter-loaded', function( event, data ) {
 
-				console.log( data );
+				// clear existing markers
+				me.markers_clear();
+
+				// reset markers array
+				me.markers = [];
+
+				// create markers
+				me.markers_create( data.locations );
 
 			});
 
