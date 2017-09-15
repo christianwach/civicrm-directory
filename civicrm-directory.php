@@ -190,25 +190,25 @@ class CiviCRM_Directory {
 	public function include_files() {
 
 		// load our Admin class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-admin.php' );
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-admin.php' );
 
 		// load our CPT class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-cpt.php' );
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-cpt.php' );
 
 		// load our Metaboxes class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-template.php' );
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-template.php' );
 
 		// load our Metaboxes class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-metaboxes.php' );
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-metaboxes.php' );
 
 		// load our Map class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-map.php' );
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-map.php' );
 
 		// load our Browse class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-browse.php' );
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-browse.php' );
 
 		// load our Search class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-search.php' );
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-search.php' );
 
 	}
 
