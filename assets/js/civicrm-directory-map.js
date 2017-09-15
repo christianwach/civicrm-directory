@@ -234,6 +234,25 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 		};
 
 		/**
+		 * Fit map bounds to show all markers.
+		 *
+		 * @since 0.1.1
+		 */
+		this.markers_show_all = function() {
+
+			var bounds = new google.maps.LatLngBounds();
+
+			// calculate bounds
+			for (var i = 0; i < me.markers.length; i++) {
+				bounds.extend( me.markers[i].getPosition() );
+			}
+
+			// show all markers
+			me.map.fitBounds( bounds );
+
+		}
+
+		/**
 		 * Clear markers.
 		 *
 		 * @since 0.1
