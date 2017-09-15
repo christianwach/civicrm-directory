@@ -317,7 +317,7 @@ class CiviCRM_Directory_Browse {
 		} else {
 
 			// ALL results markup
-			$markup .= '<p>' . __( 'Please choose a filter', 'civicrm-directory' ) . '<p>';
+			$markup .= '<p>' . __( 'Please choose a filter.', 'civicrm-directory' ) . '<p>';
 
 		}
 
