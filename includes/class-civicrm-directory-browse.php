@@ -60,13 +60,14 @@ class CiviCRM_Directory_Browse {
 	 */
 	public function insert_markup( $data = array() ) {
 
-		// print markup
-		echo '
-			<section class="browse">
-				<h3>' . __( 'Browse by first letter', 'civicrm-directory' ) . '</h3>
-				<p>' . $this->get_chars() . '</p>
-			</section>
-		';
+		// get chars
+		$first_letters = $this->get_chars();
+
+		// get template
+		$template = $this->plugin->template->find_file( 'civicrm-directory/directory-browse.php' );
+
+		// include the template part
+		include( $template );
 
 		// enqueue Javascript
 		$this->enqueue_script( $data );
