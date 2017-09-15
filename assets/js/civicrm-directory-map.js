@@ -261,6 +261,9 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 		 */
 		this.markers_show_all = function() {
 
+			// bail if no markers
+			if ( me.markers.length == 0 ) return;
+
 			var bounds = new google.maps.LatLngBounds();
 
 			// calculate bounds
