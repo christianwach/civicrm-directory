@@ -200,8 +200,6 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 		 */
 		this.update = function( data ) {
 
-			//console.log( 'letter data loaded', data );
-
 			// broadcast
 			$(document).trigger( 'civicrm-letter-loaded', [ data ] );
 

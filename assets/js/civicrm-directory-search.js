@@ -202,8 +202,6 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 		 */
 		this.update = function( data ) {
 
-			console.log( 'search data loaded', data );
-
 			// broadcast
 			$(document).trigger( 'civicrm-search-loaded', [ data ] );
 
