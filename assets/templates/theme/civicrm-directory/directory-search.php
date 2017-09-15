@@ -11,7 +11,7 @@
 		<input type="submit" id="civicrm_directory_search_submit" value="<?php esc_attr_e( 'Search', 'civicrm-directory' ); ?>">
 	</form>
 
-</section><!-- /.browse -->
+</section><!-- /.search -->
 
 
 
