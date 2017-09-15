@@ -46,7 +46,10 @@ class CiviCRM_Directory_Map {
 	public function insert_map( $data = array() ) {
 
 		// print markup
-		echo '<section class="map"><div id="map-canvas" style="width: 100%; height: 400px;"></div></section>' . "\n\n";
+		echo '<section class="map">
+				<h3>' . __( 'Map', 'civicrm-directory' ) . '</h3>
+				<div id="map-canvas" style="width: 100%; height: 400px;"></div>
+			 </section>' . "\n\n";
 
 		// enqueue Javascript
 		$this->enqueue_script( $data );
