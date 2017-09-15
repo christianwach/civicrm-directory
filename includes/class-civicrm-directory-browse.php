@@ -145,7 +145,10 @@ class CiviCRM_Directory_Browse {
 			$href = $url . '/?browse=letter&name_id=' . $char;
 
 			// maybe set additional class
-			$class = trim( $_GET['name_id'] ) == $char ? ' current' : '';
+			$class = '';
+			if ( isset( $_GET['name_id'] ) ) {
+				if ( trim( $_GET['name_id'] ) == $char ) $class = ' current';
+			}
 
 			// construct anchor and add to letters
 			$letters[] = '<a href="' . esc_url( $href ) . '" class="first-letter-link' . $class . '">' . $char . '</a>';
