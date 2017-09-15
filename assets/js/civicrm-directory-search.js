@@ -202,6 +202,9 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 		 */
 		this.update = function( data ) {
 
+			// replace listings markup
+			$('.civicrm-directory .listing').html( data.listing );
+
 			// broadcast
 			$(document).trigger( 'civicrm-search-loaded', [ data ] );
 

@@ -9,7 +9,7 @@
 
 	<?php civicrm_directory_search(); ?>
 
-	<section class="listing"></section><!-- /.listing -->
+	<?php civicrm_directory_listing(); ?>
 
 </div><!-- /.civicrm-directory -->
 

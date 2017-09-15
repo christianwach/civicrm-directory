@@ -249,6 +249,8 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 
 			}
 
+			//me.markers_show_all();
+
 		};
 
 		/**

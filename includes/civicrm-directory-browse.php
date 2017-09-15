@@ -181,12 +181,9 @@ class CiviCRM_Directory_Browse {
 		// get letter
 		$letter = isset( $_POST['first_letter'] ) ? trim( $_POST['first_letter'] ) : '';
 
-		// is this the 'ALL' filter?
+		// sanitise if this is this not the 'ALL' filter
 		if ( $letter !== 'ALL' ) {
-
-			// sanitise
 			$letter = substr( $letter, 0, 1 );
-
 		}
 
 		// init data
@@ -276,12 +273,46 @@ class CiviCRM_Directory_Browse {
 				'name' => $contact['display_name'],
 				'address' => $address,
 				'permalink' => get_permalink( $post_id ),
+				'list_item' => $this->get_item_markup( $contact ),
 			);
 
 		}
 
 		// add to data array
 		$data['locations'] = $locations;
+
+		// init markup
+		$markup = '<h3>' . __( 'Results' ) . '</h3>';
+
+		// if this is this not the 'ALL' filter and we have results
+		if ( $letter !== 'ALL' AND count( $results ) > 0 ) {
+
+			// build listings array
+			$listings = array();
+			foreach( $results AS $contact ) {
+				$listings[] = $this->get_item_markup( $contact );
+			}
+
+			// build markup
+			$markup .= '<ul><li>';
+			$markup .= implode( '</li><li>', $listings );
+			$markup .= '</li></ul>';
+
+		} else {
+
+			// contstruct message
+			$message = sprintf(
+				__( 'No results found for %s', 'civicrm-directory' ),
+				$letter
+			);
+
+			// no results markup
+			$markup .= '<p>' . $message . '<p>';
+
+		}
+
+		// add to data array
+		$data['listing'] = $markup;
 
 		/*
 		error_log( print_r( array(
@@ -294,6 +325,26 @@ class CiviCRM_Directory_Browse {
 
 		// send data to browser
 		$this->send_data( $data );
+
+	}
+
+
+
+	/**
+	 * Create markup for a listing item.
+	 *
+	 * @since 0.1.1
+	 *
+	 * @param array $contact The contact to create markup for.
+	 * @return str $markup The contact markup.
+	 */
+	public function get_item_markup( $contact ) {
+
+		// build markup
+		$markup = '<a href="#">' . esc_html( $contact['display_name'] ) . '</a>';
+
+		// --<
+		return $markup;
 
 	}
 

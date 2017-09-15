@@ -111,6 +111,31 @@ class CiviCRM_Directory_Template {
 
 
 	/**
+	 * Insert the browse markup.
+	 *
+	 * @since 0.1
+	 *
+	 * @param array $data The configuration data.
+	 */
+	public function insert_markup( $data = array() ) {
+
+		// init listing
+		$listing = '';
+
+		// init feedback
+		$feedback = '';
+
+		// get template
+		$template = $this->find_file( 'civicrm-directory/directory-listing.php' );
+
+		// include the template part
+		include( $template );
+
+	}
+
+
+
+	/**
 	 * Find a template given a relative path.
 	 *
 	 * Example: 'civicrm-directory/directory-search.php'
@@ -185,6 +210,20 @@ class CiviCRM_Directory_Template {
 
 
 } // class CiviCRM_Directory_CPT ends
+
+
+
+/**
+ * Render the listing section for a directory.
+ *
+ * @since 0.1.1
+ */
+function civicrm_directory_listing() {
+
+	// render browse section now
+	civicrm_directory()->template->insert_markup();
+
+}
 
 
 

@@ -226,6 +226,39 @@ class CiviCRM_Directory_Search {
 		// add to data array
 		$data['locations'] = $locations;
 
+		// init markup
+		$markup = '<h3>' . __( 'Results' ) . '</h3>';
+
+		// if we have results
+		if ( count( $results ) > 0 ) {
+
+			// build listings array
+			$listings = array();
+			foreach( $results AS $contact ) {
+				$listings[] = $this->get_item_markup( $contact );
+			}
+
+			// build markup
+			$markup .= '<ul><li>';
+			$markup .= implode( '</li><li>', $listings );
+			$markup .= '</li></ul>';
+
+		} else {
+
+			// contstruct message
+			$message = sprintf(
+				__( 'No results found for "%s"', 'civicrm-directory' ),
+				$search
+			);
+
+			// no results markup
+			$markup .= '<p>' . $message . '</p>';
+
+		}
+
+		// add to data array
+		$data['listing'] = $markup;
+
 		/*
 		error_log( print_r( array(
 			'method' => __METHOD__,
@@ -237,6 +270,26 @@ class CiviCRM_Directory_Search {
 
 		// send data to browser
 		$this->send_data( $data );
+
+	}
+
+
+
+	/**
+	 * Create markup for a listing item.
+	 *
+	 * @since 0.1.1
+	 *
+	 * @param array $contact The contact to create markup for.
+	 * @return str $markup The contact markup.
+	 */
+	public function get_item_markup( $contact ) {
+
+		// build markup
+		$markup = '<a href="#">' . esc_html( $contact['display_name'] ) . '</a>';
+
+		// --<
+		return $markup;
 
 	}
 
