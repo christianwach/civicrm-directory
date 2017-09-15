@@ -271,7 +271,7 @@ class CiviCRM_Directory_Browse {
 				'longitude' => $contact['geo_code_2'],
 				'name' => $contact['display_name'],
 				'address' => $address,
-				'permalink' => get_permalink( get_the_ID() ),
+				'permalink' => get_permalink( $post_id ),
 			);
 
 		}
