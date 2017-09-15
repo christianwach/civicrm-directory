@@ -143,29 +143,8 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 		 */
 		this.dom_ready = function() {
 
-			// set up instance
-			me.setup();
-
 			// enable listeners
 			me.listeners();
-
-		};
-
-		/**
-		 * Set up Progress Bar instance.
-		 *
-		 * @since 0.1.1
-		 */
-		this.setup = function() {
-
-			// assign properties
-			me.bar = $('#progress-bar');
-			me.label = $('#progress-bar .progress-label');
-			me.total = CiviCRM_Directory_Browse.settings.get_setting( 'total_groups' );
-			me.label_init = CiviCRM_Directory_Browse.settings.get_localisation( 'total' );
-			me.label_current = CiviCRM_Directory_Browse.settings.get_localisation( 'current' );
-			me.label_complete = CiviCRM_Directory_Browse.settings.get_localisation( 'complete' );
-			me.label_done = CiviCRM_Directory_Browse.settings.get_localisation( 'done' );
 
 		};
 
@@ -200,15 +179,8 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 				letter = $(this).html();
 
 				// send
-				//me.send( letter );
-
-				console.log( 'letter', letter );
-
-				// add to data
-				data.letter = letter;
-
-				// broadcast
-				$(document).trigger( 'civicrm-letter-loaded', [ data ] );
+				console.log( 'letter clicked', letter );
+				me.send( letter );
 
 			});
 
@@ -223,7 +195,7 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 		 */
 		this.update = function( data ) {
 
-			// console.log( data );
+			console.log( 'letter data loaded', data );
 
 			// broadcast
 			$(document).trigger( 'civicrm-letter-loaded', [ data ] );
@@ -251,7 +223,8 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 					action: 'civicrm_directory_first_letter',
 
 					// data to send
-					first_letter: letter
+					first_letter: letter,
+					post_id: CiviCRM_Directory_Browse.settings.get_setting( 'post_id' )
 
 				},
 

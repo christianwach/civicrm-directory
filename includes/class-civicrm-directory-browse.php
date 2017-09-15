@@ -37,6 +37,21 @@ class CiviCRM_Directory_Browse {
 
 
 	/**
+	 * Register WordPress hooks.
+	 *
+	 * @since 0.1
+	 */
+	public function register_hooks() {
+
+		// add AJAX handlers
+		add_action( 'wp_ajax_civicrm_directory_first_letter', array( $this, 'get_data' ) );
+		add_action( 'wp_ajax_nopriv_civicrm_directory_first_letter', array( $this, 'get_data' ) );
+
+	}
+
+
+
+	/**
 	 * Insert the browse markup.
 	 *
 	 * @since 0.1
@@ -84,6 +99,7 @@ class CiviCRM_Directory_Browse {
 		/// init settings
 		$settings = array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'post_id' => get_the_ID(),
 		);
 
 		// localisation array
@@ -140,6 +156,96 @@ class CiviCRM_Directory_Browse {
 
 		// --<
 		return $filter;
+
+	}
+
+
+
+	/**
+	 * Get the CiviCRM data for the first letter.
+	 *
+	 * @since 0.1.1
+	 */
+	public function get_data() {
+
+		// get letter
+		$letter = isset( $_POST['first_letter'] ) ? $_POST['first_letter'] : '';
+
+		// sanitise
+		$letter = substr( trim( $letter ), 0, 1 );
+
+		// init data
+		$data = array(
+			'letter' => $letter,
+		);
+
+		// get post ID
+		$post_id = isset( $_POST['post_id'] ) ? $_POST['post_id'] : '';
+
+		// sanitise
+		$post_id = absint( trim( $post_id ) );
+
+		$plugin = civicrm_directory();
+
+		// set key
+		$db_key = '_' . $plugin->metaboxes->group_id_meta_key;
+
+		// default to empty
+		$group_id = '';
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$group_id = get_post_meta( $post_id, $db_key, true );
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'POST' => $_POST,
+			'group_id' => $group_id,
+		), true ) );
+		*/
+
+		// sanity check
+		if ( ! empty( $group_id ) ) {
+
+			// get contacts in this group filtered by first letter
+			$data['contacts'] = $plugin->admin->contacts_get_for_group( $group_id, 'first_letter', $letter );
+
+		}
+
+		// send data to browser
+		$this->send_data( $data );
+
+	}
+
+
+
+	/**
+	 * Send JSON data to the browser.
+	 *
+	 * @since 0.2.1
+	 *
+	 * @param array $data The data to send.
+	 */
+	private function send_data( $data ) {
+
+		// is this an AJAX request?
+		if ( defined( 'DOING_AJAX' ) AND DOING_AJAX ) {
+
+			// set reasonable headers
+			header('Content-type: text/plain');
+			header("Cache-Control: no-cache");
+			header("Expires: -1");
+
+			// echo
+			echo json_encode( $data );
+
+			// die
+			exit();
+
+		}
 
 	}
 
