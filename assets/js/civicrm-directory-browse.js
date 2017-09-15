@@ -110,9 +110,6 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 
 	};
 
-	// init settings
-	CiviCRM_Directory_Browse.settings.init();
-
 	/**
 	 * Create Browsing Object.
 	 *

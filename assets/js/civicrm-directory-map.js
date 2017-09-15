@@ -110,9 +110,6 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 
 	};
 
-	// init settings
-	CiviCRM_Directory_Map.settings.init();
-
 	/**
 	 * Create Mapping Object.
 	 *
@@ -363,6 +360,9 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 		};
 
 	};
+
+	// init settings
+	CiviCRM_Directory_Map.settings.init();
 
 	// initialise the map
 	google.maps.event.addDomListener( window, 'load', CiviCRM_Directory_Map.map.init() );
