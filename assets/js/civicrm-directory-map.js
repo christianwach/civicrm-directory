@@ -166,6 +166,45 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 		};
 
 		/**
+		 * Do setup when jQuery reports that the DOM is ready.
+		 *
+		 * This method should only be called once.
+		 *
+		 * @since 0.1.1
+		 */
+		this.dom_ready = function() {
+
+			// enable listeners
+			me.listeners();
+
+		};
+
+		/**
+		 * Initialise listeners.
+		 *
+		 * This method should only be called once.
+		 *
+		 * @since 0.1.1
+		 */
+		this.listeners = function() {
+
+			/**
+			 * Hook into Browse letter loaded trigger.
+			 *
+			 * @since 0.1.1
+			 *
+			 * @param {Object} event The jQuery event object.
+			 * @param {Array} data The data associated with the letter.
+			 */
+			$( document ).on( 'civicrm-letter-loaded', function( event, data ) {
+
+				console.log( data );
+
+			});
+
+		};
+
+		/**
 		 * Create markers.
 		 *
 		 * @since 0.1
@@ -305,4 +344,16 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 } )( jQuery );
 
 
+
+/**
+ * Trigger dom_ready methods where necessary.
+ *
+ * @since 0.1.1
+ */
+jQuery(document).ready(function($) {
+
+	// The DOM is loaded now
+	CiviCRM_Directory_Map.map.dom_ready();
+
+}); // end document.ready()
 

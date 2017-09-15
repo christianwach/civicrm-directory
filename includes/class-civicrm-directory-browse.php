@@ -40,19 +40,64 @@ class CiviCRM_Directory_Browse {
 	 * Insert the browse markup.
 	 *
 	 * @since 0.1
+	 *
+	 * @param array $data The configuration data.
 	 */
-	public function insert_markup() {
+	public function insert_markup( $data = array() ) {
 
-		// construct markup
-		$markup = '
+		// print markup
+		echo '
 			<section class="browse">
-				<h4>' . __( 'Browse by first letter', 'civicrm-directory' ) . '</h4>
-				' . $this->get_chars() . '
+				<h3>' . __( 'Browse by first letter', 'civicrm-directory' ) . '</h3>
+				<p>' . $this->get_chars() . '</p>
 			</section>
 		';
 
-		// print to screen
-		echo $markup;
+		// enqueue Javascript
+		$this->enqueue_script( $data );
+
+	}
+
+
+
+	/**
+	 * Enqueue and configure Javascript.
+	 *
+	 * @since 0.1
+	 *
+	 * @param array $data The configuration data.
+	 */
+	public function enqueue_script( $data ) {
+
+		// enqueue custom javascript
+		wp_enqueue_script(
+			'civicrm-directory-browse-js',
+			CIVICRM_DIRECTORY_URL . 'assets/js/civicrm-directory-browse.js',
+			array( 'jquery' ),
+			CIVICRM_DIRECTORY_VERSION,
+			true // in footer
+		);
+
+		// init localisation
+		$localisation = array();
+
+		/// init settings
+		$settings = array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+		);
+
+		// localisation array
+		$vars = array(
+			'localisation' => $localisation,
+			'settings' => $settings,
+		);
+
+		// localise the WordPress way
+		wp_localize_script(
+			'civicrm-directory-browse-js',
+			'CiviCRM_Directory_Browse_Settings',
+			$vars
+		);
 
 	}
 
@@ -80,13 +125,13 @@ class CiviCRM_Directory_Browse {
 		foreach( $chars AS $char ) {
 
 			// set href
-			$href = $url . '/?filter=name&name_id=' . $char;
+			$href = $url . '/?browse=letter&name_id=' . $char;
 
 			// maybe set additional class
 			$class = trim( $_GET['name_id'] ) == $char ? ' current' : '';
 
 			// construct anchor and add to letters
-			$letters[] = '<a href="' . esc_url( $href ) . '" class="name-link' . $class . '">' . $char . '</a>';
+			$letters[] = '<a href="' . esc_url( $href ) . '" class="first-letter-link' . $class . '">' . $char . '</a>';
 
 		}
 
