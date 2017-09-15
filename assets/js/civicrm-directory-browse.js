@@ -9,7 +9,7 @@
 
 
 /**
- * Create CiviCRM Directory object.
+ * Create CiviCRM Directory Browse object.
  *
  * This works as a "namespace" of sorts, allowing us to hang properties, methods
  * and "sub-namespaces" from it.
@@ -120,6 +120,9 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 		// prevent reference collisions
 		var me = this;
 
+		// init "submission in progress" flag
+		me.submitting = false;
+
 		/**
 		 * Initialise.
 		 *
@@ -172,6 +175,12 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 					event.preventDefault();
 				}
 
+				// bail if a submission is in progress
+				if( me.submitting === true ) return;
+
+				// flag that a submission is in progress
+				me.submitting = true;
+
 				// grab letter
 				letter = $(this).html();
 
@@ -195,6 +204,9 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 
 			// broadcast
 			$(document).trigger( 'civicrm-letter-loaded', [ data ] );
+
+			// flag that a submission is finished
+			me.submitting = false;
 
 		};
 
