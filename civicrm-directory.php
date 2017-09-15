@@ -53,7 +53,7 @@ class CiviCRM_Directory {
 	 *
 	 * @since 0.1
 	 * @access public
-	 * @var object $plugin The Admin object.
+	 * @var object $admin The Admin object.
 	 */
 	public $admin;
 
@@ -62,7 +62,7 @@ class CiviCRM_Directory {
 	 *
 	 * @since 0.1
 	 * @access public
-	 * @var object $plugin The Custom Post Type object.
+	 * @var object $cpt The Custom Post Type object.
 	 */
 	public $cpt;
 
@@ -71,7 +71,7 @@ class CiviCRM_Directory {
 	 *
 	 * @since 0.1
 	 * @access public
-	 * @var object $map The Template object.
+	 * @var object $template The Template object.
 	 */
 	public $template;
 
@@ -98,9 +98,18 @@ class CiviCRM_Directory {
 	 *
 	 * @since 0.1
 	 * @access public
-	 * @var object $map The Browse object.
+	 * @var object $browse The Browse object.
 	 */
 	public $browse;
+
+	/**
+	 * Search object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $search The Search object.
+	 */
+	public $search;
 
 
 
@@ -198,6 +207,9 @@ class CiviCRM_Directory {
 		// load our Browse class
 		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-browse.php' );
 
+		// load our Search class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/class-civicrm-directory-search.php' );
+
 	}
 
 
@@ -233,6 +245,9 @@ class CiviCRM_Directory {
 
 		$this->browse = new CiviCRM_Directory_Browse( $this );
 		$this->browse->register_hooks();
+
+		$this->search = new CiviCRM_Directory_Search( $this );
+		$this->search->register_hooks();
 
 		// we're done
 		$done = true;
