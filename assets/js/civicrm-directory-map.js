@@ -206,6 +206,27 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 
 			});
 
+			/**
+			 * Hook into Search result loaded trigger.
+			 *
+			 * @since 0.1.1
+			 *
+			 * @param {Object} event The jQuery event object.
+			 * @param {Array} data The data associated with the letter.
+			 */
+			$( document ).on( 'civicrm-search-loaded', function( event, data ) {
+
+				// clear existing markers
+				me.markers_clear();
+
+				// reset markers array
+				me.markers = [];
+
+				// create markers
+				me.markers_create( data.locations );
+
+			});
+
 		};
 
 		/**

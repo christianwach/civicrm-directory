@@ -215,7 +215,7 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 		 *
 		 * @since 0.1.1
 		 *
-		 * @param {Integer} first_letter The first letter to filter by.
+		 * @param {Integer} letter The first letter to filter by.
 		 */
 		this.send = function( letter ) {
 
