@@ -60,6 +60,9 @@ class CiviCRM_Directory_Search {
 	 */
 	public function insert_markup( $data = array() ) {
 
+		// get URL to submit to
+		$url = get_permalink( get_the_ID() );
+
 		// get template
 		$template = $this->plugin->template->find_file( 'civicrm-directory/directory-search.php' );
 
