@@ -173,7 +173,7 @@ class CiviCRM_Directory_Search {
 			 */
 
 			// get contacts in this group filtered by name
-			$contacts = $plugin->admin->contacts_get_for_group(
+			$contacts = $plugin->civi->contacts_get_for_group(
 				$group_id,
 				'name',
 				'last_name',
@@ -181,7 +181,7 @@ class CiviCRM_Directory_Search {
 			);
 
 			// get households in this group filtered by name
-			$households = $plugin->admin->contacts_get_for_group(
+			$households = $plugin->civi->contacts_get_for_group(
 				$group_id,
 				'name',
 				'household_name',
@@ -189,7 +189,7 @@ class CiviCRM_Directory_Search {
 			);
 
 			// get organisations in this group filtered by name
-			$organisations = $plugin->admin->contacts_get_for_group(
+			$organisations = $plugin->civi->contacts_get_for_group(
 				$group_id,
 				'name',
 				'organization_name',

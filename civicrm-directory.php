@@ -58,6 +58,15 @@ class CiviCRM_Directory {
 	public $admin;
 
 	/**
+	 * CiviCRM object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $civi The CiviCRM object.
+	 */
+	public $civi;
+
+	/**
 	 * Custom Post Type object.
 	 *
 	 * @since 0.1
@@ -189,6 +198,9 @@ class CiviCRM_Directory {
 	 */
 	public function include_files() {
 
+		// load our CiviCRM class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-civi.php' );
+
 		// load our Admin class
 		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-admin.php' );
 
@@ -230,6 +242,9 @@ class CiviCRM_Directory {
 		// init objects
 		$this->admin = new CiviCRM_Directory_Admin( $this );
 		$this->admin->register_hooks();
+
+		$this->civi = new CiviCRM_Directory_Civi( $this );
+		// CiviCRM class needs no hooks
 
 		$this->cpt = new CiviCRM_Directory_CPT( $this );
 		$this->cpt->register_hooks();

@@ -139,7 +139,7 @@ class CiviCRM_Directory_Metaboxes {
 		*/
 
 		// get all contact types
-		$all_contact_types = $this->plugin->admin->contact_types_get();
+		$all_contact_types = $this->plugin->civi->contact_types_get();
 
 		// instructions
 		echo '<p>' . __( 'Choose the kinds of CiviCRM Contact Types for the Contacts in this Directory. This is useful because if, for example, you know that all of the Contacts in this Directory will be Organisations then it makes searching the Directory more efficient. You can change this setting if you need to.', 'civicrm-directory' ) . '</p>';
@@ -205,7 +205,7 @@ class CiviCRM_Directory_Metaboxes {
 		$options = '<option value=""' . $selected . '>' . __( '- Select a Group -', 'civicrm-directory' ) . '</option>';
 
 		// get CiviCRM groups that could be Directories
-		$groups = $this->plugin->admin->groups_get();
+		$groups = $this->plugin->civi->groups_get();
 
 		// add CiviCRM groups
 		foreach( $groups AS $key => $data ) {

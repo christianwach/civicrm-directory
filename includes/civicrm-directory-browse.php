@@ -222,7 +222,7 @@ class CiviCRM_Directory_Browse {
 			 */
 
 			// get contacts in this group filtered by first letter
-			$contacts = $plugin->admin->contacts_get_for_group(
+			$contacts = $plugin->civi->contacts_get_for_group(
 				$group_id,
 				'first_letter',
 				'last_name',
@@ -230,7 +230,7 @@ class CiviCRM_Directory_Browse {
 			);
 
 			// get households in this group filtered by first letter
-			$households = $plugin->admin->contacts_get_for_group(
+			$households = $plugin->civi->contacts_get_for_group(
 				$group_id,
 				'first_letter',
 				'household_name',
@@ -238,7 +238,7 @@ class CiviCRM_Directory_Browse {
 			);
 
 			// get organisations in this group filtered by first letter
-			$organisations = $plugin->admin->contacts_get_for_group(
+			$organisations = $plugin->civi->contacts_get_for_group(
 				$group_id,
 				'first_letter',
 				'organization_name',
@@ -251,7 +251,7 @@ class CiviCRM_Directory_Browse {
 		} else {
 
 			// get all contacts in this group
-			$results = $plugin->admin->contacts_get_for_group( $group_id, 'all', '', '' );
+			$results = $plugin->civi->contacts_get_for_group( $group_id, 'all', '', '' );
 
 		}
 
