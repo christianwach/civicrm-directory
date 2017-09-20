@@ -18,6 +18,62 @@ class CiviCRM_Directory_Civi {
 	 */
 	public $plugin;
 
+	/**
+	 * Common Contact fields to make available on front end.
+	 *
+	 * @since 0.1.2
+	 * @access public
+	 * @var array $contact_fields_common The common public contact fields.
+	 */
+	public $contact_fields_common = array(
+		'nick_name',
+		'email',
+		'source',
+	);
+
+	/**
+	 * Contact fields to make available on front end.
+	 *
+	 * @since 0.1.2
+	 * @access public
+	 * @var array $contact_fields_individual The public contact fields for Individuals.
+	 */
+	public $contact_fields_individual = array(
+		'prefix_id',
+		'first_name',
+		'last_name',
+		'middle_name',
+		'suffix_id',
+		'job_title',
+		'gender_id',
+		'birth_date',
+		'current_employer',
+	);
+
+	/**
+	 * Contact fields for Organisations to make available on front end.
+	 *
+	 * @since 0.1.2
+	 * @access public
+	 * @var array $contact_fields_organization The public contact fields for Organisations.
+	 */
+	public $contact_fields_organization = array(
+		'legal_name',
+		'organization_name',
+		'sic_code'
+	);
+
+	/**
+	 * Contact fields for Households to make available on front end.
+	 *
+	 * @since 0.1.2
+	 * @access public
+	 * @var array $contact_fields_household The public contact fields for Households.
+	 */
+	public $contact_fields_household = array(
+		'household_name',
+	);
+
 
 
 	/**
@@ -130,18 +186,19 @@ class CiviCRM_Directory_Civi {
 	 * @since 0.1.2
 	 *
 	 * @param array $group_id The numeric ID of the CiviCRM group.
+	 * @param array $types The contact types to query.
 	 * @param str $mode The mode in which to get contacts.
-	 * @param str $query The field to query.
+	 * @param str $field The field to query.
 	 * @param str $query The filter query string.
 	 * @return array $contacts The contacts in the CiviCRM group.
 	 */
-	public function contacts_get_for_group( $group_id, $mode = 'all', $field = '', $query = '' ) {
+	public function contacts_get_for_group( $group_id, $types = array(), $mode = 'all', $field = '', $query = '' ) {
 
 		// init return
 		$contacts = array();
 
 		// try and init CiviCRM
-		if ( ! $this->initialize() ) return $groups;
+		if ( ! $this->initialize() ) return $contacts;
 
 		// get contacts in group
 		$params = array(
@@ -151,6 +208,11 @@ class CiviCRM_Directory_Civi {
 				'limit' => '0', // no limit
 			),
 		);
+
+		// amend params by type
+		if ( ! empty( $types ) ) {
+			$params['contact_type'] = array( 'IN' => $types );
+		}
 
 		// amend params by mode
 		switch( $mode ) {
@@ -317,6 +379,180 @@ class CiviCRM_Directory_Civi {
 
 		// --<
 		return $nested;
+
+	}
+
+
+
+	//##########################################################################
+
+
+
+	/**
+	 * Get the standard fields for a CiviCRM Contact.
+	 *
+	 * @since 0.1.2
+	 *
+	 * @param array $types The field types of fields.
+	 * @param str $filter Token by which to filter the array of fields.
+	 * @return array $fields The array of fields.
+	 */
+	public function contact_fields_get( $types = array( 'Contact' ), $filter = 'none' ) {
+
+		// init return
+		$fields = array();
+
+		// try and init CiviCRM
+		if ( ! $this->initialize() ) return $fields;
+
+		// construct params
+		$params = array(
+			'version' => 3,
+			//'sequential' => 1,
+			//'field_type' => array( 'IN' => $types ),
+			/*
+			'api.UFField.get' => array(
+				'is_active' => 1,
+				'options' => array(
+					'limit' => '0', // no limit
+				),
+			),
+			*/
+			'options' => array(
+				'limit' => '0', // no limit
+			),
+		);
+
+		// hit the API
+		$result = civicrm_api( 'Contact', 'getfields', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+
+			// check for no filter
+			if ( $filter == 'none' ) {
+
+				// grab all of them
+				$fields = $result['values'];
+
+			// check public filter
+			} elseif ( $filter == 'public' ) {
+
+				// check against different field sets per type
+				if ( in_array( 'Individual', $types ) ) {
+					$contact_fields = $this->contact_fields_individual;
+				}
+				if ( in_array( 'Organization', $types ) ) {
+					$contact_fields = $this->contact_fields_organization;
+				}
+				if ( in_array( 'Household', $types ) ) {
+					$contact_fields = $this->contact_fields_household;
+				}
+				$contact_fields = array_merge( $contact_fields, $this->contact_fields_common );
+
+				// skip all but those defined in our contact fields arrays
+				foreach ( $result['values'] as $key => $value ) {
+					if ( in_array( $value['name'], $contact_fields ) ) {
+						$fields[] = $value;
+					}
+				}
+
+			}
+
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			//'result' => $result,
+			'fields' => $fields,
+		), true ) );
+		*/
+
+		// --<
+		return $fields;
+
+	}
+
+
+
+	/**
+	 * Get the custom fields for a CiviCRM Contact.
+	 *
+	 * @since 0.1.2
+	 *
+	 * @param array $types The field types of the fields to retrieve.
+	 * @return array $custom_fields The array of custom fields.
+	 */
+	public function contact_custom_fields_get( $types = array( 'Contact' ) ) {
+
+		// init return
+		$custom_fields = array();
+
+		// try and init CiviCRM
+		if ( ! $this->initialize() ) return $custom_fields;
+
+		/**
+		 * Allow filtering of the contact types.
+		 *
+		 * @since 0.1.2
+		 *
+		 * @param $types The existing contact types.
+		 * @return $types The modified contact types.
+		 */
+		$types = apply_filters( 'civicrm_directory_contact_custom_fields_get_types', $types );
+
+		// construct params
+		$params = array(
+			'version' => 3,
+			'sequential' => 1,
+			'is_active' => 1,
+			'extends' => array( 'IN' => $types ),
+			'api.CustomField.get' => array(
+				'is_active' => 1,
+				'options' => array(
+					'limit' => '0', // no limit
+				),
+			),
+			'options' => array(
+				'limit' => '0', // no limit
+			),
+		);
+
+		// hit the API
+		$result = civicrm_api( 'CustomGroup', 'get', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+
+			foreach( $result['values'] as $key => $value ) {
+				foreach( $value['api.CustomField.get']['values'] as $key => $value ) {
+					$custom_fields['custom_' . $value['id']] = $value['label'];
+				}
+			}
+
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			'custom_fields' => $custom_fields,
+		), true ) );
+		*/
+
+		// --<
+		return $custom_fields;
 
 	}
 

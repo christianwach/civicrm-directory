@@ -143,7 +143,7 @@ class CiviCRM_Directory_Search {
 		);
 
 		// get post ID
-		$post_id = isset( $_POST['post_id'] ) ? $_POST['post_id'] : '';
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : '';
 
 		// sanitise
 		$post_id = absint( trim( $post_id ) );
@@ -165,39 +165,64 @@ class CiviCRM_Directory_Search {
 		// sanity check
 		if ( ! empty( $group_id ) ) {
 
-			/*
-			 * These queries will be chosen optionally based on the contact types
-			 * that have been enabled for this Directory.
-			 *
-			 * Including them all for now...
-			 */
+			// set key
+			$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
 
-			// get contacts in this group filtered by name
-			$contacts = $plugin->civi->contacts_get_for_group(
-				$group_id,
-				'name',
-				'last_name',
-				$search
-			);
+			// default to empty
+			$contact_types = array();
 
-			// get households in this group filtered by name
-			$households = $plugin->civi->contacts_get_for_group(
-				$group_id,
-				'name',
-				'household_name',
-				$search
-			);
+			// get value if the custom field already has one
+			$existing = get_post_meta( $post_id, $db_key, true );
+			if ( false !== $existing ) {
+				$contact_types = get_post_meta( $post_id, $db_key, true );
+			}
 
-			// get organisations in this group filtered by name
-			$organisations = $plugin->civi->contacts_get_for_group(
-				$group_id,
-				'name',
-				'organization_name',
-				$search
-			);
+			// get individuals in this group filtered by first letter
+			$individuals = array();
+			if ( in_array( 'Individual', $contact_types ) ) {
+				$individuals = $plugin->civi->contacts_get_for_group(
+					$group_id,
+					'Individual',
+					'name',
+					'last_name',
+					$search
+				);
+			}
+
+			// get households in this group filtered by first letter
+			$households = array();
+			if ( in_array( 'Household', $contact_types ) ) {
+				$households = $plugin->civi->contacts_get_for_group(
+					$group_id,
+					'Household',
+					'name',
+					'household_name',
+					$search
+				);
+			}
+
+			// get organisations in this group filtered by first letter
+			$organisations = array();
+			if ( in_array( 'Organization', $contact_types ) ) {
+				$organisations = $plugin->civi->contacts_get_for_group(
+					$group_id,
+					'Organization',
+					'name',
+					'organization_name',
+					$search
+				);
+			}
 
 			// combine the results
-			$results = array_merge( $contacts, $households, $organisations );
+			$results = array_merge( $individuals, $households, $organisations );
+
+			/*
+			error_log( print_r( array(
+				'method' => __METHOD__,
+				'contact_types' => $contact_types,
+				'results' => $results,
+			), true ) );
+			*/
 
 		}
 

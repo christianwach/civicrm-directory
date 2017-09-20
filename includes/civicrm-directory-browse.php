@@ -214,39 +214,64 @@ class CiviCRM_Directory_Browse {
 		// sanity check
 		if ( ! empty( $group_id ) AND $letter !== 'ALL' ) {
 
-			/*
-			 * These queries will be chosen optionally based on the contact types
-			 * that have been enabled for this Directory.
-			 *
-			 * Including them all for now...
-			 */
+			// set key
+			$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
 
-			// get contacts in this group filtered by first letter
-			$contacts = $plugin->civi->contacts_get_for_group(
-				$group_id,
-				'first_letter',
-				'last_name',
-				$letter
-			);
+			// default to empty
+			$contact_types = array();
+
+			// get value if the custom field already has one
+			$existing = get_post_meta( $post_id, $db_key, true );
+			if ( false !== $existing ) {
+				$contact_types = get_post_meta( $post_id, $db_key, true );
+			}
+
+			// get individuals in this group filtered by first letter
+			$individuals = array();
+			if ( in_array( 'Individual', $contact_types ) ) {
+				$individuals = $plugin->civi->contacts_get_for_group(
+					$group_id,
+					'Individual',
+					'first_letter',
+					'last_name',
+					$letter
+				);
+			}
 
 			// get households in this group filtered by first letter
-			$households = $plugin->civi->contacts_get_for_group(
-				$group_id,
-				'first_letter',
-				'household_name',
-				$letter
-			);
+			$households = array();
+			if ( in_array( 'Household', $contact_types ) ) {
+				$households = $plugin->civi->contacts_get_for_group(
+					$group_id,
+					'Household',
+					'first_letter',
+					'household_name',
+					$letter
+				);
+			}
 
 			// get organisations in this group filtered by first letter
-			$organisations = $plugin->civi->contacts_get_for_group(
-				$group_id,
-				'first_letter',
-				'organization_name',
-				$letter
-			);
+			$organisations = array();
+			if ( in_array( 'Organization', $contact_types ) ) {
+				$organisations = $plugin->civi->contacts_get_for_group(
+					$group_id,
+					'Organization',
+					'first_letter',
+					'organization_name',
+					$letter
+				);
+			}
 
 			// combine the results
-			$results = array_merge( $contacts, $households, $organisations );
+			$results = array_merge( $individuals, $households, $organisations );
+
+			/*
+			error_log( print_r( array(
+				'method' => __METHOD__,
+				'contact_types' => $contact_types,
+				'results' => $results,
+			), true ) );
+			*/
 
 		} else {
 

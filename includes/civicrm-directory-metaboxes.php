@@ -14,7 +14,7 @@ class CiviCRM_Directory_Metaboxes {
 	 *
 	 * @since 0.1
 	 * @access public
-	 * @var object $cpt The name of the Custom Post Type.
+	 * @var str $post_type_name The name of the Custom Post Type.
 	 */
 	public $post_type_name = 'directory';
 
@@ -23,16 +23,34 @@ class CiviCRM_Directory_Metaboxes {
 	 *
 	 * @since 0.1
 	 * @access public
-	 * @var str
+	 * @var str $contact_types_meta_key The meta key for Contact Types.
 	 */
 	public $contact_types_meta_key = 'civicrm_directory_contact_types';
+
+	/**
+	 * CiviCRM Contact Fields meta key.
+	 *
+	 * @since 0.1.2
+	 * @access public
+	 * @var str $contact_types_meta_key The meta key for Contact Fields.
+	 */
+	public $contact_fields_meta_key = 'civicrm_directory_contact_fields';
+
+	/**
+	 * CiviCRM Contact Custom Fields meta key.
+	 *
+	 * @since 0.1.2
+	 * @access public
+	 * @var str $contact_types_meta_key The meta key for Contact Custom Fields.
+	 */
+	public $contact_custom_fields_meta_key = 'civicrm_directory_contact_custom_fields';
 
 	/**
 	 * CiviCRM Group ID meta key.
 	 *
 	 * @since 0.1
 	 * @access public
-	 * @var str
+	 * @var str $group_id_meta_key The meta key for the Group ID.
 	 */
 	public $group_id_meta_key = 'civicrm_directory_group_id';
 
@@ -116,8 +134,13 @@ class CiviCRM_Directory_Metaboxes {
 	 */
 	public function config_metabox( $post ) {
 
+		// sanity check
+		if ( ! ( $post instanceof WP_Post ) ) return;
+
 		// Use nonce for verification
 		wp_nonce_field( 'civicrm_directory_config_box', 'civicrm_directory_config_nonce' );
+
+		// ---------------------------------------------------------------------
 
 		// set key
 		$db_key = '_' . $this->contact_types_meta_key;
@@ -152,14 +175,14 @@ class CiviCRM_Directory_Metaboxes {
 
 			// is it checked?
 			$checked = '';
-			if ( in_array( $contact_type['id'], $contact_types ) ) {
+			if ( in_array( $contact_type['name'], $contact_types ) ) {
 				$checked = ' checked="checked"';
 			}
 
 			//  show checkbox
 			echo '<li>' .
 					'<label>' .
-						'<input type="checkbox" name="' . $this->contact_types_meta_key . '[]" value="' . esc_attr( $contact_type['id'] ) . '"' . $checked . '> ' .
+						'<input type="checkbox" name="' . $this->contact_types_meta_key . '[]" value="' . esc_attr( $contact_type['name'] ) . '" class="civicrm-directory-types ' . $this->contact_types_meta_key . '-' . esc_attr( $contact_type['name'] ) . '"' . $checked . '> ' .
 						'<strong>' . esc_html( $contact_type['name'] ) . '</strong>' .
 					'</label>' .
 				 '</li>';
@@ -167,7 +190,234 @@ class CiviCRM_Directory_Metaboxes {
 		}
 
 		// close list
+		echo '</ul>';
+
+		// ---------------------------------------------------------------------
+
+		// let's have some style
+		echo '
+			<style type="text/css">
+				.civicrm-directory-fields {
+					display: none;
+					border: 1px solid #ddd;
+					padding: 0 1em;
+					margin-bottom: 1em;
+				}
+			</style>';
+
+		// open div
+		echo '<div class="civicrm-directory-fields civicrm-directory-Individual">';
+
+		// show header
+		echo '<h3>' . __( 'Fields for Individuals', 'civicrm-directory' ) . '</h3>';
+
+		// print Individual fields
+		$this->fields_render( $post, 'Individual' );
+
+		// print Individual custom fields
+		$this->fields_custom_render( $post, 'Individual' );
+
+		// close div
+		echo '</div>';
+
+		// open div
+		echo '<div class="civicrm-directory-fields civicrm-directory-Household">';
+
+		// show header
+		echo '<h3>' . __( 'Fields for Households', 'civicrm-directory' ) . '</h3>';
+
+		// print Household fields
+		$this->fields_render( $post, 'Household' );
+
+		// print Household custom fields
+		$this->fields_custom_render( $post, 'Household' );
+
+		// close div
+		echo '</div>';
+
+		// open div
+		echo '<div class="civicrm-directory-fields civicrm-directory-Organization">';
+
+		// show header
+		echo '<h3>' . __( 'Fields for Organizations', 'civicrm-directory' ) . '</h3>';
+
+		// print Organization fields
+		$this->fields_render( $post, 'Organization' );
+
+		// print Organization custom fields
+		$this->fields_custom_render( $post, 'Organization' );
+
+		// close div
+		echo '</div>';
+
+		// ---------------------------------------------------------------------
+
+		// add our metabox javascript in the footer
+		wp_enqueue_script(
+			'civicrm_directory_config_box_js',
+			CIVICRM_DIRECTORY_URL . '/assets/js/civicrm-directory-config-box.js',
+			array( 'jquery' ),
+			CIVICRM_DIRECTORY_VERSION,
+			true
+		);
+
+		// init localisation
+		$localisation = array(
+		);
+
+		// init settings
+		$settings = array(
+		);
+
+		// localisation array
+		$vars = array(
+			'localisation' => $localisation,
+			'settings' => $settings,
+		);
+
+		// localise
+		wp_localize_script(
+			'civicrm_directory_config_box_js',
+			'CiviCRM_Directory_Config_Box_Settings',
+			$vars
+		);
+
+	}
+
+
+
+	/**
+	 * Renders the field checkboxes for a specified type of Contact.
+	 *
+	 * @since 0.1.2
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param array $types The field types of the fields to retrieve.
+	 * @return bool True if list rendered, false otherwise.
+	 */
+	public function fields_render( $post, $type = 'Individual' ) {
+
+		// set key
+		$db_key = '_' . $this->contact_fields_meta_key;
+
+		// default to empty
+		$contact_fields = array();
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post->ID, $db_key, true );
+		if ( ! empty( $existing ) ) {
+			$contact_fields = get_post_meta( $post->ID, $db_key, true );
+		}
+
+		// init types array
+		$types = array( 'Contact' );
+
+		// add passed in type
+		$types[] = $type;
+
+		// get all public contact fields
+		$all_contact_fields = $this->plugin->civi->contact_fields_get( $types, 'public' );
+
+		// bail if we get none
+		if ( count( $all_contact_fields ) === 0 ) return false;
+
+		// open a list
 		echo '<ul>';
+
+		// show checkboxes for each contact type
+		foreach( $all_contact_fields AS $contact_field ) {
+
+			// is it checked?
+			$checked = '';
+			if ( in_array( $contact_field['name'], $contact_fields ) ) {
+				$checked = ' checked="checked"';
+			}
+
+			//  show checkbox
+			echo '<li>' .
+					'<label>' .
+						'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[]" value="' . esc_attr( $contact_field['name'] ) . '"' . $checked . '> ' .
+						'<strong>' . esc_html( $contact_field['title'] ) . '</strong>' .
+					'</label>' .
+				 '</li>';
+
+		}
+
+		// close list
+		echo '</ul>';
+
+		// --<
+		return true;
+
+	}
+
+
+
+	/**
+	 * Renders the custom field checkboxes for a specified type of Contact.
+	 *
+	 * @since 0.1.2
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param array $types The field types of the fields to retrieve.
+	 * @return bool True if list rendered, false otherwise.
+	 */
+	public function fields_custom_render( $post, $type = 'Individual' ) {
+
+		// set key
+		$db_key = '_' . $this->contact_custom_fields_meta_key;
+
+		// default to empty
+		$contact_custom_fields = array();
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post->ID, $db_key, true );
+		if ( ! empty( $existing ) ) {
+			$contact_custom_fields = get_post_meta( $post->ID, $db_key, true );
+		}
+
+		// init types array
+		$types = array( 'Contact' );
+
+		// add passed in type
+		$types[] = $type;
+
+		// get all contact custom fields
+		$all_contact_custom_fields = $this->plugin->civi->contact_custom_fields_get( $types );
+
+		// bail if we get none
+		if ( count( $all_contact_custom_fields ) === 0 ) return false;
+
+		// sep
+		echo '<hr>';
+
+		// open a list
+		echo '<ul>';
+
+		// show checkboxes for each contact type
+		foreach( $all_contact_custom_fields AS $key => $title ) {
+
+			// is it checked?
+			$checked = '';
+			if ( in_array( $key, $contact_custom_fields ) ) {
+				$checked = ' checked="checked"';
+			}
+
+			//  show checkbox
+			echo '<li>' .
+					'<label>' .
+						'<input type="checkbox" name="' . $this->contact_custom_fields_meta_key . '[]" value="' . esc_attr( $key ) . '"' . $checked . '> ' .
+						'<strong>' . esc_html( $title ) . '</strong>' .
+					'</label>' .
+				 '</li>';
+
+		}
+
+		// close list
+		echo '</ul>';
+
+		// --<
+		return true;
 
 	}
 
@@ -330,7 +580,7 @@ class CiviCRM_Directory_Metaboxes {
 			array_walk(
 				$contact_types,
 				function( &$item ) {
-					$item = absint( trim( $item ) );
+					$item = sanitize_text_field( trim( $item ) );
 				}
 			);
 

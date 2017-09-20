@@ -175,8 +175,23 @@ function civicrm_directory_map() {
 	// sanity check
 	if ( empty( $group_id ) ) return;
 
-	// get contacts in this group - can be filtered e.g. ( $group_id 'first_letter', 'organization_name', 'G' )
-	$contacts = $plugin->civi->contacts_get_for_group( $group_id, 'all', '', '' );
+	// set key
+	$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
+
+	// default to empty
+	$contact_types = array();
+
+	// get value if the custom field already has one
+	$existing = get_post_meta( get_the_ID(), $db_key, true );
+	if ( ! empty( $existing ) ) {
+		$contact_types = get_post_meta( get_the_ID(), $db_key, true );
+	}
+
+	// sanity check
+	if ( empty( $contact_types ) ) return;
+
+	// get contacts in this group
+	$contacts = $plugin->civi->contacts_get_for_group( $group_id, $contact_types, 'all', '', '' );
 
 	// build locations array
 	$locations = array();
