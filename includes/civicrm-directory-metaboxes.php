@@ -145,13 +145,6 @@ class CiviCRM_Directory_Metaboxes {
 			$contact_types = get_post_meta( $post->ID, $db_key, true );
 		}
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'contact_types' => $contact_types,
-		), true ) );
-		*/
-
 		// get all contact types
 		$all_contact_types = $this->plugin->civi->contact_types_get();
 
@@ -638,15 +631,6 @@ class CiviCRM_Directory_Metaboxes {
 			}
 
 		}
-
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'POST' => $_POST,
-			'new_array' => $new_array,
-			//'backtrace' => $trace,
-		), true ) );
 
 		// save for this post
 		$this->_save_meta( $post, $db_key, $new_array );

@@ -265,14 +265,6 @@ class CiviCRM_Directory_Browse {
 			// combine the results
 			$results = array_merge( $individuals, $households, $organisations );
 
-			/*
-			error_log( print_r( array(
-				'method' => __METHOD__,
-				'contact_types' => $contact_types,
-				'results' => $results,
-			), true ) );
-			*/
-
 		} else {
 
 			// get all contacts in this group
@@ -348,15 +340,6 @@ class CiviCRM_Directory_Browse {
 
 		// add to data array
 		$data['listing'] = $markup;
-
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'POST' => $_POST,
-			'group_id' => $group_id,
-			'data' => $data,
-		), true ) );
-		*/
 
 		// send data to browser
 		$this->send_data( $data );

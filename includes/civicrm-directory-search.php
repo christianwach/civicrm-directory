@@ -127,13 +127,6 @@ class CiviCRM_Directory_Search {
 	 */
 	public function get_data() {
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'POST' => $_POST,
-		), true ) );
-		*/
-
 		// get search
 		$search = isset( $_POST['search'] ) ? trim( $_POST['search'] ) : '';
 
@@ -216,14 +209,6 @@ class CiviCRM_Directory_Search {
 			// combine the results
 			$results = array_merge( $individuals, $households, $organisations );
 
-			/*
-			error_log( print_r( array(
-				'method' => __METHOD__,
-				'contact_types' => $contact_types,
-				'results' => $results,
-			), true ) );
-			*/
-
 		}
 
 		// build locations array
@@ -283,15 +268,6 @@ class CiviCRM_Directory_Search {
 
 		// add to data array
 		$data['listing'] = $markup;
-
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'POST' => $_POST,
-			'group_id' => $group_id,
-			'data' => $data,
-		), true ) );
-		*/
 
 		// send data to browser
 		$this->send_data( $data );

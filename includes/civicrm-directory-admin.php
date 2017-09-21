@@ -71,13 +71,6 @@ class CiviCRM_Directory_Admin {
 		// load settings
 		$this->settings = $this->settings_get();
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'settings' => $this->settings,
-		), true ) );
-		*/
-
 	}
 
 
