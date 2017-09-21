@@ -215,7 +215,7 @@ class CiviCRM_Directory_Metaboxes {
 		echo '<h3>' . __( 'Fields for Individuals', 'civicrm-directory' ) . '</h3>';
 
 		// print Individual fields
-		$this->fields_render( $post, $contact_fields, 'Individual' );
+		$this->fields_core_render( $post, $contact_fields, 'Individual' );
 
 		// print Individual custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Individual' );
@@ -230,7 +230,7 @@ class CiviCRM_Directory_Metaboxes {
 		echo '<h3>' . __( 'Fields for Households', 'civicrm-directory' ) . '</h3>';
 
 		// print Household fields
-		$this->fields_render( $post, $contact_fields, 'Household' );
+		$this->fields_core_render( $post, $contact_fields, 'Household' );
 
 		// print Household custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Household' );
@@ -245,7 +245,7 @@ class CiviCRM_Directory_Metaboxes {
 		echo '<h3>' . __( 'Fields for Organizations', 'civicrm-directory' ) . '</h3>';
 
 		// print Organization fields
-		$this->fields_render( $post, $contact_fields, 'Organization' );
+		$this->fields_core_render( $post, $contact_fields, 'Organization' );
 
 		// print Organization custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Organization' );
@@ -352,7 +352,7 @@ class CiviCRM_Directory_Metaboxes {
 	 * @param str $type The contact type for which fields should be retrieved.
 	 * @return bool True if list rendered, false otherwise.
 	 */
-	public function fields_render( $post, $contact_fields = array(), $type = 'Individual' ) {
+	public function fields_core_render( $post, $contact_fields = array(), $type = 'Individual' ) {
 
 		// init types array
 		$types = array( 'Contact' );
