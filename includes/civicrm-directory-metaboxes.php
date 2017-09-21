@@ -287,6 +287,59 @@ class CiviCRM_Directory_Metaboxes {
 
 
 	/**
+	 * Adds a metabox to CPT edit screens for CiviCRM Group ID.
+	 *
+	 * @since 0.1
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 */
+	public function group_id_metabox( $post ) {
+
+		// Use nonce for verification
+		wp_nonce_field( 'civicrm_directory_group_id_box', 'civicrm_directory_group_id_nonce' );
+
+		// set key
+		$db_key = '_' . $this->group_id_meta_key;
+
+		// default to empty
+		$group_id = '';
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post->ID, $db_key, true );
+		if ( false !== $existing ) {
+			$group_id = get_post_meta( $post->ID, $db_key, true );
+		}
+
+		// instructions
+		echo '<p>' . __( 'Choose the CiviCRM Group to which all Contacts for this Directory belong.', 'civicrm-directory' ) . '</p>';
+
+		// start with empty option
+		$selected = empty( $group_id ) ? ' selected="selected"' : '';
+		$options = '<option value=""' . $selected . '>' . __( '- Select a Group -', 'civicrm-directory' ) . '</option>';
+
+		// get CiviCRM groups that could be Directories
+		$groups = $this->plugin->civi->groups_get();
+
+		// add CiviCRM groups
+		foreach( $groups AS $key => $data ) {
+			$selected = ( $key == $group_id ) ? ' selected="selected"' : '';
+			$options .= '<option value="' . esc_attr( $key ) . '"' . $selected . '>' . esc_html( $data['title'] ) . '</option>';
+		}
+
+		// show the dropdown
+		echo '<p><select name="' . $this->group_id_meta_key . '" id="' . $this->group_id_meta_key . '">' .
+				$options .
+			 '</select></p>';
+
+	}
+
+
+
+	// #########################################################################
+
+
+
+	/**
 	 * Renders the field checkboxes for a specified type of Contact.
 	 *
 	 * @since 0.1.2
@@ -418,55 +471,6 @@ class CiviCRM_Directory_Metaboxes {
 
 		// --<
 		return true;
-
-	}
-
-
-
-	/**
-	 * Adds a metabox to CPT edit screens for CiviCRM Group ID.
-	 *
-	 * @since 0.1
-	 *
-	 * @param WP_Post $post The object for the current post/page.
-	 */
-	public function group_id_metabox( $post ) {
-
-		// Use nonce for verification
-		wp_nonce_field( 'civicrm_directory_group_id_box', 'civicrm_directory_group_id_nonce' );
-
-		// set key
-		$db_key = '_' . $this->group_id_meta_key;
-
-		// default to empty
-		$group_id = '';
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post->ID, $db_key, true );
-		if ( false !== $existing ) {
-			$group_id = get_post_meta( $post->ID, $db_key, true );
-		}
-
-		// instructions
-		echo '<p>' . __( 'Choose the CiviCRM Group to which all Contacts for this Directory belong.', 'civicrm-directory' ) . '</p>';
-
-		// start with empty option
-		$selected = empty( $group_id ) ? ' selected="selected"' : '';
-		$options = '<option value=""' . $selected . '>' . __( '- Select a Group -', 'civicrm-directory' ) . '</option>';
-
-		// get CiviCRM groups that could be Directories
-		$groups = $this->plugin->civi->groups_get();
-
-		// add CiviCRM groups
-		foreach( $groups AS $key => $data ) {
-			$selected = ( $key == $group_id ) ? ' selected="selected"' : '';
-			$options .= '<option value="' . esc_attr( $key ) . '"' . $selected . '>' . esc_html( $data['title'] ) . '</option>';
-		}
-
-		// show the dropdown
-		echo '<p><select name="' . $this->group_id_meta_key . '" id="' . $this->group_id_meta_key . '">' .
-				$options .
-			 '</select></p>';
 
 	}
 
