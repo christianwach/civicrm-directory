@@ -37,15 +37,6 @@ class CiviCRM_Directory_Metaboxes {
 	public $contact_fields_meta_key = 'civicrm_directory_contact_fields';
 
 	/**
-	 * CiviCRM Contact Custom Fields meta key.
-	 *
-	 * @since 0.1.2
-	 * @access public
-	 * @var str $contact_types_meta_key The meta key for Contact Custom Fields.
-	 */
-	public $contact_custom_fields_meta_key = 'civicrm_directory_contact_custom_fields';
-
-	/**
 	 * CiviCRM Group ID meta key.
 	 *
 	 * @since 0.1
@@ -194,6 +185,18 @@ class CiviCRM_Directory_Metaboxes {
 
 		// ---------------------------------------------------------------------
 
+		// set key
+		$db_key = '_' . $this->contact_fields_meta_key;
+
+		// default to empty
+		$contact_fields = array();
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post->ID, $db_key, true );
+		if ( ! empty( $existing ) ) {
+			$contact_fields = get_post_meta( $post->ID, $db_key, true );
+		}
+
 		// let's have some style
 		echo '
 			<style type="text/css">
@@ -212,10 +215,10 @@ class CiviCRM_Directory_Metaboxes {
 		echo '<h3>' . __( 'Fields for Individuals', 'civicrm-directory' ) . '</h3>';
 
 		// print Individual fields
-		$this->fields_render( $post, 'Individual' );
+		$this->fields_render( $post, $contact_fields, 'Individual' );
 
 		// print Individual custom fields
-		$this->fields_custom_render( $post, 'Individual' );
+		$this->fields_custom_render( $post, $contact_fields, 'Individual' );
 
 		// close div
 		echo '</div>';
@@ -227,10 +230,10 @@ class CiviCRM_Directory_Metaboxes {
 		echo '<h3>' . __( 'Fields for Households', 'civicrm-directory' ) . '</h3>';
 
 		// print Household fields
-		$this->fields_render( $post, 'Household' );
+		$this->fields_render( $post, $contact_fields, 'Household' );
 
 		// print Household custom fields
-		$this->fields_custom_render( $post, 'Household' );
+		$this->fields_custom_render( $post, $contact_fields, 'Household' );
 
 		// close div
 		echo '</div>';
@@ -242,10 +245,10 @@ class CiviCRM_Directory_Metaboxes {
 		echo '<h3>' . __( 'Fields for Organizations', 'civicrm-directory' ) . '</h3>';
 
 		// print Organization fields
-		$this->fields_render( $post, 'Organization' );
+		$this->fields_render( $post, $contact_fields, 'Organization' );
 
 		// print Organization custom fields
-		$this->fields_custom_render( $post, 'Organization' );
+		$this->fields_custom_render( $post, $contact_fields, 'Organization' );
 
 		// close div
 		echo '</div>';
@@ -345,22 +348,11 @@ class CiviCRM_Directory_Metaboxes {
 	 * @since 0.1.2
 	 *
 	 * @param WP_Post $post The object for the current post/page.
-	 * @param array $types The field types of the fields to retrieve.
+	 * @param array $contact_fields The chosen fields stored in the post meta.
+	 * @param str $type The contact type for which fields should be retrieved.
 	 * @return bool True if list rendered, false otherwise.
 	 */
-	public function fields_render( $post, $type = 'Individual' ) {
-
-		// set key
-		$db_key = '_' . $this->contact_fields_meta_key;
-
-		// default to empty
-		$contact_fields = array();
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post->ID, $db_key, true );
-		if ( ! empty( $existing ) ) {
-			$contact_fields = get_post_meta( $post->ID, $db_key, true );
-		}
+	public function fields_render( $post, $contact_fields = array(), $type = 'Individual' ) {
 
 		// init types array
 		$types = array( 'Contact' );
@@ -382,14 +374,14 @@ class CiviCRM_Directory_Metaboxes {
 
 			// is it checked?
 			$checked = '';
-			if ( in_array( $contact_field['name'], $contact_fields ) ) {
+			if ( in_array( $contact_field['name'], $contact_fields[$type]['core'] ) ) {
 				$checked = ' checked="checked"';
 			}
 
 			//  show checkbox
 			echo '<li>' .
 					'<label>' .
-						'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[]" value="' . esc_attr( $contact_field['name'] ) . '"' . $checked . '> ' .
+						'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][core][]" value="' . esc_attr( $contact_field['name'] ) . '"' . $checked . '> ' .
 						'<strong>' . esc_html( $contact_field['title'] ) . '</strong>' .
 					'</label>' .
 				 '</li>';
@@ -412,22 +404,11 @@ class CiviCRM_Directory_Metaboxes {
 	 * @since 0.1.2
 	 *
 	 * @param WP_Post $post The object for the current post/page.
-	 * @param array $types The field types of the fields to retrieve.
+	 * @param array $contact_fields The chosen fields stored in the post meta.
+	 * @param str $type The contact type for which fields should be retrieved.
 	 * @return bool True if list rendered, false otherwise.
 	 */
-	public function fields_custom_render( $post, $type = 'Individual' ) {
-
-		// set key
-		$db_key = '_' . $this->contact_custom_fields_meta_key;
-
-		// default to empty
-		$contact_custom_fields = array();
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post->ID, $db_key, true );
-		if ( ! empty( $existing ) ) {
-			$contact_custom_fields = get_post_meta( $post->ID, $db_key, true );
-		}
+	public function fields_custom_render( $post, $contact_fields = array(), $type = 'Individual' ) {
 
 		// init types array
 		$types = array( 'Contact' );
@@ -452,14 +433,14 @@ class CiviCRM_Directory_Metaboxes {
 
 			// is it checked?
 			$checked = '';
-			if ( in_array( $key, $contact_custom_fields ) ) {
+			if ( in_array( $key, $contact_fields[$type]['custom'] ) ) {
 				$checked = ' checked="checked"';
 			}
 
 			//  show checkbox
 			echo '<li>' .
 					'<label>' .
-						'<input type="checkbox" name="' . $this->contact_custom_fields_meta_key . '[]" value="' . esc_attr( $key ) . '"' . $checked . '> ' .
+						'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][custom][]" value="' . esc_attr( $key ) . '"' . $checked . '> ' .
 						'<strong>' . esc_html( $title ) . '</strong>' .
 					'</label>' .
 				 '</li>';
@@ -519,8 +500,15 @@ class CiviCRM_Directory_Metaboxes {
 		// store our CiviCRM Group ID metadata
 		$this->save_group_id_meta( $post_obj );
 
+		// authenticate before proceeding
+		$nonce = isset( $_POST['civicrm_directory_config_nonce'] ) ? $_POST['civicrm_directory_config_nonce'] : '';
+		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_config_box' ) ) return;
+
 		// store our CiviCRM Contact Types metadata
 		$this->save_contact_types_meta( $post_obj );
+
+		// store our CiviCRM Contact Fields metadata
+		$this->save_contact_fields_meta( $post_obj );
 
 	}
 
@@ -561,10 +549,6 @@ class CiviCRM_Directory_Metaboxes {
 	 */
 	private function save_contact_types_meta( $post ) {
 
-		// authenticate
-		$nonce = isset( $_POST['civicrm_directory_config_nonce'] ) ? $_POST['civicrm_directory_config_nonce'] : '';
-		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_config_box' ) ) return;
-
 		// define key
 		$db_key = '_' . $this->contact_types_meta_key;
 
@@ -592,6 +576,80 @@ class CiviCRM_Directory_Metaboxes {
 
 		// save for this post
 		$this->_save_meta( $post, $db_key, $contact_types );
+
+	}
+
+
+
+	/**
+	 * When a post is saved, this also saves the Contact Fields metadata.
+	 *
+	 * The array is keyed by Contact Type, then by 'core' and 'custom', e.g.
+	 *
+	 * array(
+	 *     'Individual' => array(
+	 *        'core' => array( 'first_name', 'last_name' ),
+	 *        'custom' => array( 'custom_3', 'custom_4' )
+	 *     ),
+	 *     'Organization' => array(
+	 *         'core' => array( 'organization_name' ),
+	 *         'custom' => array( 'custom_1' )
+	 *     ),
+	 * )
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param WP_Post $post The object for the post.
+	 */
+	private function save_contact_fields_meta( $post ) {
+
+		// define key
+		$db_key = '_' . $this->contact_fields_meta_key;
+
+		// init as empty
+		$contact_fields = array();
+
+		// sanity checks
+		if ( ! isset( $_POST[$this->contact_fields_meta_key] ) ) return;
+		if ( empty( $_POST[$this->contact_fields_meta_key] ) ) return;
+		if ( ! is_array( $_POST[$this->contact_fields_meta_key] ) ) return;
+
+		// grab the array
+		$contact_fields = $_POST[$this->contact_fields_meta_key];
+
+		// sanitise array keys
+		$new_array = array();
+		foreach( $contact_fields AS $key => $sub_array ) {
+			$new_key = ucFirst( sanitize_text_field( trim( $key ) ) );
+			$new_array[$new_key] = $sub_array;
+		}
+
+		// parse nested arrays
+		foreach( $new_array AS $sub_array ) {
+
+			// sanitise sub-array
+			foreach( $sub_array AS $data_array ) {
+				array_walk(
+					$data_array,
+					function( &$item ) {
+						$item = sanitize_text_field( trim( $item ) );
+					}
+				);
+			}
+
+		}
+
+		$e = new Exception;
+		$trace = $e->getTraceAsString();
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'POST' => $_POST,
+			'new_array' => $new_array,
+			//'backtrace' => $trace,
+		), true ) );
+
+		// save for this post
+		$this->_save_meta( $post, $db_key, $new_array );
 
 	}
 
