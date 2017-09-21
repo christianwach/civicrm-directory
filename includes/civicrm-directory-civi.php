@@ -211,7 +211,15 @@ class CiviCRM_Directory_Civi {
 
 		// amend params by type
 		if ( ! empty( $types ) ) {
+
+			// was a string passed?
+			if ( ! is_array( $types ) AND is_string( $types ) ) {
+				$types = array( $types );
+			}
+
+			// add param
 			$params['contact_type'] = array( 'IN' => $types );
+
 		}
 
 		// amend params by mode

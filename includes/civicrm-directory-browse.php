@@ -142,12 +142,12 @@ class CiviCRM_Directory_Browse {
 		foreach( $chars AS $char ) {
 
 			// set href
-			$href = $url . '/?browse=letter&name_id=' . $char;
+			$href = $url . '/?browse=letter&letter=' . $char;
 
 			// maybe set additional class
 			$class = '';
-			if ( isset( $_GET['name_id'] ) ) {
-				if ( trim( $_GET['name_id'] ) == $char ) $class = ' current';
+			if ( isset( $_GET['letter'] ) ) {
+				if ( trim( $_GET['letter'] ) == $char ) $class = ' current';
 			}
 
 			// construct anchor and add to letters
@@ -156,7 +156,7 @@ class CiviCRM_Directory_Browse {
 		}
 
 			// set href
-			$href = $url . '/?browse=letter&name_id=ALL';
+			$href = $url . '/?browse=letter&letter=ALL';
 
 		// add anchor for all letters
 		$letters[] = '<a href="' . esc_url( $href ) . '" class="first-letter-link">' . __( 'ALL', 'civicrm-directory' ) . '</a>';
@@ -211,20 +211,20 @@ class CiviCRM_Directory_Browse {
 			$group_id = get_post_meta( $post_id, $db_key, true );
 		}
 
+		// set key
+		$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
+
+		// default to empty
+		$contact_types = array();
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$contact_types = get_post_meta( $post_id, $db_key, true );
+		}
+
 		// sanity check
 		if ( ! empty( $group_id ) AND $letter !== 'ALL' ) {
-
-			// set key
-			$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
-
-			// default to empty
-			$contact_types = array();
-
-			// get value if the custom field already has one
-			$existing = get_post_meta( $post_id, $db_key, true );
-			if ( false !== $existing ) {
-				$contact_types = get_post_meta( $post_id, $db_key, true );
-			}
 
 			// get individuals in this group filtered by first letter
 			$individuals = array();
@@ -268,7 +268,7 @@ class CiviCRM_Directory_Browse {
 		} else {
 
 			// get all contacts in this group
-			$results = $plugin->civi->contacts_get_for_group( $group_id, 'all', '', '' );
+			$results = $plugin->civi->contacts_get_for_group( $group_id, $contact_types, 'all', '', '' );
 
 		}
 

@@ -211,9 +211,9 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 
 				// show field if checked
 				if ( current_on ) {
-					$('.civicrm-directory-' + type_class).show();
+					$('.civicrm-directory-' + type_class).slideDown();
 				} else {
-					$('.civicrm-directory-' + type_class).hide();
+					$('.civicrm-directory-' + type_class).slideUp();
 				}
 
 			});
