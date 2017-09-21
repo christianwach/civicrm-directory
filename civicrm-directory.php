@@ -4,7 +4,7 @@ Plugin Name: CiviCRM Directory
 Plugin URI: https://github.com/christianwach/civicrm-directory
 Description: Creates a publicly-viewable directory from data submitted to CiviCRM.
 Author: Christian Wach
-Version: 0.1.3
+Version: 0.2
 Author URI: http://haystack.co.uk
 Text Domain: civicrm-directory
 Domain Path: /languages
@@ -15,7 +15,7 @@ Depends: CiviCRM
 
 
 // set our version here
-define( 'CIVICRM_DIRECTORY_VERSION', '0.1.3' );
+define( 'CIVICRM_DIRECTORY_VERSION', '0.2' );
 
 // trigger logging of 'civicrm_pre' and 'civicrm_post'
 if ( ! defined( 'CIVICRM_DIRECTORY_DEBUG' ) ) {
