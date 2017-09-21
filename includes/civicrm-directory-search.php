@@ -47,6 +47,104 @@ class CiviCRM_Directory_Search {
 		add_action( 'wp_ajax_civicrm_directory_search', array( $this, 'get_data' ) );
 		add_action( 'wp_ajax_nopriv_civicrm_directory_search', array( $this, 'get_data' ) );
 
+		// look for GET variable
+		add_action( 'init', array( $this, 'search_query_exists' ) );
+
+	}
+
+
+
+	/**
+	 * Test for search query.
+	 *
+	 * @since 0.1.3
+	 */
+	public function search_query_exists() {
+
+		// bail if not set
+		if ( ! isset( $_GET['civicrm_directory_search_string'] ) ) return;
+
+		// sanitize search query
+		$search = sanitize_text_field( trim( $_GET['civicrm_directory_search_string'] ) );
+
+		// bail if empty
+		if ( empty( $search ) ) return;
+
+		// override the initial map query
+		add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
+
+		// give the listings some initial content
+		add_filter( 'civicrm_directory_listing_markup', array( $this, 'listing_markup' ) );
+
+	}
+
+
+
+	/**
+	 * Override the initial map query.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param array $contacts The contacts retrieved from CiviCRM.
+	 * @return array $contacts The modified contacts retrieved from CiviCRM.
+	 */
+	public function map_query_filter( $contacts ) {
+
+		// sanitize search query
+		$search = sanitize_text_field( trim( $_GET['civicrm_directory_search_string'] ) );
+
+		// do query if it hasn't already been done
+		if ( ! isset( $this->results ) ) {
+			$this->results = $this->get_results( get_the_ID(), $search );
+		}
+
+		// override if there are some results
+		if ( ! empty( $this->results ) ) {
+			$contacts = $this->results;
+		}
+
+		// --<
+		return $contacts;
+
+	}
+
+
+
+	/**
+	 * Create the listing markup.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param array $data The configuration data.
+	 * @return array $data The configuration data.
+	 */
+	public function listing_markup( $data = array() ) {
+
+		// sanitize search query
+		$search = sanitize_text_field( trim( $_GET['civicrm_directory_search_string'] ) );
+
+		// do query if it hasn't already been done
+		if ( ! isset( $this->results ) ) {
+			$this->results = $this->get_results( get_the_ID(), $search );
+		}
+
+		// create markup if there are some results
+		if ( ! empty( $this->results ) ) {
+
+			// init markup
+			$markup = '<h3>' . __( 'Results', 'civicrm-directory' ) . '</h3>';
+
+			// add listing
+			$markup .= $this->get_listing_markup( $this->results );
+
+			// add to array
+			$data['listing'] = $markup;
+
+		}
+
+		// --<
+		return $data;
+
 	}
 
 
@@ -135,81 +233,11 @@ class CiviCRM_Directory_Search {
 			'search' => $search,
 		);
 
-		// get post ID
-		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : '';
+		// get sanitised post ID
+		$post_id = isset( $_POST['post_id'] ) ? absint( trim( $_POST['post_id'] ) ) : '';
 
-		// sanitise
-		$post_id = absint( trim( $post_id ) );
-
-		$plugin = civicrm_directory();
-
-		// set key
-		$db_key = '_' . $plugin->metaboxes->group_id_meta_key;
-
-		// default to empty
-		$group_id = '';
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post_id, $db_key, true );
-		if ( false !== $existing ) {
-			$group_id = get_post_meta( $post_id, $db_key, true );
-		}
-
-		// sanity check
-		if ( ! empty( $group_id ) ) {
-
-			// set key
-			$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
-
-			// default to empty
-			$contact_types = array();
-
-			// get value if the custom field already has one
-			$existing = get_post_meta( $post_id, $db_key, true );
-			if ( false !== $existing ) {
-				$contact_types = get_post_meta( $post_id, $db_key, true );
-			}
-
-			// get individuals in this group filtered by first letter
-			$individuals = array();
-			if ( in_array( 'Individual', $contact_types ) ) {
-				$individuals = $plugin->civi->contacts_get_for_group(
-					$group_id,
-					'Individual',
-					'name',
-					'last_name',
-					$search
-				);
-			}
-
-			// get households in this group filtered by first letter
-			$households = array();
-			if ( in_array( 'Household', $contact_types ) ) {
-				$households = $plugin->civi->contacts_get_for_group(
-					$group_id,
-					'Household',
-					'name',
-					'household_name',
-					$search
-				);
-			}
-
-			// get organisations in this group filtered by first letter
-			$organisations = array();
-			if ( in_array( 'Organization', $contact_types ) ) {
-				$organisations = $plugin->civi->contacts_get_for_group(
-					$group_id,
-					'Organization',
-					'name',
-					'organization_name',
-					$search
-				);
-			}
-
-			// combine the results
-			$results = array_merge( $individuals, $households, $organisations );
-
-		}
+		// do query
+		$results = $this->get_results( $post_id, $search );
 
 		// build locations array
 		$locations = array();
@@ -237,7 +265,131 @@ class CiviCRM_Directory_Search {
 		$data['locations'] = $locations;
 
 		// init markup
-		$markup = '<h3>' . __( 'Results' ) . '</h3>';
+		$markup = '';
+
+		// init markup
+		if ( ! empty( $search ) ) {
+
+			// add heading
+			$markup = '<h3>' . __( 'Results', 'civicrm-directory' ) . '</h3>';
+
+			// add listing
+			$markup .= $this->get_listing_markup( $results );
+
+		}
+
+		// add to data array
+		$data['listing'] = $markup;
+
+		// send data to browser
+		$this->send_data( $data );
+
+	}
+
+
+
+	/**
+	 * Get the CiviCRM data for the search string.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param str $search The search string.
+	 * @return array $results The array of contact data.
+	 */
+	public function get_results( $post_id, $search ) {
+
+		// init return
+		$results = array();
+
+		// get plugin reference
+		$plugin = civicrm_directory();
+
+		// set key
+		$db_key = '_' . $plugin->metaboxes->group_id_meta_key;
+
+		// default to empty
+		$group_id = '';
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$group_id = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// sanity check
+		if ( empty( $group_id ) ) return $results;
+
+		// set key
+		$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
+
+		// default to empty
+		$contact_types = array();
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$contact_types = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// get individuals in this group filtered by first letter
+		$individuals = array();
+		if ( in_array( 'Individual', $contact_types ) ) {
+			$individuals = $plugin->civi->contacts_get_for_group(
+				$group_id,
+				'Individual',
+				'name',
+				'last_name',
+				$search
+			);
+		}
+
+		// get households in this group filtered by first letter
+		$households = array();
+		if ( in_array( 'Household', $contact_types ) ) {
+			$households = $plugin->civi->contacts_get_for_group(
+				$group_id,
+				'Household',
+				'name',
+				'household_name',
+				$search
+			);
+		}
+
+		// get organisations in this group filtered by first letter
+		$organisations = array();
+		if ( in_array( 'Organization', $contact_types ) ) {
+			$organisations = $plugin->civi->contacts_get_for_group(
+				$group_id,
+				'Organization',
+				'name',
+				'organization_name',
+				$search
+			);
+		}
+
+		// combine the results
+		$results = array_merge( $individuals, $households, $organisations );
+
+		// --<
+		return $results;
+
+	}
+
+
+
+	/**
+	 * Get the listing markup for the given results.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param array $results The array of contact data.
+	 * @return str $markup The listing markup.
+	 */
+	public function get_listing_markup( $results ) {
+
+		// init return
+		$markup = '';
 
 		// if we have results
 		if ( count( $results ) > 0 ) {
@@ -266,11 +418,8 @@ class CiviCRM_Directory_Search {
 
 		}
 
-		// add to data array
-		$data['listing'] = $markup;
-
-		// send data to browser
-		$this->send_data( $data );
+		// --<
+		return $markup;
 
 	}
 

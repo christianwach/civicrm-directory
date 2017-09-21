@@ -47,7 +47,112 @@ class CiviCRM_Directory_Browse {
 		add_action( 'wp_ajax_civicrm_directory_first_letter', array( $this, 'get_data' ) );
 		add_action( 'wp_ajax_nopriv_civicrm_directory_first_letter', array( $this, 'get_data' ) );
 
+		// look for GET variable
+		add_action( 'init', array( $this, 'browse_query_exists' ) );
+
 	}
+
+
+
+	//##########################################################################
+
+
+
+	/**
+	 * Test for browse query.
+	 *
+	 * @since 0.1.3
+	 */
+	public function browse_query_exists() {
+
+		// bail if not set
+		if ( ! isset( $_GET['civicrm_directory_first_letter'] ) ) return;
+
+		// override the initial map query
+		add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
+
+		// give the listings some initial content
+		add_filter( 'civicrm_directory_listing_markup', array( $this, 'listing_markup' ) );
+
+	}
+
+
+
+	/**
+	 * Override the initial map query.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param array $contacts The contacts retrieved from CiviCRM.
+	 * @return array $contacts The modified contacts retrieved from CiviCRM.
+	 */
+	public function map_query_filter( $contacts ) {
+
+		// sanitize browse query
+		$letter = sanitize_text_field( trim( $_GET['civicrm_directory_first_letter'] ) );
+
+		// do query if it hasn't already been done
+		if ( ! isset( $this->results ) ) {
+			$this->results = $this->get_results( get_the_ID(), $letter );
+		}
+
+		// override if there are some results
+		if ( ! empty( $this->results ) ) {
+			$contacts = $this->results;
+		}
+
+		// --<
+		return $contacts;
+
+	}
+
+
+
+	/**
+	 * Create the listing markup.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param array $data The configuration data.
+	 * @return array $data The configuration data.
+	 */
+	public function listing_markup( $data = array() ) {
+
+		// sanitize browse query
+		$letter = sanitize_text_field( trim( $_GET['civicrm_directory_first_letter'] ) );
+
+		// do query if it hasn't already been done
+		if ( ! isset( $this->results ) ) {
+			$this->results = $this->get_results( get_the_ID(), $letter );
+		}
+
+		// create markup if there are some results
+		if ( ! empty( $this->results ) ) {
+
+			// init markup
+			$markup = '';
+
+			// if not 'ALL' then show a heading
+			if ( $letter !== 'ALL'  ) {
+				$markup .= '<h3>' . __( 'Results', 'civicrm-directory' ) . '</h3>';
+			}
+
+			// add listing
+			$markup .= $this->get_listing_markup( $this->results, $letter );
+
+			// add to array
+			$data['listing'] = $markup;
+
+		}
+
+		// --<
+		return $data;
+
+	}
+
+
+
+	//##########################################################################
 
 
 
@@ -142,7 +247,7 @@ class CiviCRM_Directory_Browse {
 		foreach( $chars AS $char ) {
 
 			// set href
-			$href = $url . '/?browse=letter&letter=' . $char;
+			$href = $url . '/?civicrm_directory_first_letter=' . $char;
 
 			// maybe set additional class
 			$class = '';
@@ -155,8 +260,8 @@ class CiviCRM_Directory_Browse {
 
 		}
 
-			// set href
-			$href = $url . '/?browse=letter&letter=ALL';
+		// set href for 'ALL'
+		$href = $url;
 
 		// add anchor for all letters
 		$letters[] = '<a href="' . esc_url( $href ) . '" class="first-letter-link">' . __( 'ALL', 'civicrm-directory' ) . '</a>';
@@ -191,12 +296,74 @@ class CiviCRM_Directory_Browse {
 			'letter' => $letter,
 		);
 
-		// get post ID
-		$post_id = isset( $_POST['post_id'] ) ? $_POST['post_id'] : '';
+		// get sanitised post ID
+		$post_id = isset( $_POST['post_id'] ) ? absint( trim( $_POST['post_id'] ) ) : '';
 
-		// sanitise
-		$post_id = absint( trim( $post_id ) );
+		// do query
+		$results = $this->get_results( $post_id, $letter );
 
+		// build locations array
+		$locations = array();
+		foreach( $results AS $contact ) {
+
+			// construct address
+			$address_raw = array();
+			if ( ! empty( $contact['street_address'] ) ) $address_raw[] = $contact['street_address'];
+			if ( ! empty( $contact['city'] ) ) $address_raw[] = $contact['city'];
+			if ( ! empty( $contact['state_province_name'] ) ) $address_raw[] = $contact['state_province_name'];
+			$address = implode( '<br>', $address_raw );
+
+			// add to locations
+			$locations[] = array(
+				'latitude' => $contact['geo_code_1'],
+				'longitude' => $contact['geo_code_2'],
+				'name' => $contact['display_name'],
+				'address' => $address,
+				'permalink' => get_permalink( $post_id ),
+				'list_item' => $this->get_item_markup( $contact ),
+			);
+
+		}
+
+		// add to data array
+		$data['locations'] = $locations;
+
+		// init markup
+		$markup = '';
+
+		// if not 'ALL' then show a heading
+		if ( $letter !== 'ALL'  ) {
+			$markup .= '<h3>' . __( 'Results', 'civicrm-directory' ) . '</h3>';
+		}
+
+		// get listing markup
+		$markup .= $this->get_listing_markup( $results, $letter );
+
+		// add to data array
+		$data['listing'] = $markup;
+
+		// send data to browser
+		$this->send_data( $data );
+
+	}
+
+
+
+	/**
+	 * Get the CiviCRM data for the browse string.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param str $letter The letter searched for.
+	 * @return array $results The array of contact data.
+	 */
+	public function get_results( $post_id, $letter ) {
+
+		// init return
+		$results = array();
+
+		// get plugin reference
 		$plugin = civicrm_directory();
 
 		// set key
@@ -211,6 +378,9 @@ class CiviCRM_Directory_Browse {
 			$group_id = get_post_meta( $post_id, $db_key, true );
 		}
 
+		// sanity check
+		if ( empty( $group_id ) ) return $results;
+
 		// set key
 		$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
 
@@ -224,7 +394,7 @@ class CiviCRM_Directory_Browse {
 		}
 
 		// sanity check
-		if ( ! empty( $group_id ) AND $letter !== 'ALL' ) {
+		if ( $letter !== 'ALL' ) {
 
 			// get individuals in this group filtered by first letter
 			$individuals = array();
@@ -272,34 +442,26 @@ class CiviCRM_Directory_Browse {
 
 		}
 
-		// build locations array
-		$locations = array();
-		foreach( $results AS $contact ) {
+		// --<
+		return $results;
 
-			// construct address
-			$address_raw = array();
-			if ( ! empty( $contact['street_address'] ) ) $address_raw[] = $contact['street_address'];
-			if ( ! empty( $contact['city'] ) ) $address_raw[] = $contact['city'];
-			if ( ! empty( $contact['state_province_name'] ) ) $address_raw[] = $contact['state_province_name'];
-			$address = implode( '<br>', $address_raw );
+	}
 
-			// add to locations
-			$locations[] = array(
-				'latitude' => $contact['geo_code_1'],
-				'longitude' => $contact['geo_code_2'],
-				'name' => $contact['display_name'],
-				'address' => $address,
-				'permalink' => get_permalink( $post_id ),
-				'list_item' => $this->get_item_markup( $contact ),
-			);
 
-		}
 
-		// add to data array
-		$data['locations'] = $locations;
+	/**
+	 * Get the listing markup for the given results.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param array $results The array of contact data.
+	 * @param str $letter The letter that was filtered by.
+	 * @return str $markup The listing markup.
+	 */
+	public function get_listing_markup( $results, $letter = 'ALL' ) {
 
-		// init markup
-		$markup = '<h3>' . __( 'Results' ) . '</h3>';
+		// init return
+		$markup = '';
 
 		// no need for feedback with ALL
 		if ( $letter !== 'ALL'  ) {
@@ -331,18 +493,10 @@ class CiviCRM_Directory_Browse {
 
 			}
 
-		} else {
-
-			// ALL results markup
-			$markup .= '<p>' . __( 'Please choose a filter.', 'civicrm-directory' ) . '<p>';
-
 		}
 
-		// add to data array
-		$data['listing'] = $markup;
-
-		// send data to browser
-		$this->send_data( $data );
+		// --<
+		return $markup;
 
 	}
 

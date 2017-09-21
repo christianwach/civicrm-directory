@@ -193,6 +193,16 @@ function civicrm_directory_map() {
 	// get contacts in this group
 	$contacts = $plugin->civi->contacts_get_for_group( $group_id, $contact_types, 'all', '', '' );
 
+	/**
+	 * Allow contacts to be filtered.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param array $contacts The unfiltered array of contacts.
+	 * @return array $contacts The filtered array of contacts.
+	 */
+	$contacts = apply_filters( 'civicrm_directory_map_contacts', $contacts );
+
 	// build locations array
 	$locations = array();
 	foreach( $contacts AS $contact ) {

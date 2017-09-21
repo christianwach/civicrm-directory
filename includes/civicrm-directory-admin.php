@@ -122,8 +122,8 @@ class CiviCRM_Directory_Admin {
 
 		// add the General Settings page to the Settings menu
 		$this->parent_page = add_options_page(
-			__( 'CiviCRM Directory: General Settings', 'civicrm-wp-member-sync' ), // page title
-			__( 'CiviCRM Directory', 'civicrm-wp-member-sync' ), // menu title
+			__( 'CiviCRM Directory: General Settings', 'civicrm-directory' ), // page title
+			__( 'CiviCRM Directory', 'civicrm-directory' ), // menu title
 			'manage_options', // required caps
 			'civicrm_directory_parent', // slug name
 			array( $this, 'page_settings_general' ) // callback
@@ -132,7 +132,7 @@ class CiviCRM_Directory_Admin {
 		// add General Settings page
 		$this->settings_general_page = add_submenu_page(
 			'civicrm_directory_parent', // parent slug
-			__( 'CiviCRM Directory: General Settings', 'civicrm-wp-member-sync' ), // page title
+			__( 'CiviCRM Directory: General Settings', 'civicrm-directory' ), // page title
 			__( 'General Settings', 'civicrm-directory' ), // menu title
 			'manage_options', // required caps
 			'civicrm_directory_settings_general', // slug name
@@ -157,7 +157,7 @@ class CiviCRM_Directory_Admin {
 		// add Mapping Settings page
 		$this->settings_mapping_page = add_submenu_page(
 			'civicrm_directory_parent', // parent slug
-			__( 'CiviCRM Directory: Mapping Settings', 'civicrm-wp-member-sync' ), // page title
+			__( 'CiviCRM Directory: Mapping Settings', 'civicrm-directory' ), // page title
 			__( 'Mapping Settings', 'civicrm-directory' ), // menu title
 			'manage_options', // required caps
 			'civicrm_directory_settings_mapping', // slug name

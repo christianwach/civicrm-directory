@@ -232,6 +232,23 @@ class CiviCRM_Directory_Civi {
 				break;
 		}
 
+		/**
+		 * Filter the params before hitting the API.
+		 *
+		 * @since 0.1.3
+		 *
+		 * @param array $params The existing CiviCRM API params.
+		 * @param array $group_id The numeric ID of the CiviCRM group.
+		 * @param array $types The contact types to query.
+		 * @param str $mode The mode in which to get contacts.
+		 * @param str $field The field to query.
+		 * @param str $query The filter query string.
+		 * @return array $params The modified CiviCRM API params.
+		 */
+		$params = apply_filters( 'civicrm_directory_contacts_get_for_group_params',
+			$params, $group_id, $types, $mode, $field, $query
+		);
+
 		// get result
 		$result = civicrm_api( 'contact', 'get', $params );
 
@@ -251,6 +268,23 @@ class CiviCRM_Directory_Civi {
 			'contacts' => $contacts,
 		), true ) );
 		*/
+
+		/**
+		 * Filter the returned contacts.
+		 *
+		 * @since 0.1.3
+		 *
+		 * @param array $contacts The contacts retrieved from CiviCRM.
+		 * @param array $group_id The numeric ID of the CiviCRM group.
+		 * @param array $types The contact types to query.
+		 * @param str $mode The mode in which to get contacts.
+		 * @param str $field The field to query.
+		 * @param str $query The filter query string.
+		 * @return array $contacts The modified contacts retrieved from CiviCRM.
+		 */
+		$contacts = apply_filters( 'civicrm_directory_contacts_get_for_group',
+			$contacts, $group_id, $types, $mode, $field, $query
+		);
 
 		// --<
 		return $contacts;

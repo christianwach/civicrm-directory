@@ -181,7 +181,7 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 				me.submitting = true;
 
 				// find search string
-				search = me.form.find( '#civicrm_directory_search_name' ).val();
+				search = me.form.find( '#civicrm_directory_search_string' ).val();
 
 				// send AJAX request
 				me.send( search );

@@ -111,7 +111,7 @@ class CiviCRM_Directory_Template {
 
 
 	/**
-	 * Insert the browse markup.
+	 * Insert the listing markup.
 	 *
 	 * @since 0.1
 	 *
@@ -119,11 +119,19 @@ class CiviCRM_Directory_Template {
 	 */
 	public function insert_markup( $data = array() ) {
 
-		// init listing
-		$listing = '';
+		/**
+		 * Data can be amended (or created) by callbacks for this filter.
+		 *
+		 * @since 0.1.3
+		 *
+		 * @param array $data The existing template data.
+		 * @return array $data The modified template data.
+		 */
+		$data = apply_filters( 'civicrm_directory_listing_markup', $data );
 
-		// init feedback
-		$feedback = '';
+		// init template vars
+		$listing = isset( $data['listing'] ) ? $data['listing'] : '';
+		$feedback = isset( $data['feedback'] ) ? $data['feedback'] : '';
 
 		// get template
 		$template = $this->find_file( 'civicrm-directory/directory-listing.php' );
