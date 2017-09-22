@@ -213,6 +213,17 @@ class CiviCRM_Directory_Metaboxes {
 		// print Individual custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Individual' );
 
+		/**
+		 * Allow further fields to be injected.
+		 *
+		 * @since 0.2
+		 *
+		 * @param WP_Post $post The object for the current post/page.
+		 * @param array $contact_fields The chosen fields stored in the post meta.
+		 * @param str $type The contact type for which fields should be retrieved.
+		 */
+		do_action( 'config_metabox_fields', $post, $contact_fields, 'Individual' );
+
 		// close div
 		echo '</div>';
 
@@ -228,6 +239,17 @@ class CiviCRM_Directory_Metaboxes {
 		// print Household custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Household' );
 
+		/**
+		 * Allow further fields to be injected.
+		 *
+		 * @since 0.2
+		 *
+		 * @param WP_Post $post The object for the current post/page.
+		 * @param array $contact_fields The chosen fields stored in the post meta.
+		 * @param str $type The contact type for which fields should be retrieved.
+		 */
+		do_action( 'config_metabox_fields', $post, $contact_fields, 'Household' );
+
 		// close div
 		echo '</div>';
 
@@ -242,6 +264,17 @@ class CiviCRM_Directory_Metaboxes {
 
 		// print Organization custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Organization' );
+
+		/**
+		 * Allow further fields to be injected.
+		 *
+		 * @since 0.2
+		 *
+		 * @param WP_Post $post The object for the current post/page.
+		 * @param array $contact_fields The chosen fields stored in the post meta.
+		 * @param str $type The contact type for which fields should be retrieved.
+		 */
+		do_action( 'config_metabox_fields', $post, $contact_fields, 'Organization' );
 
 		// close div
 		echo '</div>';
