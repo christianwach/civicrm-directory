@@ -171,6 +171,34 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 
 			});
 
+			var boxes = '.civicrm-directory-fields-other, ' +
+				'.civicrm-directory-fields-address, ' +
+				'.civicrm-directory-fields-phone';
+
+			/**
+			 * Check the status of each of the "other fields" checkboxes.
+			 *
+			 * @since 0.1.2
+			 */
+			$( boxes ).each( function() {
+
+				var current_on, sub_div;
+
+				// get checked
+				current_on = $(this).prop( 'checked' );
+
+				// get sub div
+				sub_div = $(this).parent().next( 'div' );
+
+				// show sub div if checked
+				if ( current_on ) {
+					sub_div.show();
+				} else {
+					sub_div.hide();
+				}
+
+			});
+
 			// enable listeners
 			me.listeners();
 
@@ -214,6 +242,36 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 					$('.civicrm-directory-' + type_class).slideDown();
 				} else {
 					$('.civicrm-directory-' + type_class).slideUp();
+				}
+
+			});
+
+			var boxes = '.civicrm-directory-fields-other, ' +
+				'.civicrm-directory-fields-address, ' +
+				'.civicrm-directory-fields-phone';
+
+			/**
+			 * Listen for clicks on the "other fields" checkboxes.
+			 *
+			 * @since 0.2
+			 *
+			 * @param {Object} e The click event object
+			 */
+			$( boxes ).on( 'click', function( event ) {
+
+				var current_on, sub_div;
+
+				// get checked
+				current_on = $(this).prop( 'checked' );
+
+				// get sub div
+				sub_div = $(this).parent().next( 'div' );
+
+				// show sub div if checked
+				if ( current_on ) {
+					sub_div.slideDown();
+				} else {
+					sub_div.slideUp();
 				}
 
 			});

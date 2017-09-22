@@ -199,6 +199,23 @@ class CiviCRM_Directory_Metaboxes {
 					padding: 0 1em;
 					margin-bottom: 1em;
 				}
+
+				.civicrm-directory-fields h4 {
+					margin: 1em 0 0 0;
+					text-transform: uppercase;
+				}
+
+				.civicrm-directory-fields ul {
+					margin: 0.5em 0 1em 0;
+				}
+
+				.civicrm-directory-fields div.sub,
+				.civicrm-directory-fields div.sub-sub {
+					display: none;
+					margin: 1em 0 1em 0em;
+					border: 1px solid #ddd;
+					padding: 0.5em 1em 0.2em;
+				}
 			</style>';
 
 		// open div
@@ -212,6 +229,9 @@ class CiviCRM_Directory_Metaboxes {
 
 		// print Individual custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Individual' );
+
+		// print Individual other fields
+		$this->fields_other_render( $post, $contact_fields, 'Individual' );
 
 		/**
 		 * Allow further fields to be injected.
@@ -239,6 +259,9 @@ class CiviCRM_Directory_Metaboxes {
 		// print Household custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Household' );
 
+		// print Household other fields
+		$this->fields_other_render( $post, $contact_fields, 'Household' );
+
 		/**
 		 * Allow further fields to be injected.
 		 *
@@ -264,6 +287,9 @@ class CiviCRM_Directory_Metaboxes {
 
 		// print Organization custom fields
 		$this->fields_custom_render( $post, $contact_fields, 'Organization' );
+
+		// print Organization other fields
+		$this->fields_other_render( $post, $contact_fields, 'Organization' );
 
 		/**
 		 * Allow further fields to be injected.
@@ -392,6 +418,9 @@ class CiviCRM_Directory_Metaboxes {
 		// bail if we get none
 		if ( count( $all_contact_fields ) === 0 ) return false;
 
+		// let's have a heading
+		echo '<h4>' . __( 'Core Fields', 'civicrm-directory' ) . '</h4>';
+
 		// open a list
 		echo '<ul>';
 
@@ -401,7 +430,7 @@ class CiviCRM_Directory_Metaboxes {
 			// is it checked?
 			$checked = '';
 			if (
-				isset( $contact_fields[$type] ) AND
+				isset( $contact_fields[$type]['core'] ) AND
 				in_array( $contact_field['name'], $contact_fields[$type]['core'] )
 			) {
 				$checked = ' checked="checked"';
@@ -454,6 +483,9 @@ class CiviCRM_Directory_Metaboxes {
 		// sep
 		echo '<hr>';
 
+		// let's have a heading
+		echo '<h4>' . __( 'Custom Fields', 'civicrm-directory' ) . '</h4>';
+
 		// open a list
 		echo '<ul>';
 
@@ -462,7 +494,10 @@ class CiviCRM_Directory_Metaboxes {
 
 			// is it checked?
 			$checked = '';
-			if ( in_array( $key, $contact_fields[$type]['custom'] ) ) {
+			if (
+				isset( $contact_fields[$type]['custom'] ) AND
+				in_array( $key, $contact_fields[$type]['custom'] )
+			) {
 				$checked = ' checked="checked"';
 			}
 
@@ -481,6 +516,519 @@ class CiviCRM_Directory_Metaboxes {
 
 		// --<
 		return true;
+
+	}
+
+
+
+	/**
+	 * Renders the checkboxes for other fields for a specified type of Contact.
+	 *
+	 * @since 0.2
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param array $contact_fields The chosen fields stored in the post meta.
+	 * @param str $type The contact type for which fields should be retrieved.
+	 * @return bool True if list rendered, false otherwise.
+	 */
+	public function fields_other_render( $post, $contact_fields = array(), $type = 'Individual' ) {
+
+		// what do we want?
+		$other_fields = array(
+			'address' => __( 'Address', 'civicrm-directory' ),
+			'phone' => __( 'Phone', 'civicrm-directory' ),
+			'website' => __( 'Website', 'civicrm-directory' ),
+			'email' => __( 'Email', 'civicrm-directory' ),
+		);
+
+		// sep
+		echo '<hr>';
+
+		// let's have a heading
+		echo '<h4>' . __( 'Other Fields', 'civicrm-directory' ) . '</h4>';
+
+		// open a list
+		echo '<ul>';
+
+		// show UI for each field type
+		foreach( $other_fields AS $key => $title ) {
+
+			// open list item
+			echo '<li>';
+
+			// is it checked?
+			$checked = '';
+			if (
+				isset( $contact_fields[$type]['other'] ) AND
+				in_array( $key, $contact_fields[$type]['other'] )
+			) {
+				$checked = ' checked="checked"';
+			}
+
+			//  show checkbox
+			echo '<label>' .
+					'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][other][]" value="' . esc_attr( $key ) . '"' . $checked . ' class="civicrm-directory-fields-other"> ' .
+					'<strong>' . esc_html( $title ) . '</strong>' .
+				'</label>';
+
+			// open a block-level element
+			echo '<div class="sub">';
+
+			// switch by key
+			switch( $key ) {
+
+				case 'address' :
+					echo $this->field_address_get( $post, $contact_fields, $type );
+					break;
+
+				case 'phone' :
+					echo $this->field_phone_get( $post, $contact_fields, $type );
+					break;
+
+				case 'website' :
+					echo $this->field_website_get( $post, $contact_fields, $type );
+					break;
+
+				case 'email' :
+					echo $this->field_email_get( $post, $contact_fields, $type );
+					break;
+
+			}
+
+			// close block-level element
+			echo '</div>';
+
+			// close list item
+			echo '</li>';
+
+		}
+
+		// close list
+		echo '</ul>';
+
+		// --<
+		return true;
+
+	}
+
+
+
+	/**
+	 * Construct UI for the Address field.
+	 *
+	 * @since 0.2
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param array $contact_fields The chosen fields stored in the post meta.
+	 * @param str $type The contact type for which fields should be retrieved.
+	 * @return str The constructed field.
+	 */
+	public function field_address_get( $post, $contact_fields = array(), $type = 'Individual' ) {
+
+		// init return
+		$markup = '';
+
+		// get address types
+		$address_types = civicrm_api( 'Address', 'getoptions', array(
+			'version' => 3,
+			'sequential' => 1,
+			'field' => 'location_type_id',
+		));
+
+		// the fields we want to render
+		$fields = array(
+			'street_address',
+			'supplemental_address_1',
+			'supplemental_address_2',
+			'city',
+			'state_province_id',
+			'postal_code',
+			'country_id',
+		);
+
+		// get all address fields
+		$address_fields = civicrm_api( 'Address', 'getfields', array(
+			'version' => 3,
+			'sequential' => 1,
+		));
+
+		/*
+		$e = new Exception;
+		$trace = $e->getTraceAsString();
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'address_types' => $address_types,
+			'address_fields' => $address_fields,
+			//'backtrace' => $trace,
+		), true ) );
+		*/
+
+		// open a list
+		$markup .= '<ul>';
+
+		// we need a checkbox for each type
+		foreach( $address_types['values'] AS $address_type ) {
+
+			// open a list item
+			$markup .= '<li>';
+
+			// is it checked?
+			$checked = '';
+			if (
+				isset( $contact_fields[$type]['address']['enabled'] ) AND
+				in_array( $address_type['key'], $contact_fields[$type]['address']['enabled'] )
+			) {
+				$checked = ' checked="checked"';
+			}
+
+			//  show checkbox
+			$markup .= '<label>' .
+				'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][address][enabled][]" value="' . esc_attr( $address_type['key'] ) . '"' . $checked . ' class="civicrm-directory-fields-address"> ' .
+				'<strong>' . esc_html( $address_type['value'] ) . '</strong>' .
+			'</label>';
+
+			// open a block-level element
+			$markup .= '<div class="sub-sub">';
+
+			// open a list
+			$markup .= '<ul>';
+
+			// show checkboxes for fields
+			foreach( $address_fields['values'] AS $address_field ) {
+
+				// open a list item
+				$markup .= '<li>';
+
+				// skip if not a field we want to render
+				if ( ! in_array( $address_field['name'], $fields ) ) continue;
+
+				// is it checked?
+				$checked = '';
+				if (
+					isset( $contact_fields[$type]['address'][$address_type['key']] ) AND
+					in_array( $address_field['name'], $contact_fields[$type]['address'][$address_type['key']] )
+				) {
+					$checked = ' checked="checked"';
+				}
+
+				//  show checkbox
+				$markup .= '<label>' .
+					'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][address][' . $address_type['key'] . '][]" value="' . esc_attr( $address_field['name'] ) . '"' . $checked . '> ' .
+					'<strong>' . esc_html( $address_field['title'] ) . '</strong>' .
+				'</label>';
+
+				// close list item
+				$markup .= '</li>';
+
+			}
+
+			// close list
+			$markup .= '</ul>';
+
+			// close block-level element
+			$markup .= '</div>';
+
+			// close list item
+			$markup .= '</li>';
+
+		}
+
+		// close list
+		$markup .= '</ul>';
+
+		// --<
+		return $markup;
+
+	}
+
+
+
+	/**
+	 * Construct UI for the Phone field.
+	 *
+	 * @since 0.2
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param array $contact_fields The chosen fields stored in the post meta.
+	 * @param str $type The contact type for which fields should be retrieved.
+	 * @return str The constructed field.
+	 */
+	public function field_phone_get( $post, $contact_fields = array(), $type = 'Individual' ) {
+
+		// init return
+		$markup = '';
+
+		// get all phone types
+		$phone_types = civicrm_api( 'Phone', 'getoptions', array(
+			'version' => 3,
+			'sequential' => 1,
+			'field' => 'location_type_id',
+		));
+
+		// get all phone fields
+		$phone_fields = civicrm_api( 'Phone', 'getfields', array(
+			'version' => 3,
+			'sequential' => 1,
+		));
+
+		// the fields we want to render
+		$fields = array(
+			'phone',
+			'phone_type_id',
+		);
+
+		/*
+		$e = new Exception;
+		$trace = $e->getTraceAsString();
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'phone_types' => $phone_types,
+			'phone_fields' => $phone_fields,
+			//'backtrace' => $trace,
+		), true ) );
+		*/
+
+		// open a list
+		$markup .= '<ul>';
+
+		// we need a checkbox for each type
+		foreach( $phone_types['values'] AS $phone_type ) {
+
+			// open a list item
+			$markup .= '<li>';
+
+			// is it checked?
+			$checked = '';
+			if (
+				isset( $contact_fields[$type]['phone']['enabled'] ) AND
+				in_array( $phone_type['key'], $contact_fields[$type]['phone']['enabled'] )
+			) {
+				$checked = ' checked="checked"';
+			}
+
+			//  show checkbox
+			$markup .= '<label>' .
+				'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][phone][enabled][]" value="' . esc_attr( $phone_type['key'] ) . '"' . $checked . ' class="civicrm-directory-fields-phone"> ' .
+				'<strong>' . esc_html( $phone_type['value'] ) . '</strong>' .
+			'</label>';
+
+			// open a block-level element
+			$markup .= '<div class="sub-sub">';
+
+			// open a list
+			$markup .= '<ul>';
+
+			// show checkboxes for fields
+			foreach( $phone_fields['values'] AS $phone_field ) {
+
+				// skip if not a field we want to render
+				if ( ! in_array( $phone_field['name'], $fields ) ) continue;
+
+				// open a list item
+				$markup .= '<li>';
+
+				// is it checked?
+				$checked = '';
+				if (
+					isset( $contact_fields[$type]['address'][$phone_type['key']] ) AND
+					in_array( $phone_field['name'], $contact_fields[$type]['phone'][$phone_type['key']] )
+				) {
+					$checked = ' checked="checked"';
+				}
+
+				//  show checkbox
+				$markup .= '<label>' .
+					'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][phone][' . esc_attr( $phone_type['key'] ) . '][]" value="' . esc_attr( $phone_field['name'] ) . '"' . $checked . '> ' .
+					'<strong>' . esc_html( $phone_field['title'] ) . '</strong>' .
+				'</label>';
+
+				// close list item
+				$markup .= '</li>';
+
+			}
+
+			// close list
+			$markup .= '</ul>';
+
+			// close block-level element
+			$markup .= '</div>';
+
+			// close list item
+			$markup .= '</li>';
+
+		}
+
+		// close list
+		$markup .= '</ul>';
+
+		// --<
+		return $markup;
+
+	}
+
+
+
+	/**
+	 * Construct UI for the Website field.
+	 *
+	 * @since 0.2
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param array $contact_fields The chosen fields stored in the post meta.
+	 * @param str $type The contact type for which fields should be retrieved.
+	 * @return str The constructed field.
+	 */
+	public function field_website_get( $post, $contact_fields = array(), $type = 'Individual' ) {
+
+		// init return
+		$markup = '';
+
+		// get all website types
+		$website_types = civicrm_api( 'Website', 'getoptions', array(
+			'version' => 3,
+			'sequential' => 1,
+			'field' => "website_type_id",
+		));
+
+		// get all website fields
+		$website_fields = civicrm_api( 'Website', 'getfields', array(
+			'version' => 3,
+			'sequential' => 1,
+		));
+
+		// the fields we want to render
+		$fields = array(
+			'url',
+		);
+
+		/*
+		$e = new Exception;
+		$trace = $e->getTraceAsString();
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'website_types' => $website_types,
+			'website_fields' => $website_fields,
+			//'backtrace' => $trace,
+		), true ) );
+		*/
+
+		// open a list
+		$markup .= '<ul>';
+
+		// we need a checkbox for each type
+		foreach( $website_types['values'] AS $website_type ) {
+
+			// open a list item
+			$markup .= '<li>';
+
+			// is it checked?
+			$checked = '';
+			if (
+				isset( $contact_fields[$type]['website']['enabled'] ) AND
+				in_array( $website_type['key'], $contact_fields[$type]['website']['enabled'] )
+			) {
+				$checked = ' checked="checked"';
+			}
+
+			//  show checkbox
+			$markup .= '<label>' .
+				'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][website][enabled][]" value="' . esc_attr( $website_type['key'] ) . '"' . $checked . '> ' .
+				'<strong>' . esc_html( $website_type['value'] ) . '</strong>' .
+			'</label>';
+
+			// close list item
+			$markup .= '</li>';
+
+		}
+
+		// close list
+		$markup .= '</ul>';
+
+		// --<
+		return $markup;
+
+	}
+
+
+
+	/**
+	 * Construct UI for the Email field.
+	 *
+	 * @since 0.2
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @param array $contact_fields The chosen fields stored in the post meta.
+	 * @param str $type The contact type for which fields should be retrieved.
+	 * @return str The constructed field.
+	 */
+	public function field_email_get( $post, $contact_fields = array(), $type = 'Individual' ) {
+
+		// init return
+		$markup = '';
+
+		// get all email types
+		$email_types = civicrm_api( 'Email', 'getoptions', array(
+			'version' => 3,
+			'sequential' => 1,
+			'field' => "location_type_id",
+		));
+
+		// get all email fields
+		$email_fields = civicrm_api( 'Email', 'getfields', array(
+			'version' => 3,
+			'sequential' => 1,
+		));
+
+		// the fields we want to render
+		$fields = array(
+			'email',
+		);
+
+		/*
+		$e = new Exception;
+		$trace = $e->getTraceAsString();
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'email_types' => $email_types,
+			'email_fields' => $email_fields,
+			//'backtrace' => $trace,
+		), true ) );
+		*/
+
+		// open a list
+		$markup .= '<ul>';
+
+		// we need a checkbox for each type
+		foreach( $email_types['values'] AS $email_type ) {
+
+			// open a list item
+			$markup .= '<li>';
+
+			// is it checked?
+			$checked = '';
+			if (
+				isset( $contact_fields[$type]['email']['enabled'] ) AND
+				in_array( $email_type['key'], $contact_fields[$type]['email']['enabled'] )
+			) {
+				$checked = ' checked="checked"';
+			}
+
+			//  show checkbox
+			$markup .= '<label>' .
+				'<input type="checkbox" name="' . $this->contact_fields_meta_key . '[' . strtolower( $type ) . '][email][enabled][]" value="' . esc_attr( $email_type['key'] ) . '"' . $checked . '> ' .
+				'<strong>' . esc_html( $email_type['value'] ) . '</strong>' .
+			'</label>';
+
+			// close list item
+			$markup .= '</li>';
+
+		}
+
+		// close list
+		$markup .= '</ul>';
+
+		// --<
+		return $markup;
 
 	}
 
@@ -646,6 +1194,17 @@ class CiviCRM_Directory_Metaboxes {
 		// grab the array
 		$contact_fields = $_POST[$this->contact_fields_meta_key];
 
+		/*
+		$e = new Exception;
+		$trace = $e->getTraceAsString();
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'POST' => $_POST,
+			'contact_fields' => $contact_fields,
+			//'backtrace' => $trace,
+		), true ) );
+		*/
+
 		// sanitise array keys
 		$new_array = array();
 		foreach( $contact_fields AS $key => $sub_array ) {
@@ -661,7 +1220,19 @@ class CiviCRM_Directory_Metaboxes {
 				array_walk(
 					$data_array,
 					function( &$item ) {
-						$item = sanitize_text_field( trim( $item ) );
+						if ( is_string( $item ) ) {
+							$item = sanitize_text_field( trim( $item ) );
+						}
+						if ( is_array( $item ) ) {
+							array_walk(
+								$item,
+								function( &$entry ) {
+									if ( is_string( $entry ) ) {
+										$entry = sanitize_text_field( trim( $entry ) );
+									}
+								}
+							);
+						}
 					}
 				);
 			}
