@@ -271,20 +271,12 @@ class CiviCRM_Directory_CPT {
 	 */
 	public function rewrite_rules( $flush_rewrite_rules = false ) {
 
-		// get our directories
-		$directories = get_posts( array( 'post_type' => $this->post_type_name ) );
-
-		// add rewrite rules for each
-		foreach( $directories as $key => $directory ) {
-
-			// parse requests for contacts
-			add_rewrite_rule(
-				'^directory/' . $directory->post_name . '/view/([0-9]+)/?',
-				'index.php?post_type=' . $this->post_type_name . '&page_id=' . $directory->ID . '&cividir_contact_id=$matches[1]',
-				'top'
-			);
-
-		}
+		// parse requests for contacts
+		add_rewrite_rule(
+			'^directory/(.+)/view/([0-9]+)/?',
+			'index.php?post_type=' . $this->post_type_name . '&pagename=$matches[1]&cividir_contact_id=$matches[2]',
+			'top'
+		);
 
 		// maybe force flush
 		if ( $flush_rewrite_rules ) {
@@ -319,7 +311,6 @@ class CiviCRM_Directory_CPT {
 		}
 
 		// add our query vars
-		$query_vars[] = 'cividir_directory_id';
 		$query_vars[] = 'cividir_contact_id';
 
 		// --<
