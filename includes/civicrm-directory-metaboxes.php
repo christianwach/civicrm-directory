@@ -400,7 +400,10 @@ class CiviCRM_Directory_Metaboxes {
 
 			// is it checked?
 			$checked = '';
-			if ( in_array( $contact_field['name'], $contact_fields[$type]['core'] ) ) {
+			if (
+				isset( $contact_fields[$type] ) AND
+				in_array( $contact_field['name'], $contact_fields[$type]['core'] )
+			) {
 				$checked = ' checked="checked"';
 			}
 
