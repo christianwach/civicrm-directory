@@ -220,7 +220,7 @@ function civicrm_directory_map() {
 			'longitude' => $contact['geo_code_2'],
 			'name' => $contact['display_name'],
 			'address' => $address,
-			'permalink' => get_permalink( get_the_ID() ),
+			'permalink' => trailingslashit( get_permalink( get_the_ID() ) ) . 'view/' . $contact['id'],
 		);
 
 	}

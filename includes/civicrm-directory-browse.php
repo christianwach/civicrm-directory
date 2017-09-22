@@ -138,7 +138,7 @@ class CiviCRM_Directory_Browse {
 			}
 
 			// add listing
-			$markup .= $this->get_listing_markup( $this->results, $letter );
+			$markup .= $this->get_listing_markup( $this->results, $letter, $post_id );
 
 			// add to array
 			$data['listing'] = $markup;
@@ -320,7 +320,7 @@ class CiviCRM_Directory_Browse {
 				'name' => $contact['display_name'],
 				'address' => $address,
 				'permalink' => get_permalink( $post_id ),
-				'list_item' => $this->get_item_markup( $contact ),
+				'list_item' => $this->get_item_markup( $contact, $post_id ),
 			);
 
 		}
@@ -337,7 +337,7 @@ class CiviCRM_Directory_Browse {
 		}
 
 		// get listing markup
-		$markup .= $this->get_listing_markup( $results, $letter );
+		$markup .= $this->get_listing_markup( $results, $letter, $post_id );
 
 		// add to data array
 		$data['listing'] = $markup;
@@ -456,9 +456,10 @@ class CiviCRM_Directory_Browse {
 	 *
 	 * @param array $results The array of contact data.
 	 * @param str $letter The letter that was filtered by.
+	 * @param WP_Post $post The object for the current post/page.
 	 * @return str $markup The listing markup.
 	 */
-	public function get_listing_markup( $results, $letter = 'ALL' ) {
+	public function get_listing_markup( $results, $letter = 'ALL', $post_id ) {
 
 		// init return
 		$markup = '';
@@ -472,7 +473,7 @@ class CiviCRM_Directory_Browse {
 				// build listings array
 				$listings = array();
 				foreach( $results AS $contact ) {
-					$listings[] = $this->get_item_markup( $contact );
+					$listings[] = $this->get_item_markup( $contact, $post_id );
 				}
 
 				// build markup
@@ -508,12 +509,16 @@ class CiviCRM_Directory_Browse {
 	 * @since 0.1.1
 	 *
 	 * @param array $contact The contact to create markup for.
+	 * @param WP_Post $post The object for the current post/page.
 	 * @return str $markup The contact markup.
 	 */
-	public function get_item_markup( $contact ) {
+	public function get_item_markup( $contact, $post_id ) {
+
+		// construct permalink
+		$permalink = trailingslashit( get_permalink( $post_id ) ) . 'view/' . $contact['id'];
 
 		// build markup
-		$markup = '<a href="#">' . esc_html( $contact['display_name'] ) . '</a>';
+		$markup = '<a href="' . $permalink . '">' . esc_html( $contact['display_name'] ) . '</a>';
 
 		// --<
 		return $markup;

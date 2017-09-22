@@ -135,7 +135,7 @@ class CiviCRM_Directory_Search {
 			$markup = '<h3>' . __( 'Results', 'civicrm-directory' ) . '</h3>';
 
 			// add listing
-			$markup .= $this->get_listing_markup( $this->results );
+			$markup .= $this->get_listing_markup( $this->results, $post_id );
 
 			// add to array
 			$data['listing'] = $markup;
@@ -274,7 +274,7 @@ class CiviCRM_Directory_Search {
 			$markup = '<h3>' . __( 'Results', 'civicrm-directory' ) . '</h3>';
 
 			// add listing
-			$markup .= $this->get_listing_markup( $results );
+			$markup .= $this->get_listing_markup( $results, $post_id );
 
 		}
 
@@ -384,9 +384,10 @@ class CiviCRM_Directory_Search {
 	 * @since 0.1.3
 	 *
 	 * @param array $results The array of contact data.
+	 * @param WP_Post $post The object for the current post/page.
 	 * @return str $markup The listing markup.
 	 */
-	public function get_listing_markup( $results ) {
+	public function get_listing_markup( $results, $post_id ) {
 
 		// init return
 		$markup = '';
@@ -397,7 +398,7 @@ class CiviCRM_Directory_Search {
 			// build listings array
 			$listings = array();
 			foreach( $results AS $contact ) {
-				$listings[] = $this->get_item_markup( $contact );
+				$listings[] = $this->get_item_markup( $contact, $post_id );
 			}
 
 			// build markup
@@ -431,12 +432,16 @@ class CiviCRM_Directory_Search {
 	 * @since 0.1.1
 	 *
 	 * @param array $contact The contact to create markup for.
+	 * @param WP_Post $post The object for the current post/page.
 	 * @return str $markup The contact markup.
 	 */
-	public function get_item_markup( $contact ) {
+	public function get_item_markup( $contact, $post_id ) {
+
+		// construct permalink
+		$permalink = trailingslashit( get_permalink( $post_id ) ) . 'view/' . $contact['id'];
 
 		// build markup
-		$markup = '<a href="#">' . esc_html( $contact['display_name'] ) . '</a>';
+		$markup = '<a href="' . $permalink . '">' . esc_html( $contact['display_name'] ) . '</a>';
 
 		// --<
 		return $markup;

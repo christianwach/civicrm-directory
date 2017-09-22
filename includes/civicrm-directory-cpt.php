@@ -60,6 +60,10 @@ class CiviCRM_Directory_CPT {
 		// make sure our feedback is appropriate
 		add_filter( 'post_updated_messages', array( $this, 'post_type_messages' ) );
 
+		// custom rewrite rules
+		add_filter( 'init', array( $this, 'rewrite_rules' ) );
+		add_filter( 'query_vars', array( $this, 'query_vars' ) );
+
 	}
 
 
@@ -162,7 +166,7 @@ class CiviCRM_Directory_CPT {
 
 		) );
 
-		flush_rewrite_rules();
+		//flush_rewrite_rules();
 
 		// flag
 		$registered = true;
@@ -248,6 +252,77 @@ class CiviCRM_Directory_CPT {
 
 		// --<
 		return $messages;
+
+	}
+
+
+
+	// #########################################################################
+
+
+
+	/**
+	 * Add our rewrite rules.
+	 *
+	 * @since 0.2.1
+	 *
+	 * @param bool $flush_rewrite_rules True if rules should be flushed, false otherwise.
+	 */
+	public function rewrite_rules( $flush_rewrite_rules = false ) {
+
+		// get our directories
+		$directories = get_posts( array( 'post_type' => $this->post_type_name ) );
+
+		// add rewrite rules for each
+		foreach( $directories as $key => $directory ) {
+
+			// parse requests for contacts
+			add_rewrite_rule(
+				'^directory/' . $directory->post_name . '/view/([0-9]+)/?',
+				'index.php?post_type=' . $this->post_type_name . '&page_id=' . $directory->ID . '&cividir_contact_id=$matches[1]',
+				'top'
+			);
+
+		}
+
+		// maybe force flush
+		if ( $flush_rewrite_rules ) {
+			flush_rewrite_rules();
+		}
+
+		/**
+		 * Broadcast the rewrite rules event.
+		 *
+		 * @since 0.2.1
+		 *
+		 * @param bool $flush_rewrite_rules True if rules flushed, false otherwise.
+		 */
+		do_action( 'civicrm_directory_after_rewrite_rules', $flush_rewrite_rules );
+
+		flush_rewrite_rules();
+
+	}
+
+
+
+	/**
+	 * Add our query vars.
+	 *
+	 * @since 0.2.1
+	 */
+	public function query_vars( $query_vars ) {
+
+		// sanity check
+		if ( ! is_array( $query_vars ) ) {
+			$query_vars = array();
+		}
+
+		// add our query vars
+		$query_vars[] = 'cividir_directory_id';
+		$query_vars[] = 'cividir_contact_id';
+
+		// --<
+		return $query_vars;
 
 	}
 

@@ -18,6 +18,14 @@ class CiviCRM_Directory_Template {
 	 */
 	public $plugin;
 
+	/**
+	 * Viewed contact.
+	 *
+	 * @since 0.2.1
+	 * @access public
+	 * @var array $contact The requested contact data.
+	 */
+	public $contact = false;
 
 
 	/**
@@ -42,6 +50,9 @@ class CiviCRM_Directory_Template {
 	 * @since 0.1
 	 */
 	public function register_hooks() {
+
+		// override some page elements
+		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ), 5 );
 
 		// filter the content
 		add_filter( 'the_content', array( $this, 'directory_render' ) );
@@ -77,12 +88,97 @@ class CiviCRM_Directory_Template {
 
 
 	/**
+	 * Amend query for directory contact view.
+	 *
+	 * @since 0.2.1
+	 */
+	public function pre_get_posts( $query ) {
+
+		// are we viewing a contact?
+		if ( ! empty( $query->get( 'cividir_contact_id' ) ) ) {
+
+			// sanity check
+			$contact_id = absint( $query->get( 'cividir_contact_id' ) );
+
+			// get contact
+			$this->contact = $this->plugin->civi->contact_get_by_id( $contact_id );
+
+			// filter the title
+			add_filter( 'the_title', array( $this, 'the_title' ), 10, 2 );
+
+			// override the initial map query
+			add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
+
+		}
+
+	}
+
+
+
+	/**
+	 * Override title of the directory page when viewing a contact.
+	 *
+	 * @since 0.2.1
+	 *
+	 * @param string $title The existing title.
+	 * @param int $id The post ID.
+	 * @return string $title The modified title.
+	 */
+	public function the_title( $title, $id ) {
+
+		global $wp_query;
+
+		// are we viewing a contact?
+		if (
+			isset( $wp_query->query_vars['cividir_contact_id'] ) AND
+			is_numeric( $wp_query->query_vars['cividir_contact_id'] )
+		) {
+
+			// override title if we're successful
+			if ( $this->contact !== false ) {
+				$title = $this->contact['display_name'];
+			}
+
+		}
+
+		// --<
+		return $title;
+
+	}
+
+
+
+	/**
+	 * Override the initial map query.
+	 *
+	 * @since 0.2.1
+	 *
+	 * @param array $contacts The contacts retrieved from CiviCRM.
+	 * @return array $contacts The modified contacts retrieved from CiviCRM.
+	 */
+	public function map_query_filter( $contacts ) {
+
+		// override if viewing a contact
+		if ( $this->contact !== false ) {
+			$contacts = array( $this->contact );
+		}
+
+		// --<
+		return $contacts;
+
+	}
+
+
+
+	/**
 	 * Callback filter to display a Directory.
 	 *
 	 * @param str $content The existing content.
 	 * @return str $content The modified content.
 	 */
 	function directory_render( $content ) {
+
+		global $wp_query;
 
 		// only on canonical Directory pages
 		if ( ! is_singular( $this->plugin->cpt->post_type_name ) ) {
@@ -94,8 +190,15 @@ class CiviCRM_Directory_Template {
 			return $content;
 		}
 
+		// are we viewing a contact?
+		if ( isset( $wp_query->query_vars['cividir_contact_id'] ) ) {
+			$file = 'civicrm-directory/directory-contact.php';
+		} else {
+			$file = 'civicrm-directory/directory-index.php';
+		}
+
 		// get template
-		$template = $this->find_file( 'civicrm-directory/directory-index.php' );
+		$template = $this->find_file( $file );
 
 		// buffer the template part
 		ob_start();
