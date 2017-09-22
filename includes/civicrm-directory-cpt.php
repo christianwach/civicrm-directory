@@ -299,7 +299,7 @@ class CiviCRM_Directory_CPT {
 		 */
 		do_action( 'civicrm_directory_after_rewrite_rules', $flush_rewrite_rules );
 
-		flush_rewrite_rules();
+		//flush_rewrite_rules();
 
 	}
 
