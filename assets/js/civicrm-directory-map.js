@@ -271,6 +271,24 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 				bounds.extend( me.markers[i].getPosition() );
 			}
 
+			// set a maximum zoom
+			me.map.setOptions({ maxZoom: 18 });
+
+			// constrain zoom at the end of fitBounds
+			google.maps.event.addListenerOnce( me.map, 'bounds_changed', function(e) {
+
+				/*
+				// this may "double zoom" on slower machines
+				if ( me.map.getZoom() > 18 ) {
+					me.map.setZoom( 18 );
+				}
+				*/
+
+				// unset maximum zoom
+				me.map.setOptions({ maxZoom: 99 });
+
+			});
+
 			// show all markers
 			me.map.fitBounds( bounds );
 
