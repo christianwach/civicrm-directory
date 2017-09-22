@@ -95,7 +95,7 @@ class CiviCRM_Directory_Template {
 	public function pre_get_posts( $query ) {
 
 		// are we viewing a contact?
-		if ( ! empty( $query->get( 'cividir_contact_id' ) ) ) {
+		if ( ! is_admin() AND $query->is_main_query() AND ! empty( $query->get( 'cividir_contact_id' ) ) ) {
 
 			// sanity check
 			$contact_id = absint( $query->get( 'cividir_contact_id' ) );
@@ -131,7 +131,9 @@ class CiviCRM_Directory_Template {
 		// are we viewing a contact?
 		if (
 			isset( $wp_query->query_vars['cividir_contact_id'] ) AND
-			is_numeric( $wp_query->query_vars['cividir_contact_id'] )
+			is_numeric( $wp_query->query_vars['cividir_contact_id'] ) AND
+			is_singular( 'directory' ) AND
+			in_the_loop()
 		) {
 
 			// override title if we're successful
