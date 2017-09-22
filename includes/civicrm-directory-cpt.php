@@ -320,7 +320,7 @@ class CiviCRM_Directory_CPT {
 
 
 
-} // class CiviCRM_Directory_CPT ends
+} // class ends
 
 
 

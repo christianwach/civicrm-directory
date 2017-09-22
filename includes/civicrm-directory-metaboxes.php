@@ -1210,7 +1210,7 @@ class CiviCRM_Directory_Metaboxes {
 	/**
 	 * When a post is saved, this also saves the Contact Fields metadata.
 	 *
-	 * The array is keyed by Contact Type, then by 'core' and 'custom', e.g.
+	 * The array is keyed by Contact Type, then by 'core', 'custom', etc - e.g.
 	 *
 	 * array(
 	 *     'Individual' => array(
@@ -1328,8 +1328,7 @@ class CiviCRM_Directory_Metaboxes {
 
 
 
-
-} // class CiviCRM_Directory_Metaboxes ends
+} // class ends
 
 
 

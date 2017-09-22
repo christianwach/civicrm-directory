@@ -322,7 +322,7 @@ class CiviCRM_Directory_Template {
 
 
 
-} // class CiviCRM_Directory_CPT ends
+} // class ends
 
 
 
