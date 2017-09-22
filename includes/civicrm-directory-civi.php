@@ -298,6 +298,43 @@ class CiviCRM_Directory_Civi {
 
 
 	/**
+	 * Get CiviCRM contact data by contact ID.
+	 *
+	 * @since 0.2.1
+	 *
+	 * @param int $contact_id The numeric ID of the CiviCRM contact.
+	 * @return mixed $civi_contact The array of data for the CiviCRM Contact, or false if not found
+	 */
+	public function contact_get_by_id( $contact_id ) {
+
+		// try and init CiviCRM
+		if ( ! $this->initialize() ) return false;
+
+		// define params to get a contact
+		$params = array(
+			'version' => 3,
+			'contact_id' => $contact_id,
+		);
+
+		// use API
+		$contact_data = civicrm_api( 'contact', 'get', $params );
+
+		// bail if we get any errors
+		if ( $contact_data['is_error'] == 1 ) return false;
+		if ( ! isset( $contact_data['values'] ) ) return false;
+		if ( count( $contact_data['values'] ) === 0 ) return false;
+
+		// get contact
+		$contact = array_shift( $contact_data['values'] );
+
+		// --<
+		return $contact;
+
+	}
+
+
+
+	/**
 	 * Get top-level CiviCRM contact types.
 	 *
 	 * @since 0.1.2
