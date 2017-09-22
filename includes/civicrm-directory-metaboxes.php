@@ -205,11 +205,15 @@ class CiviCRM_Directory_Metaboxes {
 					cursor: pointer;
 					text-transform: uppercase;
 					margin: 0;
-					padding: 1em 0;
+					padding: 0.5em 0;
 				}
 
 				.civicrm-directory-fields-container {
 					display: none;
+				}
+
+				.civicrm-directory-fields .sep-core {
+					margin-top: 0;
 				}
 
 				.civicrm-directory-fields h4 {
@@ -459,6 +463,9 @@ class CiviCRM_Directory_Metaboxes {
 
 		// bail if we get none
 		if ( count( $all_contact_fields ) === 0 ) return false;
+
+		// sep
+		echo '<hr class="sep-core">';
 
 		// let's have a heading
 		echo '<h4>' . __( 'Core Fields', 'civicrm-directory' ) . '</h4>';

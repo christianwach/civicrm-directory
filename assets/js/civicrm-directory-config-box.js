@@ -228,7 +228,7 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 			$('.civicrm-directory-fields > h3').on( 'click', function( event ) {
 
 				// toggle div visibility
-				$(this).next( '.civicrm-directory-fields-container' ).toggle();
+				$(this).next( '.civicrm-directory-fields-container' ).slideToggle( 'fast' );
 
 			});
 
