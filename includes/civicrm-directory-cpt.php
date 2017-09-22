@@ -77,6 +77,7 @@ class CiviCRM_Directory_CPT {
 
 		// pass through
 		$this->post_type_create();
+		$this->rewrite_rules();
 
 		// go ahead and flush
 		flush_rewrite_rules();
