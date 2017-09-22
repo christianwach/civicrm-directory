@@ -200,6 +200,15 @@ class CiviCRM_Directory_Metaboxes {
 					margin-bottom: 1em;
 				}
 
+				.civicrm-directory-fields > h3 {
+					cursor: pointer;
+					text-transform: uppercase;
+				}
+
+				.civicrm-directory-fields-container {
+					display: none;
+				}
+
 				.civicrm-directory-fields h4 {
 					margin: 1em 0 0 0;
 					text-transform: uppercase;
@@ -224,6 +233,9 @@ class CiviCRM_Directory_Metaboxes {
 		// show header
 		echo '<h3>' . __( 'Fields for Individuals', 'civicrm-directory' ) . '</h3>';
 
+		// open fields container
+		echo '<div class="civicrm-directory-fields-container">';
+
 		// print Individual fields
 		$this->fields_core_render( $post, $contact_fields, 'Individual' );
 
@@ -247,11 +259,17 @@ class CiviCRM_Directory_Metaboxes {
 		// close div
 		echo '</div>';
 
+		// close div
+		echo '</div>';
+
 		// open div
 		echo '<div class="civicrm-directory-fields civicrm-directory-Household">';
 
 		// show header
 		echo '<h3>' . __( 'Fields for Households', 'civicrm-directory' ) . '</h3>';
+
+		// open fields container
+		echo '<div class="civicrm-directory-fields-container">';
 
 		// print Household fields
 		$this->fields_core_render( $post, $contact_fields, 'Household' );
@@ -276,11 +294,17 @@ class CiviCRM_Directory_Metaboxes {
 		// close div
 		echo '</div>';
 
+		// close div
+		echo '</div>';
+
 		// open div
 		echo '<div class="civicrm-directory-fields civicrm-directory-Organization">';
 
 		// show header
 		echo '<h3>' . __( 'Fields for Organizations', 'civicrm-directory' ) . '</h3>';
+
+		// open fields container
+		echo '<div class="civicrm-directory-fields-container">';
 
 		// print Organization fields
 		$this->fields_core_render( $post, $contact_fields, 'Organization' );
@@ -301,6 +325,9 @@ class CiviCRM_Directory_Metaboxes {
 		 * @param str $type The contact type for which fields should be retrieved.
 		 */
 		do_action( 'config_metabox_fields', $post, $contact_fields, 'Organization' );
+
+		// close div
+		echo '</div>';
 
 		// close div
 		echo '</div>';

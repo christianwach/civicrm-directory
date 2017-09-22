@@ -213,6 +213,25 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 		 */
 		this.listeners = function() {
 
+			// declare vars
+			var boxes = '.civicrm-directory-fields-other, ' +
+						'.civicrm-directory-fields-address, ' +
+						'.civicrm-directory-fields-phone';
+
+			/**
+			 * Listen for clicks on the headings.
+			 *
+			 * @since 0.2
+			 *
+			 * @param {Object} e The click event object
+			 */
+			$('.civicrm-directory-fields > h3').on( 'click', function( event ) {
+
+				// toggle div visibility
+				$(this).next( '.civicrm-directory-fields-container' ).toggle();
+
+			});
+
 			/**
 			 * Listen for clicks on the checkboxes.
 			 *
@@ -245,10 +264,6 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 				}
 
 			});
-
-			var boxes = '.civicrm-directory-fields-other, ' +
-				'.civicrm-directory-fields-address, ' +
-				'.civicrm-directory-fields-phone';
 
 			/**
 			 * Listen for clicks on the "other fields" checkboxes.
