@@ -198,11 +198,14 @@ class CiviCRM_Directory_Metaboxes {
 					border: 1px solid #ddd;
 					padding: 0 1em;
 					margin-bottom: 1em;
+					background-color: #fcfcfc;
 				}
 
 				.civicrm-directory-fields > h3 {
 					cursor: pointer;
 					text-transform: uppercase;
+					margin: 0;
+					padding: 1em 0;
 				}
 
 				.civicrm-directory-fields-container {
@@ -214,8 +217,20 @@ class CiviCRM_Directory_Metaboxes {
 					text-transform: uppercase;
 				}
 
+				.civicrm-directory-fields h4:first-child {
+					margin: 0;
+				}
+
 				.civicrm-directory-fields ul {
 					margin: 0.5em 0 1em 0;
+				}
+
+				.civicrm-directory-fields div.sub {
+					background-color: #fff;
+				}
+
+				.civicrm-directory-fields div.sub-sub {
+					background-color: #fcfcfc;
 				}
 
 				.civicrm-directory-fields div.sub,
