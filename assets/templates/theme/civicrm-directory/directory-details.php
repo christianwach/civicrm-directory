@@ -58,8 +58,6 @@
 		</ul>
 	<?php endif; ?>
 
-	<pre><?php print_r( $contact_data ); ?></pre>
-
 </div><!-- /.directory-details -->
 
 
