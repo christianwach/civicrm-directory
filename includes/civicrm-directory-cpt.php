@@ -311,6 +311,8 @@ class CiviCRM_Directory_CPT {
 		}
 
 		// add our query vars
+		$query_vars[] = 'post_type';
+		$query_vars[] = 'pagename';
 		$query_vars[] = 'cividir_contact_id';
 
 		// --<
