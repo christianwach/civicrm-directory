@@ -685,7 +685,7 @@ function civicrm_directory_url_get( $post_id = null ) {
 	if ( is_null( $post_id ) ) $post_id = get_the_ID();
 
 	// get permalink
-	$url = get_permalink( $post_id );
+	$url = esc_url( get_permalink( $post_id ) );
 
 	// --<
 	return $url;
