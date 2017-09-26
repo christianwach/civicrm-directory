@@ -1,6 +1,7 @@
 <!-- assets/templates/theme/civicrm-directory/directory-details.php -->
 <div class="directory-details">
 
+	<!-- Contact Core Fields -->
 	<?php if( isset( $contact['core'] ) ) : ?>
 		<h3><?php _e( 'Core', 'civicrm-directory' ); ?></h3>
 		<ul>
@@ -10,6 +11,7 @@
 		</ul>
 	<?php endif; ?>
 
+	<!-- Contact Custom Fields -->
 	<?php if( isset( $contact['custom'] ) ) : ?>
 		<h3><?php _e( 'Custom', 'civicrm-directory' ); ?></h3>
 		<ul>
@@ -19,6 +21,7 @@
 		</ul>
 	<?php endif; ?>
 
+	<!-- Contact Emails -->
 	<?php if( isset( $contact['email'] ) ) : ?>
 		<h3><?php _e( 'Email', 'civicrm-directory' ); ?></h3>
 		<ul>
@@ -28,24 +31,27 @@
 		</ul>
 	<?php endif; ?>
 
+	<!-- Contact Websites -->
 	<?php if( isset( $contact['website'] ) ) : ?>
 		<h3><?php _e( 'Website', 'civicrm-directory' ); ?></h3>
 		<ul>
 		<?php foreach( $contact['website'] AS $field ) : ?>
-			<li><?php echo $field['label']; ?>: <?php echo $field['value']; ?></li>
+			<li><?php echo $field['label']; ?>: <a href="<?php echo $field['value']; ?>"><?php echo $field['value']; ?></a></li>
 		<?php endforeach; ?>
 		</ul>
 	<?php endif; ?>
 
+	<!-- Contact Phones -->
 	<?php if( isset( $contact['phone'] ) ) : ?>
 		<h3><?php _e( 'Phone', 'civicrm-directory' ); ?></h3>
 		<ul>
 		<?php foreach( $contact['phone'] AS $field ) : ?>
-			<li><?php echo $field['label']; ?>: <?php echo $field['value']; ?></li>
+			<li><?php echo $field['label']; ?> <?php echo $field['value']; ?></li>
 		<?php endforeach; ?>
 		</ul>
 	<?php endif; ?>
 
+	<!-- Contact Addresses -->
 	<?php if( isset( $contact['address'] ) ) : ?>
 		<h3><?php _e( 'Address', 'civicrm-directory' ); ?></h3>
 		<ul>
