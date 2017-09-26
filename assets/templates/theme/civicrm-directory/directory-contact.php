@@ -1,15 +1,15 @@
 <!-- assets/templates/theme/civicrm-directory/directory-contact.php -->
 <div class="civicrm-directory directory-contact">
 
+	<p class="civicrm-directory-nav"><a href="<?php civicrm_directory_url(); ?>">&larr; <?php echo sprintf( __( 'Back to %s', 'civicrm-directory' ), civicrm_directory_title_get() ); ?></a></p>
+
 	<p><?php _e( 'This is a contact.', 'civicrm-directory' ); ?></p>
 
 	<?php civicrm_directory_map(); ?>
 
 	<section class="contact-details">
 
-		<?php if ( $this->contact !== false ) : ?>
-			<pre><?php print_r( $this->contact ); ?></pre>
-		<?php endif; ?>
+		<?php civicrm_directory_contact_details(); ?>
 
 	</section><!-- /.listing -->
 

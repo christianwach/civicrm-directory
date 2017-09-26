@@ -178,17 +178,8 @@ class CiviCRM_Directory_Metaboxes {
 
 		// ---------------------------------------------------------------------
 
-		// set key
-		$db_key = '_' . $this->contact_fields_meta_key;
-
-		// default to empty
-		$contact_fields = array();
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post->ID, $db_key, true );
-		if ( ! empty( $existing ) ) {
-			$contact_fields = get_post_meta( $post->ID, $db_key, true );
-		}
+		// get contact fields data
+		$contact_fields = $this->contact_fields_get( $post->ID );
 
 		// let's have some style
 		echo '
@@ -529,6 +520,12 @@ class CiviCRM_Directory_Metaboxes {
 		// bail if we get none
 		if ( count( $all_contact_custom_fields ) === 0 ) return false;
 
+		// extract just the data we need
+		$custom_fields = array();
+		foreach( $all_contact_custom_fields as $key => $value ) {
+			$custom_fields[$value['id']] = $value['label'];
+		}
+
 		// sep
 		echo '<hr>';
 
@@ -539,7 +536,7 @@ class CiviCRM_Directory_Metaboxes {
 		echo '<ul>';
 
 		// show checkboxes for each contact type
-		foreach( $all_contact_custom_fields AS $key => $title ) {
+		foreach( $custom_fields AS $key => $title ) {
 
 			// is it checked?
 			$checked = '';
@@ -939,6 +936,7 @@ class CiviCRM_Directory_Metaboxes {
 			'field' => "website_type_id",
 		));
 
+		/*
 		// get all website fields
 		$website_fields = civicrm_api( 'Website', 'getfields', array(
 			'version' => 3,
@@ -949,6 +947,7 @@ class CiviCRM_Directory_Metaboxes {
 		$fields = array(
 			'url',
 		);
+		*/
 
 		/*
 		$e = new Exception;
@@ -1084,6 +1083,38 @@ class CiviCRM_Directory_Metaboxes {
 
 
 	// #########################################################################
+
+
+
+	/**
+	 * Get the contact fields data for a directory.
+	 *
+	 * @since 0.2.2
+	 *
+	 * @param integer $post_id The ID of the post.
+	 * @return array $contact_fields The contact fields data for the post.
+	 */
+	public function contact_fields_get( $post_id = null ) {
+
+		// use current post if none passed
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+
+		// set key
+		$db_key = '_' . $this->contact_fields_meta_key;
+
+		// default to empty
+		$contact_fields = array();
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( ! empty( $existing ) ) {
+			$contact_fields = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// --<
+		return $contact_fields;
+
+	}
 
 
 

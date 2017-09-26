@@ -303,9 +303,10 @@ class CiviCRM_Directory_Civi {
 	 * @since 0.2.1
 	 *
 	 * @param int $contact_id The numeric ID of the CiviCRM contact.
+	 * @param array $args Additional arguments to refine retrieval of a CiviCRM contact.
 	 * @return mixed $civi_contact The array of data for the CiviCRM Contact, or false if not found
 	 */
-	public function contact_get_by_id( $contact_id ) {
+	public function contact_get_by_id( $contact_id, $args = array() ) {
 
 		// try and init CiviCRM
 		if ( ! $this->initialize() ) return false;
@@ -316,8 +317,119 @@ class CiviCRM_Directory_Civi {
 			'contact_id' => $contact_id,
 		);
 
+		// do we have any arguments?
+		if ( ! empty( $args ) ) {
+
+			// maybe construct returns query
+			if ( isset( $args['returns'] ) ) {
+
+				// construct returns array
+				$returns = array();
+				foreach( $args['returns'] AS $field_id ) {
+					$returns[] = $field_id;
+				}
+
+				// add to params
+				$params['return'] = $returns;
+
+			}
+
+			// maybe construct email query
+			if ( isset( $args['api.Email.get'] ) ) {
+
+				$email = array();
+				foreach( $args['api.Email.get'] AS $field_id ) {
+					$email[] = $field_id;
+				}
+
+				// add to params
+				$params['api.Email.get'] = array(
+					'location_type_id' => array( 'IN' => $email ),
+					'return' => array( 'location_type_id', 'email' ),
+				);
+
+			}
+
+			// maybe construct website query
+			if ( isset( $args['api.Website.get'] ) ) {
+
+				$website = array();
+				foreach( $args['api.Website.get'] AS $field_id ) {
+					$website[] = $field_id;
+				}
+
+				// add to params
+				$params['api.Website.get'] = array(
+					'website_type_id' => array( 'IN' => $website ),
+					'return' => array( 'website_type_id', 'url' ),
+				);
+
+			}
+
+			// maybe construct phone query
+			if ( isset( $args['api.Phone.get'] ) ) {
+
+				$phone = array();
+				foreach( $args['api.Phone.get'] AS $loc_type_id => $fields ) {
+					$location_types[] = $loc_type_id;
+				}
+
+				$location_fields = array( 'location_type_id' );
+				foreach( $args['api.Phone.get'] AS $loc_type_id => $fields ) {
+					foreach( $fields AS $field ) {
+						$location_fields[] = $field;
+					}
+				}
+
+				// add to params
+				$params['api.Phone.get'] = array(
+					'location_type_id' => array( 'IN' => $location_types ),
+					'return' => array_unique( $location_fields ),
+				);
+
+			}
+
+			// maybe construct address query
+			if ( isset( $args['api.Address.get'] ) ) {
+
+				$location_types = array();
+				foreach( $args['api.Address.get'] AS $loc_type_id => $fields ) {
+					$location_types[] = $loc_type_id;
+				}
+
+				$location_fields = array( 'location_type_id' );
+				foreach( $args['api.Address.get'] AS $loc_type_id => $fields ) {
+					foreach( $fields AS $field ) {
+						$location_fields[] = $field;
+						if ( $field == 'country_id' ) {
+							$location_fields[] = 'country_id.name';
+						}
+						if ( $field == 'state_province_id' ) {
+							$location_fields[] = 'state_province_id.name';
+						}
+					}
+				}
+
+				// add to params
+				$params['api.Address.get'] = array(
+					'location_type_id' => array( 'IN' => $location_types ),
+					'return' => array_unique( $location_fields ),
+				);
+
+			}
+
+		}
+
 		// use API
 		$contact_data = civicrm_api( 'contact', 'get', $params );
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'contact_data' => $contact_data,
+		), true ) );
+		*/
 
 		// bail if we get any errors
 		if ( $contact_data['is_error'] == 1 ) return false;
@@ -613,9 +725,10 @@ class CiviCRM_Directory_Civi {
 			count( $result['values'] ) > 0
 		) {
 
+			// we only need the results from the chained API data
 			foreach( $result['values'] as $key => $value ) {
 				foreach( $value['api.CustomField.get']['values'] as $key => $value ) {
-					$custom_fields['custom_' . $value['id']] = $value['label'];
+					$custom_fields[$key] = $value;
 				}
 			}
 
@@ -632,6 +745,240 @@ class CiviCRM_Directory_Civi {
 
 		// --<
 		return $custom_fields;
+
+	}
+
+
+
+	/**
+	 * Get the types of email.
+	 *
+	 * @since 0.2.2
+	 *
+	 * @return array $email_types The array of email types.
+	 */
+	public function email_types_get() {
+
+		// init return
+		$email_types = array();
+
+		// construct params to get all email types
+		$params = array(
+			'version' => 3,
+			'sequential' => 1,
+			'field' => 'location_type_id',
+		);
+
+		// hit the API
+		$result = civicrm_api( 'Email', 'getoptions', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+			$email_types = $result['values'];
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			'email_types' => $email_types,
+		), true ) );
+		*/
+
+		// --<
+		return $email_types;
+
+	}
+
+
+
+	/**
+	 * Get the types of website.
+	 *
+	 * @since 0.2.2
+	 *
+	 * @return array $website_types The array of website types.
+	 */
+	public function website_types_get() {
+
+		// init return
+		$website_types = array();
+
+		// construct params to get all website types
+		$params = array(
+			'version' => 3,
+			'sequential' => 1,
+			'field' => 'website_type_id',
+		);
+
+		// hit the API
+		$result = civicrm_api( 'Website', 'getoptions', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+			$website_types = $result['values'];
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			'website_types' => $website_types,
+		), true ) );
+		*/
+
+		// --<
+		return $website_types;
+
+	}
+
+
+
+	/**
+	 * Get the types of phone.
+	 *
+	 * @since 0.2.2
+	 *
+	 * @return array $phone_types The array of phone types.
+	 */
+	public function phone_types_get() {
+
+		// init return
+		$phone_types = array();
+
+		// construct params to get all phone types
+		$params = array(
+			'version' => 3,
+			'sequential' => 1,
+			'field' => 'phone_type_id',
+		);
+
+		// hit the API
+		$result = civicrm_api( 'Phone', 'getoptions', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+			$phone_types = $result['values'];
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			'phone_types' => $phone_types,
+		), true ) );
+		*/
+
+		// --<
+		return $phone_types;
+
+	}
+
+
+
+	/**
+	 * Get the types of address.
+	 *
+	 * @since 0.2.2
+	 *
+	 * @return array $address_types The array of address types.
+	 */
+	public function address_types_get() {
+
+		// init return
+		$address_types = array();
+
+		// construct params to get all address types
+		$params = array(
+			'version' => 3,
+			'sequential' => 1,
+			'field' => 'location_type_id',
+		);
+
+		// hit the API
+		$result = civicrm_api( 'Address', 'getoptions', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+			$address_types = $result['values'];
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			'address_types' => $address_types,
+		), true ) );
+		*/
+
+		// --<
+		return $address_types;
+
+	}
+
+
+
+	/**
+	 * Get the data for the address fields.
+	 *
+	 * @since 0.2.2
+	 *
+	 * @return array $address_fields The array of address fields.
+	 */
+	public function address_fields_get() {
+
+		// init return
+		$address_fields = array();
+
+		// construct params to get all address fields
+		$params = array(
+			'version' => 3,
+			'sequential' => 1,
+		);
+
+		// hit the API
+		$result = civicrm_api( 'Address', 'getfields', $params );
+
+		// override return if we get some
+		if (
+			$result['is_error'] == 0 AND
+			isset( $result['values'] ) AND
+			count( $result['values'] ) > 0
+		) {
+			$address_fields = $result['values'];
+		}
+
+		/*
+		error_log( print_r( array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			'address_types' => $address_types,
+		), true ) );
+		*/
+
+		// --<
+		return $address_fields;
 
 	}
 
