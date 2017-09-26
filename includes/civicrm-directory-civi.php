@@ -326,11 +326,13 @@ class CiviCRM_Directory_Civi {
 					$email[] = $field_id;
 				}
 
-				// add to params
-				$params['api.Email.get'] = array(
-					'location_type_id' => array( 'IN' => $email ),
-					'return' => array( 'location_type_id', 'email' ),
-				);
+				// add to params if we have some types
+				if ( ! empty( $email ) ) {
+					$params['api.Email.get'] = array(
+						'location_type_id' => array( 'IN' => $email ),
+						'return' => array( 'location_type_id', 'email' ),
+					);
+				}
 
 			}
 
@@ -342,18 +344,20 @@ class CiviCRM_Directory_Civi {
 					$website[] = $field_id;
 				}
 
-				// add to params
-				$params['api.Website.get'] = array(
-					'website_type_id' => array( 'IN' => $website ),
-					'return' => array( 'website_type_id', 'url' ),
-				);
+				// add to params if we have some types
+				if ( ! empty( $website ) ) {
+					$params['api.Website.get'] = array(
+						'website_type_id' => array( 'IN' => $website ),
+						'return' => array( 'website_type_id', 'url' ),
+					);
+				}
 
 			}
 
 			// maybe construct phone query
 			if ( isset( $args['api.Phone.get'] ) ) {
 
-				$phone = array();
+				$location_types = array();
 				foreach( $args['api.Phone.get'] AS $loc_type_id => $fields ) {
 					$location_types[] = $loc_type_id;
 				}
@@ -365,11 +369,13 @@ class CiviCRM_Directory_Civi {
 					}
 				}
 
-				// add to params
-				$params['api.Phone.get'] = array(
-					'location_type_id' => array( 'IN' => $location_types ),
-					'return' => array_unique( $location_fields ),
-				);
+				// add to params if we have some types
+				if ( ! empty( $location_types ) AND ! empty( $location_fields ) ) {
+					$params['api.Phone.get'] = array(
+						'location_type_id' => array( 'IN' => $location_types ),
+						'return' => array_unique( $location_fields ),
+					);
+				}
 
 			}
 
@@ -394,11 +400,13 @@ class CiviCRM_Directory_Civi {
 					}
 				}
 
-				// add to params
-				$params['api.Address.get'] = array(
-					'location_type_id' => array( 'IN' => $location_types ),
-					'return' => array_unique( $location_fields ),
-				);
+				// add to params if we have some types
+				if ( ! empty( $location_types ) AND ! empty( $location_fields ) ) {
+					$params['api.Address.get'] = array(
+						'location_type_id' => array( 'IN' => $location_types ),
+						'return' => array_unique( $location_fields ),
+					);
+				}
 
 			}
 

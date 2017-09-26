@@ -287,11 +287,6 @@ class CiviCRM_Directory_Template {
 		// get contact fields data
 		$contact_fields = $this->plugin->metaboxes->contact_fields_get();
 
-		// let's define some template vars
-		$fields_core = $contact_fields[$contact_type]['core'];
-		$fields_custom = $contact_fields[$contact_type]['custom'];
-		$fields_other = $contact_fields[$contact_type]['other'];
-
 		// init args
 		$args = array(
 			'returns' => array(),
@@ -302,14 +297,17 @@ class CiviCRM_Directory_Template {
 		);
 
 		// build fields-to-return
+		$fields_core = isset( $contact_fields[$contact_type]['core'] ) ? $contact_fields[$contact_type]['core'] : array();
 		foreach( $fields_core AS $key => $field ) {
 			$args['returns'][] = $field;
 		}
+		$fields_custom = isset( $contact_fields[$contact_type]['custom'] ) ? $contact_fields[$contact_type]['custom'] : array();
 		foreach( $fields_custom AS $field ) {
 			$args['returns'][] = 'custom_' . $field;
 		}
 
 		// build chained API calls
+		$fields_other = isset( $contact_fields[$contact_type]['other'] ) ? $contact_fields[$contact_type]['other'] : array();
 		foreach( $fields_other AS $field ) {
 
 			if ( $field == 'email' ) {
