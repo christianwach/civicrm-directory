@@ -154,14 +154,6 @@ class CiviCRM_Directory_Civi {
 			$groups = $all_groups['values'];
 		}
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'groups' => $groups,
-		), true ) );
-		*/
-
 		// --<
 		return $groups;
 
@@ -260,14 +252,6 @@ class CiviCRM_Directory_Civi {
 		) {
 			$contacts = $result['values'];
 		}
-
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'contacts' => $contacts,
-		), true ) );
-		*/
 
 		/**
 		 * Filter the returned contacts.
@@ -423,14 +407,6 @@ class CiviCRM_Directory_Civi {
 		// use API
 		$contact_data = civicrm_api( 'contact', 'get', $params );
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'contact_data' => $contact_data,
-		), true ) );
-		*/
-
 		// bail if we get any errors
 		if ( $contact_data['is_error'] == 1 ) return false;
 		if ( ! isset( $contact_data['values'] ) ) return false;
@@ -483,14 +459,6 @@ class CiviCRM_Directory_Civi {
 		) {
 			$contact_types = $result['values'];
 		}
-
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-		), true ) );
-		*/
 
 		// --<
 		return $contact_types;
@@ -559,15 +527,6 @@ class CiviCRM_Directory_Civi {
 			$nested[] = $item;
 		}
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			'nested' => $nested,
-		), true ) );
-		*/
-
 		// --<
 		return $nested;
 
@@ -599,16 +558,6 @@ class CiviCRM_Directory_Civi {
 		// construct params
 		$params = array(
 			'version' => 3,
-			//'sequential' => 1,
-			//'field_type' => array( 'IN' => $types ),
-			/*
-			'api.UFField.get' => array(
-				'is_active' => 1,
-				'options' => array(
-					'limit' => '0', // no limit
-				),
-			),
-			*/
 			'options' => array(
 				'limit' => '0', // no limit
 			),
@@ -655,15 +604,6 @@ class CiviCRM_Directory_Civi {
 			}
 
 		}
-
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			//'result' => $result,
-			'fields' => $fields,
-		), true ) );
-		*/
 
 		// --<
 		return $fields;
@@ -734,15 +674,6 @@ class CiviCRM_Directory_Civi {
 
 		}
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			'custom_fields' => $custom_fields,
-		), true ) );
-		*/
-
 		// --<
 		return $custom_fields;
 
@@ -780,15 +711,6 @@ class CiviCRM_Directory_Civi {
 		) {
 			$email_types = $result['values'];
 		}
-
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			'email_types' => $email_types,
-		), true ) );
-		*/
 
 		// --<
 		return $email_types;
@@ -828,15 +750,6 @@ class CiviCRM_Directory_Civi {
 			$website_types = $result['values'];
 		}
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			'website_types' => $website_types,
-		), true ) );
-		*/
-
 		// --<
 		return $website_types;
 
@@ -874,15 +787,6 @@ class CiviCRM_Directory_Civi {
 		) {
 			$phone_types = $result['values'];
 		}
-
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			'phone_types' => $phone_types,
-		), true ) );
-		*/
 
 		// --<
 		return $phone_types;
@@ -922,15 +826,6 @@ class CiviCRM_Directory_Civi {
 			$address_types = $result['values'];
 		}
 
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			'address_types' => $address_types,
-		), true ) );
-		*/
-
 		// --<
 		return $address_types;
 
@@ -967,15 +862,6 @@ class CiviCRM_Directory_Civi {
 		) {
 			$address_fields = $result['values'];
 		}
-
-		/*
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			'address_types' => $address_types,
-		), true ) );
-		*/
 
 		// --<
 		return $address_fields;

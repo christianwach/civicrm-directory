@@ -407,14 +407,6 @@ class CiviCRM_Directory_Template {
 						'address' => array(),
 					);
 
-					/*
-					error_log( print_r( array(
-						'method' => __METHOD__,
-						'fields' => $fields,
-						'output' => $contact[$field][$index],
-					), true ) );
-					*/
-
 					foreach( $contact_data['api.Address.get']['values'] AS $item ) {
 						foreach( $item AS $key => $value ) {
 
@@ -450,33 +442,9 @@ class CiviCRM_Directory_Template {
 
 				}
 
-				/*
-				error_log( print_r( array(
-					'method' => __METHOD__,
-					'contact_fields' => $contact_fields,
-					'temp' => $contact,
-				), true ) );
-				*/
-
 			}
 
 		}
-
-		/*
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			//'core_refs' => $core_refs,
-			//'all_contact_custom_fields' => $all_contact_custom_fields,
-			//'custom_field_refs' => $custom_field_refs,
-			//'custom_option_refs' => $custom_option_refs,
-			'other_refs' => $other_refs,
-			'contact' => $contact,
-			'contact_fields' => $contact_fields[$contact_type],
-			//'backtrace' => $trace,
-		), true ) );
-		*/
 
 		// use template
 		$file = 'civicrm-directory/directory-details.php';

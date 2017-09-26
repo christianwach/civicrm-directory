@@ -698,17 +698,6 @@ class CiviCRM_Directory_Metaboxes {
 			'sequential' => 1,
 		));
 
-		/*
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'address_types' => $address_types,
-			'address_fields' => $address_fields,
-			//'backtrace' => $trace,
-		), true ) );
-		*/
-
 		// open a list
 		$markup .= '<ul>';
 
@@ -823,17 +812,6 @@ class CiviCRM_Directory_Metaboxes {
 			'phone_type_id',
 		);
 
-		/*
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'phone_types' => $phone_types,
-			'phone_fields' => $phone_fields,
-			//'backtrace' => $trace,
-		), true ) );
-		*/
-
 		// open a list
 		$markup .= '<ul>';
 
@@ -936,30 +914,6 @@ class CiviCRM_Directory_Metaboxes {
 			'field' => "website_type_id",
 		));
 
-		/*
-		// get all website fields
-		$website_fields = civicrm_api( 'Website', 'getfields', array(
-			'version' => 3,
-			'sequential' => 1,
-		));
-
-		// the fields we want to render
-		$fields = array(
-			'url',
-		);
-		*/
-
-		/*
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'website_types' => $website_types,
-			'website_fields' => $website_fields,
-			//'backtrace' => $trace,
-		), true ) );
-		*/
-
 		// open a list
 		$markup .= '<ul>';
 
@@ -1031,17 +985,6 @@ class CiviCRM_Directory_Metaboxes {
 		$fields = array(
 			'email',
 		);
-
-		/*
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'email_types' => $email_types,
-			'email_fields' => $email_fields,
-			//'backtrace' => $trace,
-		), true ) );
-		*/
 
 		// open a list
 		$markup .= '<ul>';
@@ -1273,17 +1216,6 @@ class CiviCRM_Directory_Metaboxes {
 
 		// grab the array
 		$contact_fields = $_POST[$this->contact_fields_meta_key];
-
-		/*
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		error_log( print_r( array(
-			'method' => __METHOD__,
-			'POST' => $_POST,
-			'contact_fields' => $contact_fields,
-			//'backtrace' => $trace,
-		), true ) );
-		*/
 
 		// sanitise array keys
 		$new_array = array();
