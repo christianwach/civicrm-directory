@@ -352,8 +352,11 @@ class CiviCRM_Directory_Template {
 
 		// build custom data array
 		foreach( $fields_custom AS $field_id ) {
+			$value = '';
 			if ( is_array( $custom_option_refs[$field_id] ) ) {
-				$value = $custom_option_refs[$field_id][$contact_data['custom_' . $field_id]];
+				if ( ! empty( $contact_data['custom_' . $field_id] ) ) {
+					$value = $custom_option_refs[$field_id][$contact_data['custom_' . $field_id]];
+				}
 			} else {
 				$value = $contact_data['custom_' . $field_id];
 			}
