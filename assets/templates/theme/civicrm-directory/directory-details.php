@@ -50,10 +50,14 @@
 		<h3><?php _e( 'Address', 'civicrm-directory' ); ?></h3>
 		<ul>
 		<?php foreach( $contact['address'] AS $location ) : ?>
-			<h4><?php echo $location['label']; ?></h4>
-			<?php foreach( $location['address'] AS $address ) : ?>
-				<li><?php echo $address['label']; ?>: <?php echo $address['value']; ?></li>
-			<?php endforeach; ?>
+			<li>
+				<h4><?php echo $location['label']; ?></h4>
+				<ul>
+				<?php foreach( $location['address'] AS $address ) : ?>
+					<li><?php echo $address['label']; ?>: <?php echo $address['value']; ?></li>
+				<?php endforeach; ?>
+				</ul>
+			</li>
 		<?php endforeach; ?>
 		</ul>
 	<?php endif; ?>
