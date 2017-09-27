@@ -61,7 +61,7 @@ class CiviCRM_Directory_CPT {
 		add_filter( 'post_updated_messages', array( $this, 'post_type_messages' ) );
 
 		// custom rewrite rules
-		add_filter( 'init', array( $this, 'rewrite_rules' ) );
+		add_action( 'init', array( $this, 'rewrite_rules' ), 20 );
 		add_filter( 'query_vars', array( $this, 'query_vars' ) );
 
 	}
@@ -273,7 +273,7 @@ class CiviCRM_Directory_CPT {
 
 		// parse requests for contacts
 		add_rewrite_rule(
-			'^directory/(.+)/view/([0-9]+)/?',
+			'^directory/([^/]*)/view/(\d+)/?$',
 			'index.php?post_type=' . $this->post_type_name . '&pagename=$matches[1]&cividir_contact_id=$matches[2]',
 			'top'
 		);
