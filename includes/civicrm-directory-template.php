@@ -350,26 +350,27 @@ class CiviCRM_Directory_Template {
 
 		// build core data array
 		foreach( $fields_core AS $field ) {
-			$contact['core'][] = array(
-				'label' => $core_refs[$field],
-				'value' => $contact_data[$field],
-			);
+			if ( ! empty( $contact_data[$field] ) ) {
+				$contact['core'][] = array(
+					'label' => $core_refs[$field],
+					'value' => $contact_data[$field],
+				);
+			}
 		}
 
 		// build custom data array
 		foreach( $fields_custom AS $field_id ) {
-			$value = '';
-			if ( is_array( $custom_option_refs[$field_id] ) ) {
-				if ( ! empty( $contact_data['custom_' . $field_id] ) ) {
+			if ( ! empty( $contact_data['custom_' . $field_id] ) ) {
+				if ( is_array( $custom_option_refs[$field_id] ) ) {
 					$value = $custom_option_refs[$field_id][$contact_data['custom_' . $field_id]];
+				} else {
+					$value = $contact_data['custom_' . $field_id];
 				}
-			} else {
-				$value = $contact_data['custom_' . $field_id];
+				$contact['custom'][] = array(
+					'label' => $custom_field_refs[$field_id],
+					'value' => $value,
+				);
 			}
-			$contact['custom'][] = array(
-				'label' => $custom_field_refs[$field_id],
-				'value' => $value,
-			);
 		}
 
 		// build other data arrays
@@ -377,28 +378,34 @@ class CiviCRM_Directory_Template {
 
 			if ( $field == 'email' ) {
 				foreach( $contact_data['api.Email.get']['values'] AS $item ) {
-					$contact[$field][$item['location_type_id']] = array(
-						'label' => $other_refs[$field][$item['location_type_id']],
-						'value' => $item['email'],
-					);
+					if ( ! empty( item['email'] ) ) {
+						$contact[$field][$item['location_type_id']] = array(
+							'label' => $other_refs[$field][$item['location_type_id']],
+							'value' => $item['email'],
+						);
+					}
 				}
 			}
 
 			if ( $field == 'website' ) {
 				foreach( $contact_data['api.Website.get']['values'] AS $item ) {
-					$contact[$field][$item['website_type_id']] = array(
-						'label' => $other_refs[$field][$item['website_type_id']],
-						'value' => $item['url'],
-					);
+					if ( ! empty( item['url'] ) ) {
+						$contact[$field][$item['website_type_id']] = array(
+							'label' => $other_refs[$field][$item['website_type_id']],
+							'value' => $item['url'],
+						);
+					}
 				}
 			}
 
 			if ( $field == 'phone' ) {
 				foreach( $contact_data['api.Phone.get']['values'] AS $item ) {
-					$contact[$field][$item['location_type_id']] = array(
-						'label' => $other_refs['email'][$item['location_type_id']],
-						'value' => $other_refs[$field][$item['phone_type_id']] . ': ' . $item['phone'],
-					);
+					if ( ! empty( item['phone'] ) ) {
+						$contact[$field][$item['location_type_id']] = array(
+							'label' => $other_refs['email'][$item['location_type_id']],
+							'value' => $other_refs[$field][$item['phone_type_id']] . ': ' . $item['phone'],
+						);
+					}
 				}
 			}
 
@@ -415,6 +422,7 @@ class CiviCRM_Directory_Template {
 					);
 
 					foreach( $contact_data['api.Address.get']['values'] AS $item ) {
+
 						foreach( $item AS $key => $value ) {
 
 							// skip nested queries
@@ -424,6 +432,9 @@ class CiviCRM_Directory_Template {
 							// skip if not asked for
 							if ( ! in_array( $key, $contact_fields[$contact_type][$field][$location_type_id] ) ) continue;
 							if ( $location_type_id != $item['location_type_id'] ) continue;
+
+							// skip if empty
+							if ( empty( $value ) ) continue;
 
 							// init label
 							$label = $other_refs[$field]['fields'][$key];
@@ -445,6 +456,12 @@ class CiviCRM_Directory_Template {
 							);
 
 						}
+
+					}
+
+					// unset if empty
+					if ( empty( $contact[$field][$location_type_id]['address'] ) ) {
+						unset( $contact[$field][$location_type_id] );
 					}
 
 				}
