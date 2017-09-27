@@ -94,20 +94,26 @@ class CiviCRM_Directory_Template {
 	 */
 	public function pre_get_posts( $query ) {
 
-		// are we viewing a contact?
-		if ( ! is_admin() AND $query->is_main_query() AND ! empty( $query->get( 'cividir_contact_id' ) ) ) {
+		// front end and main query?
+		if ( ! is_admin() AND $query->is_main_query() ) {
 
-			// sanity check
-			$contact_id = absint( $query->get( 'cividir_contact_id' ) );
+			// are we viewing a contact?
+			$contact_id = $query->get( 'cividir_contact_id' );
+			if ( ! empty( $contact_id ) ) {
 
-			// get contact
-			$this->contact = $this->plugin->civi->contact_get_by_id( $contact_id );
+				// sanity check
+				$contact_id = absint( $contact_id );
 
-			// filter the title
-			add_filter( 'the_title', array( $this, 'the_title' ), 10 );
+				// get contact
+				$this->contact = $this->plugin->civi->contact_get_by_id( $contact_id );
 
-			// override the initial map query
-			add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
+				// filter the title
+				add_filter( 'the_title', array( $this, 'the_title' ), 10 );
+
+				// override the initial map query
+				add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
+
+			}
 
 		}
 
