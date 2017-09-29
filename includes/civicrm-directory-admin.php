@@ -19,6 +19,15 @@ class CiviCRM_Directory_Admin {
 	public $plugin;
 
 	/**
+	 * Plugin version.
+	 *
+	 * @since 0.2.3
+	 * @access public
+	 * @var str $plugin_version The plugin version.
+	 */
+	public $plugin_version;
+
+	/**
 	 * Parent Page.
 	 *
 	 * @since 0.1
@@ -71,6 +80,12 @@ class CiviCRM_Directory_Admin {
 		// load settings
 		$this->settings = $this->settings_get();
 
+		// load plugin version
+		$this->plugin_version = $this->version_get();
+
+		// perform any upgrade tasks
+		$this->upgrade_tasks();
+
 	}
 
 
@@ -87,6 +102,38 @@ class CiviCRM_Directory_Admin {
 
 		// add settings option
 		$this->settings_init();
+
+	}
+
+
+
+	/**
+	 * Perform upgrade tasks.
+	 *
+	 * @since 0.2.3
+	 */
+	public function upgrade_tasks() {
+
+		// bail if no upgrade is needed
+		if ( version_compare( $this->plugin_version, CIVICRM_DIRECTORY_VERSION, '>=' ) ) {
+			return;
+		}
+
+		/**
+		 * Broadcast plugin upgrade.
+		 *
+		 * @since 0.2.3
+		 *
+		 * @param str $plugin_version The previous plugin version.
+		 * @param str CIVICRM_DIRECTORY_VERSION The current plugin version.
+		 */
+		do_action( 'civicrm_directory_upgrade', $this->plugin_version, CIVICRM_DIRECTORY_VERSION );
+
+		// flush rules late
+		add_action( 'init', 'flush_rewrite_rules', 100 );
+
+		// store new version
+		$this->store_version();
 
 	}
 
