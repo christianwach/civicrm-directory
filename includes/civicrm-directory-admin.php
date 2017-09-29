@@ -133,7 +133,7 @@ class CiviCRM_Directory_Admin {
 		add_action( 'init', 'flush_rewrite_rules', 100 );
 
 		// store new version
-		$this->store_version();
+		$this->version_set();
 
 	}
 
