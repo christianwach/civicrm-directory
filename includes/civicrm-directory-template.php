@@ -98,7 +98,7 @@ class CiviCRM_Directory_Template {
 		if ( ! is_admin() AND $query->is_main_query() ) {
 
 			// are we viewing a contact?
-			$contact_id = $query->get( 'cividir_contact_id' );
+			$contact_id = $query->get( 'entry' );
 			if ( ! empty( $contact_id ) ) {
 
 				// sanity check
@@ -135,8 +135,8 @@ class CiviCRM_Directory_Template {
 
 		// are we viewing a contact?
 		if (
-			isset( $wp_query->query_vars['cividir_contact_id'] ) AND
-			is_numeric( $wp_query->query_vars['cividir_contact_id'] ) AND
+			isset( $wp_query->query_vars['entry'] ) AND
+			is_numeric( $wp_query->query_vars['entry'] ) AND
 			is_singular( 'directory' ) AND
 			in_the_loop()
 		) {
@@ -532,7 +532,7 @@ class CiviCRM_Directory_Template {
 		}
 
 		// are we viewing a contact?
-		if ( isset( $wp_query->query_vars['cividir_contact_id'] ) ) {
+		if ( ! empty( $wp_query->query_vars['entry'] ) ) {
 			$file = 'civicrm-directory/directory-contact.php';
 		} else {
 			$file = 'civicrm-directory/directory-index.php';

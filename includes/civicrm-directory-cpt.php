@@ -60,9 +60,8 @@ class CiviCRM_Directory_CPT {
 		// make sure our feedback is appropriate
 		add_filter( 'post_updated_messages', array( $this, 'post_type_messages' ) );
 
-		// custom rewrite rules
-		add_action( 'init', array( $this, 'rewrite_rules' ), 20 );
-		add_filter( 'query_vars', array( $this, 'query_vars' ) );
+		// custom endpoints
+		add_action( 'init', array( $this, 'endpoints' ), 20 );
 
 	}
 
@@ -77,7 +76,7 @@ class CiviCRM_Directory_CPT {
 
 		// pass through
 		$this->post_type_create();
-		$this->rewrite_rules();
+		$this->endpoints();
 
 		// go ahead and flush
 		flush_rewrite_rules();
@@ -263,20 +262,16 @@ class CiviCRM_Directory_CPT {
 
 
 	/**
-	 * Add our rewrite rules.
+	 * Add our endpoints.
 	 *
-	 * @since 0.2.1
+	 * @since 0.2.3
 	 *
 	 * @param bool $flush_rewrite_rules True if rules should be flushed, false otherwise.
 	 */
-	public function rewrite_rules( $flush_rewrite_rules = false ) {
+	public function endpoints( $flush_rewrite_rules = false ) {
 
-		// parse requests for contacts
-		add_rewrite_rule(
-			'^directory/([^/]*)/view/(\d+)/?$',
-			'index.php?post_type=' . $this->post_type_name . '&pagename=$matches[1]&cividir_contact_id=$matches[2]',
-			'top'
-		);
+		// let's add an endpoint for viewing entries
+		add_rewrite_endpoint( 'entry', EP_PERMALINK | EP_PAGES );
 
 		// maybe force flush
 		if ( $flush_rewrite_rules ) {
@@ -290,7 +285,7 @@ class CiviCRM_Directory_CPT {
 		 *
 		 * @param bool $flush_rewrite_rules True if rules flushed, false otherwise.
 		 */
-		do_action( 'civicrm_directory_after_rewrite_rules', $flush_rewrite_rules );
+		do_action( 'civicrm_directory_after_endpoints', $flush_rewrite_rules );
 
 		//flush_rewrite_rules();
 

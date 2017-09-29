@@ -256,7 +256,7 @@ class CiviCRM_Directory_Search {
 				'longitude' => $contact['geo_code_2'],
 				'name' => $contact['display_name'],
 				'address' => $address,
-				'permalink' => esc_url( trailingslashit( get_permalink( $post_id ) ) . 'view/' . $contact['id'] ),
+				'permalink' => esc_url( trailingslashit( get_permalink( $post_id ) ) . 'entry/' . $contact['id'] ),
 			);
 
 		}
@@ -438,7 +438,7 @@ class CiviCRM_Directory_Search {
 	public function get_item_markup( $contact, $post_id ) {
 
 		// construct permalink
-		$permalink = esc_url( trailingslashit( get_permalink( $post_id ) ) . 'view/' . $contact['id'] );
+		$permalink = esc_url( trailingslashit( get_permalink( $post_id ) ) . 'entry/' . $contact['id'] );
 
 		// build markup
 		$markup = '<a href="' . $permalink . '">' . esc_html( $contact['display_name'] ) . '</a>';
