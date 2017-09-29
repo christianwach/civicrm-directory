@@ -378,7 +378,7 @@ class CiviCRM_Directory_Template {
 
 			if ( $field == 'email' ) {
 				foreach( $contact_data['api.Email.get']['values'] AS $item ) {
-					if ( ! empty( item['email'] ) ) {
+					if ( ! empty( $item['email'] ) ) {
 						$contact[$field][$item['location_type_id']] = array(
 							'label' => $other_refs[$field][$item['location_type_id']],
 							'value' => $item['email'],
@@ -389,7 +389,7 @@ class CiviCRM_Directory_Template {
 
 			if ( $field == 'website' ) {
 				foreach( $contact_data['api.Website.get']['values'] AS $item ) {
-					if ( ! empty( item['url'] ) ) {
+					if ( ! empty( $item['url'] ) ) {
 						$contact[$field][$item['website_type_id']] = array(
 							'label' => $other_refs[$field][$item['website_type_id']],
 							'value' => $item['url'],
@@ -400,7 +400,7 @@ class CiviCRM_Directory_Template {
 
 			if ( $field == 'phone' ) {
 				foreach( $contact_data['api.Phone.get']['values'] AS $item ) {
-					if ( ! empty( item['phone'] ) ) {
+					if ( ! empty( $item['phone'] ) ) {
 						$contact[$field][$item['location_type_id']] = array(
 							'label' => $other_refs['email'][$item['location_type_id']],
 							'value' => $other_refs[$field][$item['phone_type_id']] . ': ' . $item['phone'],
