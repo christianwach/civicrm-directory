@@ -104,6 +104,9 @@ class CiviCRM_Directory_Template {
 				// sanity check
 				$contact_id = absint( $contact_id );
 
+				// reject failed conversions
+				if ( $contact_id == 0 ) return $query;
+
 				// get contact
 				$this->contact = $this->plugin->civi->contact_get_by_id( $contact_id );
 
@@ -197,8 +200,7 @@ class CiviCRM_Directory_Template {
 
 		// are we viewing a contact?
 		if (
-			isset( $wp_query->query_vars['entry'] ) AND
-			is_numeric( $wp_query->query_vars['entry'] ) AND
+			! empty( $wp_query->query_vars['entry'] ) AND
 			is_singular( 'directory' ) AND
 			in_the_loop()
 		) {
@@ -594,7 +596,7 @@ class CiviCRM_Directory_Template {
 		}
 
 		// are we viewing a contact?
-		if ( ! empty( $wp_query->query_vars['entry'] ) ) {
+		if ( ! empty( $this->contact ) ) {
 			$file = 'civicrm-directory/directory-contact.php';
 		} else {
 			$file = 'civicrm-directory/directory-index.php';
