@@ -122,7 +122,7 @@ class CiviCRM_Directory_Template {
 
 
 	/**
-	 * Set up data and hooks for directory contact view.
+	 * Register hooks and retrieve data for directory contact view.
 	 *
 	 * @since 0.2.4
 	 */
