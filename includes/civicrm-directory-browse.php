@@ -366,32 +366,17 @@ class CiviCRM_Directory_Browse {
 		// get plugin reference
 		$plugin = civicrm_directory();
 
-		// set key
-		$db_key = '_' . $plugin->metaboxes->group_id_meta_key;
-
-		// default to empty
-		$group_id = '';
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post_id, $db_key, true );
-		if ( false !== $existing ) {
-			$group_id = get_post_meta( $post_id, $db_key, true );
-		}
+		// get group ID from post meta
+		$group_id = $plugin->metaboxes->group_id_get( $post_id );
 
 		// sanity check
 		if ( empty( $group_id ) ) return $results;
 
-		// set key
-		$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
+		// get contact types from post meta
+		$contact_types = $plugin->metaboxes->contact_types_get( $post_id );
 
-		// default to empty
-		$contact_types = array();
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post_id, $db_key, true );
-		if ( false !== $existing ) {
-			$contact_types = get_post_meta( $post_id, $db_key, true );
-		}
+		// sanity check
+		if ( empty( $contact_types ) ) return $results;
 
 		// sanity check
 		if ( $letter !== 'ALL' ) {

@@ -301,6 +301,11 @@ class CiviCRM_Directory_Civi {
 			'contact_id' => $contact_id,
 		);
 
+		// maybe add group
+		if ( isset( $args['group_id'] ) ) {
+			$params['group'] = array( 'IN' => array( $args['group_id'] ) );
+		}
+
 		// do we have any arguments?
 		if ( ! empty( $args ) ) {
 
@@ -437,7 +442,7 @@ class CiviCRM_Directory_Civi {
 	 *
 	 * @return array $contact_types The top-level CiviCRM contact types.
 	 */
-	public function contact_types_get() {
+	public function contact_types_get_all() {
 
 		// init return
 		$contact_types = array();

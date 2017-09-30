@@ -88,7 +88,7 @@ class CiviCRM_Directory_Template {
 
 
 	/**
-	 * Amend query for directory contact view.
+	 * Check query for directory entry view request.
 	 *
 	 * @since 0.2.1
 	 */
@@ -107,24 +107,64 @@ class CiviCRM_Directory_Template {
 				// reject failed conversions
 				if ( $contact_id == 0 ) return $query;
 
-				// get contact
-				$this->contact = $this->plugin->civi->contact_get_by_id( $contact_id );
+				// set up contact once query is complete
+				add_action( 'wp', array( $this, 'entry_setup' ) );
 
-				// filter the document title for themes that still use wp_title()
-				add_filter( 'wp_title', array( $this, 'document_title' ), 20, 3 );
-
-				// filter the document title for themes that support 'title-tag'
-				add_filter( 'document_title_parts', array( $this, 'document_title_parts' ), 20 );
-
-				// filter the title
-				add_filter( 'the_title', array( $this, 'the_title' ), 10 );
-
-				// override the initial map query
-				add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
+				// store contact ID for retrieval in entry_setup()
+				$this->contact_id = $contact_id;
 
 			}
 
 		}
+
+	}
+
+
+
+	/**
+	 * Set up data and hooks for directory contact view.
+	 *
+	 * @since 0.2.4
+	 */
+	public function entry_setup() {
+
+		// bail if we don't have a valid countact ID
+		if ( ! isset( $this->contact_id ) ) return;
+		if ( ! is_int( $this->contact_id ) ) return;
+
+		// loop through the results and get group ID from post meta
+		if ( have_posts() ) {
+			while ( have_posts() ) : the_post();
+				global $post;
+				$group_id = $this->plugin->metaboxes->group_id_get( $post->ID );
+			endwhile;
+		}
+
+		// reset loop
+		rewind_posts();
+
+		// sanity check
+		if ( empty( $group_id ) ) return $results;
+
+		// restrict to group
+		$args = array(
+			'group_id' => $group_id,
+		);
+
+		// get contact
+		$this->contact = $this->plugin->civi->contact_get_by_id( $this->contact_id, $args );
+
+		// filter the document title for themes that still use wp_title()
+		add_filter( 'wp_title', array( $this, 'document_title' ), 20, 3 );
+
+		// filter the document title for themes that support 'title-tag'
+		add_filter( 'document_title_parts', array( $this, 'document_title_parts' ), 20 );
+
+		// filter the title
+		add_filter( 'the_title', array( $this, 'the_title' ), 10 );
+
+		// override the initial map query
+		add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
 
 	}
 
@@ -405,6 +445,9 @@ class CiviCRM_Directory_Template {
 			}
 
 		}
+
+		// restrict to group
+		$args['group_id'] = $this->plugin->metaboxes->group_id_get( get_the_ID() );
 
 		// get contact again, this time with custom fields etc
 		$contact_data = $this->plugin->civi->contact_get_by_id( $this->contact['contact_id'], $args );

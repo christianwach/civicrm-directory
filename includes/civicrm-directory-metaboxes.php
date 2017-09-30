@@ -133,20 +133,11 @@ class CiviCRM_Directory_Metaboxes {
 
 		// ---------------------------------------------------------------------
 
-		// set key
-		$db_key = '_' . $this->contact_types_meta_key;
-
-		// default to empty
-		$contact_types = array();
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post->ID, $db_key, true );
-		if ( ! empty( $existing ) ) {
-			$contact_types = get_post_meta( $post->ID, $db_key, true );
-		}
+		// get contact types for this post
+		$contact_types = $this->contact_types_get( $post->ID );
 
 		// get all contact types
-		$all_contact_types = $this->plugin->civi->contact_types_get();
+		$all_contact_types = $this->plugin->civi->contact_types_get_all();
 
 		// instructions
 		echo '<p>' . __( 'Choose the kinds of CiviCRM Contact Types for the Contacts in this Directory. This is useful because if, for example, you know that all of the Contacts in this Directory will be Organisations then it makes searching the Directory more efficient. You can change this setting if you need to.', 'civicrm-directory' ) . '</p>';
@@ -390,17 +381,8 @@ class CiviCRM_Directory_Metaboxes {
 		// Use nonce for verification
 		wp_nonce_field( 'civicrm_directory_group_id_box', 'civicrm_directory_group_id_nonce' );
 
-		// set key
-		$db_key = '_' . $this->group_id_meta_key;
-
-		// default to empty
-		$group_id = '';
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post->ID, $db_key, true );
-		if ( false !== $existing ) {
-			$group_id = get_post_meta( $post->ID, $db_key, true );
-		}
+		// get group ID from post meta
+		$group_id = $this->group_id_get( $post->ID = null );
 
 		// instructions
 		echo '<p>' . __( 'Choose the CiviCRM Group to which all Contacts for this Directory belong.', 'civicrm-directory' ) . '</p>';
@@ -422,6 +404,38 @@ class CiviCRM_Directory_Metaboxes {
 		echo '<p><select name="' . $this->group_id_meta_key . '" id="' . $this->group_id_meta_key . '">' .
 				$options .
 			 '</select></p>';
+
+	}
+
+
+
+	/**
+	 * Get the CiviCRM Group ID for a Directory ID.
+	 *
+	 * @since 0.2.4
+	 *
+	 * @param int $post_id The ID of the directory.
+	 * @return int|bool $group_id The ID of the CiviCRM Group, or false on failure.
+	 */
+	public function group_id_get( $post_id = null ) {
+
+		// use current post if none passed
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+
+		// set key
+		$db_key = '_' . $this->group_id_meta_key;
+
+		// default to false
+		$group_id = false;
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$group_id = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// --<
+		return $group_id;
 
 	}
 
@@ -1050,12 +1064,44 @@ class CiviCRM_Directory_Metaboxes {
 
 		// get value if the custom field already has one
 		$existing = get_post_meta( $post_id, $db_key, true );
-		if ( ! empty( $existing ) ) {
+		if ( ! empty( $existing ) AND is_array( $existing ) ) {
 			$contact_fields = get_post_meta( $post_id, $db_key, true );
 		}
 
 		// --<
 		return $contact_fields;
+
+	}
+
+
+
+	/**
+	 * Get the contact types for a directory.
+	 *
+	 * @since 0.2.4
+	 *
+	 * @param integer $post_id The ID of the post.
+	 * @return array $contact_types The contact types data for the post.
+	 */
+	public function contact_types_get( $post_id = null ) {
+
+		// use current post if none passed
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+
+		// set key
+		$db_key = '_' . $this->contact_types_meta_key;
+
+		// default to empty
+		$contact_types = array();
+
+		// get value if the custom type already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( ! empty( $existing ) AND is_array( $existing ) ) {
+			$contact_types = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// --<
+		return $contact_types;
 
 	}
 

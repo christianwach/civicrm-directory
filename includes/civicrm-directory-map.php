@@ -160,32 +160,14 @@ function civicrm_directory_map() {
 
 	$plugin = civicrm_directory();
 
-	// set key
-	$db_key = '_' . $plugin->metaboxes->group_id_meta_key;
-
-	// default to empty
-	$group_id = '';
-
-	// get value if the custom field already has one
-	$existing = get_post_meta( get_the_ID(), $db_key, true );
-	if ( false !== $existing ) {
-		$group_id = get_post_meta( get_the_ID(), $db_key, true );
-	}
+	// get group ID from post meta
+	$group_id = $plugin->metaboxes->group_id_get();
 
 	// sanity check
 	if ( empty( $group_id ) ) return;
 
-	// set key
-	$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
-
-	// default to empty
-	$contact_types = array();
-
-	// get value if the custom field already has one
-	$existing = get_post_meta( get_the_ID(), $db_key, true );
-	if ( ! empty( $existing ) ) {
-		$contact_types = get_post_meta( get_the_ID(), $db_key, true );
-	}
+	// get contact types from post meta
+	$contact_types = $plugin->metaboxes->contact_types_get();
 
 	// sanity check
 	if ( empty( $contact_types ) ) return;

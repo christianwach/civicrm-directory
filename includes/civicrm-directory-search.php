@@ -293,7 +293,7 @@ class CiviCRM_Directory_Search {
 	 *
 	 * @since 0.1.3
 	 *
-	 * @param WP_Post $post The object for the current post/page.
+	 * @param int $post_id The ID of the current post/page.
 	 * @param str $search The search string.
 	 * @return array $results The array of contact data.
 	 */
@@ -305,32 +305,17 @@ class CiviCRM_Directory_Search {
 		// get plugin reference
 		$plugin = civicrm_directory();
 
-		// set key
-		$db_key = '_' . $plugin->metaboxes->group_id_meta_key;
-
-		// default to empty
-		$group_id = '';
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post_id, $db_key, true );
-		if ( false !== $existing ) {
-			$group_id = get_post_meta( $post_id, $db_key, true );
-		}
+		// get group ID from post meta
+		$group_id = $plugin->metaboxes->group_id_get( $post_id );
 
 		// sanity check
 		if ( empty( $group_id ) ) return $results;
 
-		// set key
-		$db_key = '_' . $plugin->metaboxes->contact_types_meta_key;
+		// get contact types from post meta
+		$contact_types = $plugin->metaboxes->contact_types_get( $post_id );
 
-		// default to empty
-		$contact_types = array();
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post_id, $db_key, true );
-		if ( false !== $existing ) {
-			$contact_types = get_post_meta( $post_id, $db_key, true );
-		}
+		// sanity check
+		if ( empty( $contact_types ) ) return $results;
 
 		// get individuals in this group filtered by first letter
 		$individuals = array();
