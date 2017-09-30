@@ -107,6 +107,12 @@ class CiviCRM_Directory_Template {
 				// get contact
 				$this->contact = $this->plugin->civi->contact_get_by_id( $contact_id );
 
+				// filter the document title for themes that still use wp_title()
+				add_filter( 'wp_title', array( $this, 'document_title' ), 20, 3 );
+
+				// filter the document title for themes that support 'title-tag'
+				add_filter( 'document_title_parts', array( $this, 'document_title_parts' ), 20 );
+
 				// filter the title
 				add_filter( 'the_title', array( $this, 'the_title' ), 10 );
 
@@ -116,6 +122,62 @@ class CiviCRM_Directory_Template {
 			}
 
 		}
+
+	}
+
+
+
+	/**
+	 * Override document title when viewing a contact in the directory.
+	 *
+	 * This filter only kicks in with themes that do not add theme support for
+	 * 'title-tag' and still use wp_title(). This includes default themes up to
+	 * Twenty Fourteen, so it's worth supporting.
+	 *
+	 * @since 0.2.4
+	 *
+	 * @param string $title The page title.
+	 * @param string $sep Title separator.
+	 * @param string $seplocation Location of the separator (left or right).
+	 * @return string $title The modified page title.
+	 */
+	public function document_title( $title, $sep, $sep_location ) {
+
+		// safety first
+		if ( ! isset( $this->contact['display_name'] ) ) return $title;
+
+		// sep on right, so reverse the order
+		if ( 'right' == $sep_location ) {
+			$title = $this->contact['display_name'] . " $sep " . $title;
+		} else {
+			$title = $title . " $sep " . $this->contact['display_name'];
+		}
+
+		// --<
+		return $title;
+
+	}
+
+
+
+	/**
+	 * Add the root network name when the sub-blog is a group blog.
+	 *
+	 * @since 3.8
+	 *
+	 * @param array $parts The existing title parts
+	 * @return array $parts The modified title parts
+	 */
+	public function document_title_parts( $parts ) {
+
+		// safety first
+		if ( ! isset( $this->contact['display_name'] ) ) return $parts;
+
+		// prepend the contact display name
+		$parts = array( 'name' => $this->contact['display_name'] ) + $parts;
+
+		// --<
+		return $parts;
 
 	}
 
