@@ -134,7 +134,7 @@ class CiviCRM_Directory_Civi {
 		// define params to get all publicly-viewable groups
 		$params = array(
 			'version' => 3,
-			'visibility' => 'Public Pages',
+			//'visibility' => 'Public Pages',
 			'is_active' => 1,
 			'is_hidden' => 0,
 			'options' => array(
