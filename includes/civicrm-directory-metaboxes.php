@@ -382,7 +382,7 @@ class CiviCRM_Directory_Metaboxes {
 		wp_nonce_field( 'civicrm_directory_group_id_box', 'civicrm_directory_group_id_nonce' );
 
 		// get group ID from post meta
-		$group_id = $this->group_id_get( $post->ID = null );
+		$group_id = $this->group_id_get( $post->ID );
 
 		// instructions
 		echo '<p>' . __( 'Choose the CiviCRM Group to which all Contacts for this Directory belong.', 'civicrm-directory' ) . '</p>';
