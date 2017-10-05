@@ -1,13 +1,13 @@
 <?php
 
 /**
- * CiviCRM Directory Metaboxes Class.
+ * CiviCRM Directory CPT Meta Class.
  *
- * A class that encapsulates all Metaboxes for CiviCRM Directory.
+ * A class that encapsulates all metadata functionality for the Directory CPT.
  *
  * @package CiviCRM_Directory
  */
-class CiviCRM_Directory_Metaboxes {
+class CiviCRM_Directory_CPT_Meta {
 
 	/**
 	 * Custom Post Type name.

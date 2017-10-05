@@ -207,11 +207,11 @@ class CiviCRM_Directory {
 		// load our CPT class
 		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-cpt.php' );
 
-		// load our Metaboxes class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-template.php' );
+		// load our CPT Meta class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-cpt-meta.php' );
 
-		// load our Metaboxes class
-		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-metaboxes.php' );
+		// load our Template class
+		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-template.php' );
 
 		// load our Map class
 		require( CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-map.php' );
@@ -249,11 +249,11 @@ class CiviCRM_Directory {
 		$this->cpt = new CiviCRM_Directory_CPT( $this );
 		$this->cpt->register_hooks();
 
+		$this->metaboxes = new CiviCRM_Directory_CPT_Meta( $this );
+		$this->metaboxes->register_hooks();
+
 		$this->template = new CiviCRM_Directory_Template( $this );
 		$this->template->register_hooks();
-
-		$this->metaboxes = new CiviCRM_Directory_Metaboxes( $this );
-		$this->metaboxes->register_hooks();
 
 		$this->map = new CiviCRM_Directory_Map( $this );
 		// map class needs no hooks
