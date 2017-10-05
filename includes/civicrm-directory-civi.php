@@ -117,11 +117,11 @@ class CiviCRM_Directory_Civi {
 
 
 	/**
-	 * Get publicly-viewable CiviCRM groups.
+	 * Get all CiviCRM groups.
 	 *
 	 * @since 0.1.2
 	 *
-	 * @return array $groups The publicly-viewable CiviCRM groups.
+	 * @return array $groups The array of all CiviCRM groups.
 	 */
 	public function groups_get() {
 
@@ -131,10 +131,9 @@ class CiviCRM_Directory_Civi {
 		// try and init CiviCRM
 		if ( ! $this->initialize() ) return $groups;
 
-		// define params to get all publicly-viewable groups
+		// define params to get all groups
 		$params = array(
 			'version' => 3,
-			//'visibility' => 'Public Pages',
 			'is_active' => 1,
 			'is_hidden' => 0,
 			'options' => array(
@@ -288,7 +287,7 @@ class CiviCRM_Directory_Civi {
 	 *
 	 * @param int $contact_id The numeric ID of the CiviCRM contact.
 	 * @param array $args Additional arguments to refine retrieval of a CiviCRM contact.
-	 * @return mixed $civi_contact The array of data for the CiviCRM Contact, or false if not found
+	 * @return mixed $civi_contact The array of data for the CiviCRM Contact, or false if not found.
 	 */
 	public function contact_get_by_id( $contact_id, $args = array() ) {
 
