@@ -161,13 +161,13 @@ function civicrm_directory_map() {
 	$plugin = civicrm_directory();
 
 	// get group ID from post meta
-	$group_id = $plugin->metaboxes->group_id_get();
+	$group_id = $plugin->cpt_meta->group_id_get();
 
 	// sanity check
 	if ( empty( $group_id ) ) return;
 
 	// get contact types from post meta
-	$contact_types = $plugin->metaboxes->contact_types_get();
+	$contact_types = $plugin->cpt_meta->contact_types_get();
 
 	// sanity check
 	if ( empty( $contact_types ) ) return;

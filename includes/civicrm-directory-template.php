@@ -136,7 +136,7 @@ class CiviCRM_Directory_Template {
 		if ( have_posts() ) {
 			while ( have_posts() ) : the_post();
 				global $post;
-				$group_id = $this->plugin->metaboxes->group_id_get( $post->ID );
+				$group_id = $this->plugin->cpt_meta->group_id_get( $post->ID );
 			endwhile;
 		}
 
@@ -395,7 +395,7 @@ class CiviCRM_Directory_Template {
 		}
 
 		// get contact fields data
-		$contact_fields = $this->plugin->metaboxes->contact_fields_get();
+		$contact_fields = $this->plugin->cpt_meta->contact_fields_get();
 
 		// init args
 		$args = array(
@@ -447,7 +447,7 @@ class CiviCRM_Directory_Template {
 		}
 
 		// restrict to group
-		$args['group_id'] = $this->plugin->metaboxes->group_id_get( get_the_ID() );
+		$args['group_id'] = $this->plugin->cpt_meta->group_id_get( get_the_ID() );
 
 		// get contact again, this time with custom fields etc
 		$contact_data = $this->plugin->civi->contact_get_by_id( $this->contact['contact_id'], $args );

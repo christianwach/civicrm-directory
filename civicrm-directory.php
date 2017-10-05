@@ -76,6 +76,15 @@ class CiviCRM_Directory {
 	public $cpt;
 
 	/**
+	 * Custom Post Type Meta object.
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var object $cpt_meta The Custom Post Type Meta object.
+	 */
+	public $cpt_meta;
+
+	/**
 	 * Template object.
 	 *
 	 * @since 0.1
@@ -83,15 +92,6 @@ class CiviCRM_Directory {
 	 * @var object $template The Template object.
 	 */
 	public $template;
-
-	/**
-	 * Metaboxes object.
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @var object $metaboxes The Metaboxes object.
-	 */
-	public $metaboxes;
 
 	/**
 	 * Map object.
@@ -249,8 +249,8 @@ class CiviCRM_Directory {
 		$this->cpt = new CiviCRM_Directory_CPT( $this );
 		$this->cpt->register_hooks();
 
-		$this->metaboxes = new CiviCRM_Directory_CPT_Meta( $this );
-		$this->metaboxes->register_hooks();
+		$this->cpt_meta = new CiviCRM_Directory_CPT_Meta( $this );
+		$this->cpt_meta->register_hooks();
 
 		$this->template = new CiviCRM_Directory_Template( $this );
 		$this->template->register_hooks();

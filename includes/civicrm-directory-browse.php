@@ -367,13 +367,13 @@ class CiviCRM_Directory_Browse {
 		$plugin = civicrm_directory();
 
 		// get group ID from post meta
-		$group_id = $plugin->metaboxes->group_id_get( $post_id );
+		$group_id = $plugin->cpt_meta->group_id_get( $post_id );
 
 		// sanity check
 		if ( empty( $group_id ) ) return $results;
 
 		// get contact types from post meta
-		$contact_types = $plugin->metaboxes->contact_types_get( $post_id );
+		$contact_types = $plugin->cpt_meta->contact_types_get( $post_id );
 
 		// sanity check
 		if ( empty( $contact_types ) ) return $results;
