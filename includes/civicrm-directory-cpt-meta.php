@@ -92,16 +92,6 @@ class CiviCRM_Directory_CPT_Meta {
 	 */
 	public function add_meta_boxes() {
 
-		// add our Config meta box
-		add_meta_box(
-			'civicrm_directory_contact_types',
-			__( 'Directory Configuration', 'civicrm-directory' ),
-			array( $this, 'config_metabox' ),
-			$this->post_type_name,
-			'normal', // column: options are 'normal' and 'side'
-			'core' // vertical placement: options are 'core', 'high', 'low'
-		);
-
 		// add our Group ID meta box
 		add_meta_box(
 			'civicrm_directory_group_id',
@@ -112,7 +102,97 @@ class CiviCRM_Directory_CPT_Meta {
 			'core' // vertical placement: options are 'core', 'high', 'low'
 		);
 
+		// add our Config meta box
+		add_meta_box(
+			'civicrm_directory_contact_types',
+			__( 'Directory Configuration', 'civicrm-directory' ),
+			array( $this, 'config_metabox' ),
+			$this->post_type_name,
+			'normal', // column: options are 'normal' and 'side'
+			'core' // vertical placement: options are 'core', 'high', 'low'
+		);
+
 	}
+
+
+
+	// #########################################################################
+
+
+
+	/**
+	 * Adds a metabox to CPT edit screens for CiviCRM Group ID.
+	 *
+	 * @since 0.1
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 */
+	public function group_id_metabox( $post ) {
+
+		// Use nonce for verification
+		wp_nonce_field( 'civicrm_directory_group_id_box', 'civicrm_directory_group_id_nonce' );
+
+		// get group ID from post meta
+		$group_id = $this->group_id_get( $post->ID );
+
+		// instructions
+		echo '<p>' . __( 'Choose the CiviCRM Group to which all Contacts for this Directory belong.', 'civicrm-directory' ) . '</p>';
+
+		// start with empty option
+		$selected = empty( $group_id ) ? ' selected="selected"' : '';
+		$options = '<option value=""' . $selected . '>' . __( '- Select a Group -', 'civicrm-directory' ) . '</option>';
+
+		// get CiviCRM groups that could be Directories
+		$groups = $this->plugin->civi->groups_get();
+
+		// add CiviCRM groups
+		foreach( $groups AS $key => $data ) {
+			$selected = ( $key == $group_id ) ? ' selected="selected"' : '';
+			$options .= '<option value="' . esc_attr( $key ) . '"' . $selected . '>' . esc_html( $data['title'] ) . '</option>';
+		}
+
+		// show the dropdown
+		echo '<p><select name="' . $this->group_id_meta_key . '" id="' . $this->group_id_meta_key . '">' .
+				$options .
+			 '</select></p>';
+
+	}
+
+
+
+	/**
+	 * Get the CiviCRM Group ID for a Directory ID.
+	 *
+	 * @since 0.2.4
+	 *
+	 * @param int $post_id The ID of the directory.
+	 * @return int|bool $group_id The ID of the CiviCRM Group, or false on failure.
+	 */
+	public function group_id_get( $post_id = null ) {
+
+		// use current post if none passed
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+
+		// set key
+		$db_key = '_' . $this->group_id_meta_key;
+
+		// default to false
+		$group_id = false;
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$group_id = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// --<
+		return $group_id;
+
+	}
+
+
+
+	// #########################################################################
 
 
 
@@ -366,82 +446,6 @@ class CiviCRM_Directory_CPT_Meta {
 		);
 
 	}
-
-
-
-	/**
-	 * Adds a metabox to CPT edit screens for CiviCRM Group ID.
-	 *
-	 * @since 0.1
-	 *
-	 * @param WP_Post $post The object for the current post/page.
-	 */
-	public function group_id_metabox( $post ) {
-
-		// Use nonce for verification
-		wp_nonce_field( 'civicrm_directory_group_id_box', 'civicrm_directory_group_id_nonce' );
-
-		// get group ID from post meta
-		$group_id = $this->group_id_get( $post->ID );
-
-		// instructions
-		echo '<p>' . __( 'Choose the CiviCRM Group to which all Contacts for this Directory belong.', 'civicrm-directory' ) . '</p>';
-
-		// start with empty option
-		$selected = empty( $group_id ) ? ' selected="selected"' : '';
-		$options = '<option value=""' . $selected . '>' . __( '- Select a Group -', 'civicrm-directory' ) . '</option>';
-
-		// get CiviCRM groups that could be Directories
-		$groups = $this->plugin->civi->groups_get();
-
-		// add CiviCRM groups
-		foreach( $groups AS $key => $data ) {
-			$selected = ( $key == $group_id ) ? ' selected="selected"' : '';
-			$options .= '<option value="' . esc_attr( $key ) . '"' . $selected . '>' . esc_html( $data['title'] ) . '</option>';
-		}
-
-		// show the dropdown
-		echo '<p><select name="' . $this->group_id_meta_key . '" id="' . $this->group_id_meta_key . '">' .
-				$options .
-			 '</select></p>';
-
-	}
-
-
-
-	/**
-	 * Get the CiviCRM Group ID for a Directory ID.
-	 *
-	 * @since 0.2.4
-	 *
-	 * @param int $post_id The ID of the directory.
-	 * @return int|bool $group_id The ID of the CiviCRM Group, or false on failure.
-	 */
-	public function group_id_get( $post_id = null ) {
-
-		// use current post if none passed
-		if ( is_null( $post_id ) ) $post_id = get_the_ID();
-
-		// set key
-		$db_key = '_' . $this->group_id_meta_key;
-
-		// default to false
-		$group_id = false;
-
-		// get value if the custom field already has one
-		$existing = get_post_meta( $post_id, $db_key, true );
-		if ( false !== $existing ) {
-			$group_id = get_post_meta( $post_id, $db_key, true );
-		}
-
-		// --<
-		return $group_id;
-
-	}
-
-
-
-	// #########################################################################
 
 
 
