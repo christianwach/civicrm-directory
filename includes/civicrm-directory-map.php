@@ -160,6 +160,12 @@ function civicrm_directory_map() {
 
 	$plugin = civicrm_directory();
 
+	// get mapping-enabled from post meta
+	$mapping = $plugin->cpt_meta->mapping_get();
+
+	// sanity check
+	if ( ! $mapping ) return;
+
 	// get group ID from post meta
 	$group_id = $plugin->cpt_meta->group_id_get();
 

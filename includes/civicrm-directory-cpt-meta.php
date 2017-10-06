@@ -45,6 +45,15 @@ class CiviCRM_Directory_CPT_Meta {
 	 */
 	public $group_id_meta_key = 'civicrm_directory_group_id';
 
+	/**
+	 * CiviCRM Mapping meta key.
+	 *
+	 * @since 0.2.4
+	 * @access public
+	 * @var str $mapping_meta_key The meta key for the Mapping setting.
+	 */
+	public $mapping_meta_key = 'civicrm_directory_mapping';
+
 
 
 	/**
@@ -97,6 +106,16 @@ class CiviCRM_Directory_CPT_Meta {
 			'civicrm_directory_group_id',
 			__( 'CiviCRM Group', 'civicrm-directory' ),
 			array( $this, 'group_id_metabox' ),
+			$this->post_type_name,
+			'normal', // column: options are 'normal' and 'side'
+			'core' // vertical placement: options are 'core', 'high', 'low'
+		);
+
+		// add our Mapping meta box
+		add_meta_box(
+			'civicrm_directory_mapping',
+			__( 'Directory Mapping', 'civicrm-directory' ),
+			array( $this, 'mapping_metabox' ),
 			$this->post_type_name,
 			'normal', // column: options are 'normal' and 'side'
 			'core' // vertical placement: options are 'core', 'high', 'low'
@@ -187,6 +206,75 @@ class CiviCRM_Directory_CPT_Meta {
 
 		// --<
 		return $group_id;
+
+	}
+
+
+
+	// #########################################################################
+
+
+
+	/**
+	 * Adds a metabox to CPT edit screens for Mapping preferences.
+	 *
+	 * @since 0.2.4
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 */
+	public function mapping_metabox( $post ) {
+
+		// Use nonce for verification
+		wp_nonce_field( 'civicrm_directory_mapping_box', 'civicrm_directory_mapping_nonce' );
+
+		// get mapping setting from post meta
+		$mapping = $this->mapping_get( $post->ID );
+
+		// mapping enabled?
+		$checked = $mapping ? ' checked="checked"' : '';
+
+		//  show checkbox
+		echo '<p>' .
+				'<label>' .
+					'<input type="checkbox" name="' . $this->mapping_meta_key . '" value="1"' . $checked . '> ' .
+					__( 'Choose whether or not this Directory shows a map.', 'civicrm-directory' ) .
+				'</label>' .
+			 '</p>';
+
+	}
+
+
+
+	/**
+	 * Get the Mapping Enabled setting for a Directory ID.
+	 *
+	 * @since 0.2.4
+	 *
+	 * @param int $post_id The ID of the directory.
+	 * @return bool $mapping True if mapping is enabled for the Directory, false otherwise.
+	 */
+	public function mapping_get( $post_id = null ) {
+
+		// use current post if none passed
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+
+		// set key
+		$db_key = '_' . $this->mapping_meta_key;
+
+		// default to false
+		$mapping = false;
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$mapping = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// anything but '1' is mapping off
+		if ( ! empty( $mapping ) ) $mapping = true;
+
+		// --<
+		return $mapping;
 
 	}
 
@@ -1150,6 +1238,9 @@ class CiviCRM_Directory_CPT_Meta {
 		// store our CiviCRM Group ID metadata
 		$this->save_group_id_meta( $post_obj );
 
+		// store our Mapping Enabled metadata
+		$this->save_mapping_meta( $post_obj );
+
 		// authenticate before proceeding
 		$nonce = isset( $_POST['civicrm_directory_config_nonce'] ) ? $_POST['civicrm_directory_config_nonce'] : '';
 		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_config_box' ) ) return;
@@ -1182,6 +1273,32 @@ class CiviCRM_Directory_CPT_Meta {
 
 		// get value
 		$value = isset( $_POST[$this->group_id_meta_key] ) ? absint( $_POST[$this->group_id_meta_key] ) : 0;
+
+		// save for this post
+		$this->_save_meta( $post, $db_key, $value );
+
+	}
+
+
+
+	/**
+	 * When a post is saved, this also saves the metadata.
+	 *
+	 * @since 0.2.4
+	 *
+	 * @param WP_Post $post The object for the post.
+	 */
+	private function save_mapping_meta( $post ) {
+
+		// authenticate
+		$nonce = isset( $_POST['civicrm_directory_mapping_nonce'] ) ? $_POST['civicrm_directory_mapping_nonce'] : '';
+		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_mapping_box' ) ) return;
+
+		// define key
+		$db_key = '_' . $this->mapping_meta_key;
+
+		// get value
+		$value = isset( $_POST[$this->mapping_meta_key] ) ? absint( $_POST[$this->mapping_meta_key] ) : 0;
 
 		// save for this post
 		$this->_save_meta( $post, $db_key, $value );
