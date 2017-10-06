@@ -143,8 +143,33 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 		 */
 		this.dom_ready = function() {
 
+			// set up
+			me.setup();
+
 			// enable listeners
 			me.listeners();
+
+		};
+
+		/**
+		 * Set up form.
+		 *
+		 * This method should only be called once.
+		 *
+		 * @since 0.2.4
+		 */
+		this.setup = function() {
+
+			// grab section reference
+			me.section = $('.browse > p');
+
+			// init AJAX spinner
+			$('.civicrm_directory_browse').append(
+				' <img src="' + CiviCRM_Directory_Search.settings.get_setting( 'ajax_loader' ) + '" id="civicrm_directory_browse_loading" />'
+			);
+
+			// hide spinner
+			$('#civicrm_directory_browse_loading').hide();
 
 		};
 
@@ -181,6 +206,9 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 				// flag that a submission is in progress
 				me.submitting = true;
 
+				// show spinner
+				$('#civicrm_directory_browse_loading').show();
+
 				// grab letter
 				letter = $(this).html();
 
@@ -205,6 +233,9 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 
 			// broadcast
 			$(document).trigger( 'civicrm-letter-loaded', [ data ] );
+
+			// hide spinner
+			$('#civicrm_directory_browse_loading').hide();
 
 			// flag that a submission is finished
 			me.submitting = false;

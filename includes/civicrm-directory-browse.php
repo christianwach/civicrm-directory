@@ -206,6 +206,7 @@ class CiviCRM_Directory_Browse {
 		$settings = array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'post_id' => get_the_ID(),
+			'ajax_loader' => CIVICRM_DIRECTORY_URL . 'assets/images/ajax-loader.gif',
 		);
 
 		// localisation array
@@ -268,6 +269,9 @@ class CiviCRM_Directory_Browse {
 
 		// construct character filter
 		$filter = implode( ' ', $letters );
+
+		// wrap in identifier
+		$filter = '<span class="civicrm_directory_browse">' . $filter . '</span>';
 
 		// --<
 		return $filter;

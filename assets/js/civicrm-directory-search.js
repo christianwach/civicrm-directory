@@ -143,8 +143,33 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 		 */
 		this.dom_ready = function() {
 
+			// set up form
+			me.setup();
+
 			// enable listeners
 			me.listeners();
+
+		};
+
+		/**
+		 * Set up form.
+		 *
+		 * This method should only be called once.
+		 *
+		 * @since 0.2.4
+		 */
+		this.setup = function() {
+
+			// grab form reference
+			me.form = $('#civicrm_directory_search');
+
+			// init AJAX spinner
+			me.form.append(
+				'<img src="' + CiviCRM_Directory_Search.settings.get_setting( 'ajax_loader' ) + '" id="civicrm_directory_search_loading" />'
+			);
+
+			// hide spinner
+			$('#civicrm_directory_search_loading').hide();
 
 		};
 
@@ -156,9 +181,6 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 		 * @since 0.1.1
 		 */
 		this.listeners = function() {
-
-			// grab form reference
-			me.form = $('#civicrm_directory_search');
 
 			/**
 			 * Intercept search submissions.
@@ -179,6 +201,9 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 
 				// flag that a submission is in progress
 				me.submitting = true;
+
+				// show spinner
+				$('#civicrm_directory_search_loading').show();
 
 				// find search string
 				search = me.form.find( '#civicrm_directory_search_string' ).val();
@@ -208,6 +233,9 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 			// broadcast
 			$(document).trigger( 'civicrm-search-loaded', [ data ] );
 
+			// hide spinner
+			$('#civicrm_directory_search_loading').hide();
+
 			// flag that a submission is finished
 			me.submitting = false;
 
@@ -226,7 +254,7 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 			$.post(
 
 				// URL to post to
-				CiviCRM_Directory_Browse.settings.get_setting( 'ajax_url' ),
+				CiviCRM_Directory_Search.settings.get_setting( 'ajax_url' ),
 
 				{
 
@@ -235,7 +263,7 @@ var CiviCRM_Directory_Search = CiviCRM_Directory_Search || {};
 
 					// data to send
 					search: search,
-					post_id: CiviCRM_Directory_Browse.settings.get_setting( 'post_id' )
+					post_id: CiviCRM_Directory_Search.settings.get_setting( 'post_id' )
 
 				},
 

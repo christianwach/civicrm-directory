@@ -198,6 +198,7 @@ class CiviCRM_Directory_Search {
 		/// init settings
 		$settings = array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'ajax_loader' => CIVICRM_DIRECTORY_URL . 'assets/images/ajax-loader.gif',
 			'post_id' => get_the_ID(),
 		);
 
