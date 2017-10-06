@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the CiviCRM Directory package.
 msgid ""
 msgstr ""
-"Project-Id-Version: CiviCRM Directory 0.1\n"
+"Project-Id-Version: CiviCRM Directory 0.2.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/civicrm-directory\n"
-"POT-Creation-Date: 2017-09-05 13:36:34+00:00\n"
+"POT-Creation-Date: 2017-10-06 10:55:02+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,7 +12,329 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
+#: assets/templates/admin/settings-general.php:6
+#: assets/templates/admin/settings-mapping.php:6
+msgid "CiviCRM Directory Settings"
+msgstr ""
 
+#: assets/templates/admin/settings-general.php:9
+#: assets/templates/admin/settings-mapping.php:9
+msgid "General"
+msgstr ""
+
+#: assets/templates/admin/settings-general.php:10
+#: assets/templates/admin/settings-mapping.php:10
+msgid "Mapping"
+msgstr ""
+
+#: assets/templates/admin/settings-general.php:19
+#: includes/civicrm-directory-admin.php:204
+msgid "General Settings"
+msgstr ""
+
+#: assets/templates/admin/settings-general.php:24
+msgid "Default CiviCRM Group"
+msgstr ""
+
+#: assets/templates/admin/settings-general.php:27
+msgid "Select a Group"
+msgstr ""
+
+#: assets/templates/admin/settings-general.php:32
+msgid "Choose the default CiviCRM Group to which Directory Contacts belong. This can be overridden on individual Directories."
+msgstr ""
+
+#: assets/templates/admin/settings-general.php:41
+#: assets/templates/admin/settings-mapping.php:58
+msgid "Save Changes"
+msgstr ""
+
+#: assets/templates/admin/settings-mapping.php:19
+msgid "Mapping Defaults"
+msgstr ""
+
+#: assets/templates/admin/settings-mapping.php:21
+msgid "Set defaults for Google Maps"
+msgstr ""
+
+#: assets/templates/admin/settings-mapping.php:26
+msgid "Google Maps API Key"
+msgstr ""
+
+#: assets/templates/admin/settings-mapping.php:33
+msgid "Default Latitude"
+msgstr ""
+
+#: assets/templates/admin/settings-mapping.php:40
+msgid "Default Longitude"
+msgstr ""
+
+#: assets/templates/admin/settings-mapping.php:47
+msgid "Default Zoom Level"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-browse.php:4
+msgid "Browse by first letter"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-contact.php:4
+msgid "Back to %s"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-contact.php:6
+msgid "This is a contact."
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-details.php:6
+msgid "Core"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-details.php:16
+msgid "Custom"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-details.php:26
+#: includes/civicrm-directory-cpt-meta.php:693
+msgid "Email"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-details.php:36
+#: includes/civicrm-directory-cpt-meta.php:692
+msgid "Website"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-details.php:46
+#: includes/civicrm-directory-cpt-meta.php:691
+msgid "Phone"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-details.php:56
+#: includes/civicrm-directory-cpt-meta.php:690
+msgid "Address"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-index.php:4
+msgid "Hello world"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-map.php:4
+msgid "Map"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-search.php:4
+#: assets/templates/theme/civicrm-directory/directory-search.php:11
+msgid "Search"
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-search.php:6
+msgid "You can search by name or keyword."
+msgstr ""
+
+#: assets/templates/theme/civicrm-directory/directory-search.php:9
+msgid "Search by Name"
+msgstr ""
+
+#: includes/civicrm-directory-admin.php:193
+#: includes/civicrm-directory-admin.php:203
+msgid "CiviCRM Directory: General Settings"
+msgstr ""
+
+#: includes/civicrm-directory-admin.php:194
+#: includes/civicrm-directory-admin.php:324
+msgid "CiviCRM Directory"
+msgstr ""
+
+#: includes/civicrm-directory-admin.php:228
+msgid "CiviCRM Directory: Mapping Settings"
+msgstr ""
+
+#: includes/civicrm-directory-admin.php:229
+msgid "Mapping Settings"
+msgstr ""
+
+#: includes/civicrm-directory-admin.php:345
+msgid "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vel iaculis leo. Fusce eget erat vitae justo vestibulum tincidunt efficitur id nunc. Vivamus id quam tempus, aliquam tortor nec, volutpat nisl. Ut venenatis aliquam enim, a placerat libero vehicula quis. Etiam neque risus, vestibulum facilisis erat a, tincidunt vestibulum nulla. Sed ultrices ante nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent maximus purus ac lacinia vulputate. Aenean ex quam, aliquet id feugiat et, cursus vel magna. Cras id congue ipsum, vel consequat libero."
+msgstr ""
+
+#: includes/civicrm-directory-browse.php:137
+#: includes/civicrm-directory-browse.php:340
+#: includes/civicrm-directory-search.php:135
+#: includes/civicrm-directory-search.php:275
+msgid "Results"
+msgstr ""
+
+#: includes/civicrm-directory-browse.php:268
+msgid "ALL"
+msgstr ""
+
+#: includes/civicrm-directory-browse.php:477
+msgid "No results found for %s"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:107
+msgid "CiviCRM Group"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:117
+msgid "Directory Mapping"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:127
+msgid "Directory Configuration"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:158
+msgid "Choose the CiviCRM Group to which all Contacts for this Directory belong."
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:162
+msgid "- Select a Group -"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:240
+msgid "Choose whether or not this Directory shows a map."
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:311
+msgid "Choose the kinds of CiviCRM Contact Types for the Contacts in this Directory. This is useful because if, for example, you know that all of the Contacts in this Directory will be Organisations then it makes searching the Directory more efficient. You can change this setting if you need to."
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:403
+msgid "Fields for Individuals"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:438
+msgid "Fields for Households"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:473
+msgid "Fields for Organizations"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:568
+msgid "Core Fields"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:639
+msgid "Custom Fields"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:700
+msgid "Other Fields"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:124
+#: includes/civicrm-directory-cpt.php:135
+msgid "Directories"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:125
+msgid "Directory"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:126
+msgid "Add New"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:127
+msgid "Add New Directory"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:128
+msgid "Edit Directory"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:129
+msgid "New Directory"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:130
+msgid "All Directories"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:131
+msgid "View Directory"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:132
+msgid "Search Directories"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:133
+msgid "No matching Directory found"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:134
+msgid "No Directories found in Trash"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:140
+msgid "A directory post type"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:199
+msgid "Directory updated. <a href=\"%s\">View directory</a>"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:204
+msgid "Custom field updated."
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:205
+msgid "Custom field deleted."
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:206
+msgid "Directory updated."
+msgstr ""
+
+#. translators: %s: date and time of the revision
+
+#: includes/civicrm-directory-cpt.php:214
+msgid "Directory restored to revision from %s"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:223
+msgid "Directory published. <a href=\"%s\">View directory</a>"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:228
+msgid "Directory saved."
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:232
+msgid "Directory submitted. <a target=\"_blank\" href=\"%s\">Preview directory</a>"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:238
+msgid "Directory scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview directory</a>"
+msgstr ""
+
+#. translators: Publish box date format, see http://php.net/date
+
+#: includes/civicrm-directory-cpt.php:240
+msgid "M j, Y @ G:i"
+msgstr ""
+
+#: includes/civicrm-directory-cpt.php:247
+msgid "Directory draft updated. <a target=\"_blank\" href=\"%s\">Preview directory</a>"
+msgstr ""
+
+#: includes/civicrm-directory-map.php:98
+msgid "View Profile"
+msgstr ""
+
+#: includes/civicrm-directory-search.php:399
+msgid "No results found for \"%s\""
+msgstr ""
+
+#: includes/civicrm-directory-template.php:552
+msgid "State/Province"
+msgstr ""
+
+#: includes/civicrm-directory-template.php:556
+msgid "Country"
+msgstr ""
 #. Plugin Name of the plugin/theme
 msgid "CiviCRM Directory"
 msgstr ""
