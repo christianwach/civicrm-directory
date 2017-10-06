@@ -132,6 +132,27 @@ class CiviCRM_Directory_Admin {
 		// flush rules late
 		add_action( 'init', 'flush_rewrite_rules', 100 );
 
+		// if the current version is less than 0.2.5 and we're upgrading to 0.2.5+
+		if (
+			version_compare( $this->plugin_version, '0.2.5', '<' ) AND
+			version_compare( CIVICRM_DIRECTORY_VERSION, '0.2.5', '>=' )
+		) {
+
+			// get current default Group ID
+			$civicrm_group_ids = array_keys( $this->setting_get( 'group_ids', array( 0 => 0 ) ) );
+			$group_id = $civicrm_group_ids[0];
+
+			// store as single integer
+			$this->setting_set( 'group_id', $group_id );
+
+			// remove old setting
+			$this->setting_unset( 'group_ids' );
+
+			// save settings
+			$this->settings_save();
+
+		}
+
 		// store new version
 		$this->version_set();
 
@@ -383,8 +404,7 @@ class CiviCRM_Directory_Admin {
 		$groups = $this->plugin->civi->groups_get();
 
 		// get the current CiviCRM group ID
-		$civicrm_group_ids = array_keys( $this->setting_get( 'group_ids', array( 0 => 0 ) ) );
-		$group_id = $civicrm_group_ids[0];
+		$group_id = $this->setting_get( 'group_id' );
 
 		// include template file
 		include( CIVICRM_DIRECTORY_PATH . 'assets/templates/admin/settings-general.php' );
@@ -504,26 +524,14 @@ class CiviCRM_Directory_Admin {
 	 */
 	public function settings_general_update() {
 
-		/*
-		 * The groups data is something of a hack right now because I want it to
-		 * be expandable in the future. At present there is just one group that
-		 * can be chosen as the directory; but in future there will be unlimited
-		 * directories. This will be done in combination with a Custom Post Type
-		 * that provides a permalink and unique ID.
-		 */
-
-		// CiviCRM group IDs
-		$group_data = array_keys( $this->setting_get( 'group_ids', array( 0 => 0 ) ) );
-		$civicrm_group_id = $group_data[0];
+		// CiviCRM group ID
+		$group_id = $this->setting_get( 'group_id' );
 		if ( isset( $_POST['civicrm_directory_civicrm_group_id'] ) ) {
-			$civicrm_group_id = absint( trim( $_POST['civicrm_directory_civicrm_group_id'] ) );
+			$group_id = absint( trim( $_POST['civicrm_directory_civicrm_group_id'] ) );
 		}
 
-		// WordPress post IDs
-
-
-		// the data array is of the form `array( $civicrm_group_id => $wp_post_id )`
-		$this->setting_set( 'group_ids', array( $civicrm_group_id => 0 ) );
+		// store group ID
+		$this->setting_set( 'group_id', $group_id );
 
 		// save settings
 		$this->settings_save();
@@ -676,8 +684,8 @@ class CiviCRM_Directory_Admin {
 		// init return
 		$settings = array();
 
-		// CiviCRM group IDs that are directories
-		$settings['group_ids'] = array( 0 => 0 );
+		// default CiviCRM group ID
+		$settings['group_id'] = 0;
 
 		// default Google Maps key (empty)
 		$settings['google_maps_key'] = '';
@@ -730,6 +738,20 @@ class CiviCRM_Directory_Admin {
 
 		// set setting
 		$this->settings[$setting_name] = $value;
+
+	}
+
+
+
+	/**
+	 * Unset a specified setting.
+	 *
+	 * @since 0.2.4
+	 */
+	public function setting_unset( $setting_name = '' ) {
+
+		// set setting
+		unset( $this->settings[$setting_name] );
 
 	}
 
