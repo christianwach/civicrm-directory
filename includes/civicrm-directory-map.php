@@ -126,7 +126,7 @@ class CiviCRM_Directory_Map {
 		 */
 		$settings = apply_filters( 'civicrm_directory_js_settings', array(
 			'zoom' => $data['zoom'],
-			'pin_image_url' => CIVICRM_DIRECTORY_URL . 'assets/images/map-pin@2x.png',
+			'pin_image_url' => '',
 			'latitude' => $data['latitude'],
 			'longitude' => $data['longitude'],
 			'locations' => $data['locations'],

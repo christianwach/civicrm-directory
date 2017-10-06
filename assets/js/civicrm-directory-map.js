@@ -132,12 +132,17 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 		 */
 		this.init = function() {
 
-			var locations = CiviCRM_Directory_Map.settings.get_setting( 'locations' );
+			var locations = CiviCRM_Directory_Map.settings.get_setting( 'locations' ),
+				pin_image_url = CiviCRM_Directory_Map.settings.get_setting( 'pin_image_url' );
+
+			// if no pin image is supplied, use default
+			if ( pin_image_url == '' ) {
+				pin_image_url = null;
+			}
 
 			// define marker image
 			me.pin = new google.maps.MarkerImage(
-				CiviCRM_Directory_Map.settings.get_setting( 'pin_image_url' ),
-				null, null, null, new google.maps.Size( 20, 20 )
+				pin_image_url, null, null, null, new google.maps.Size( 20, 20 )
 			);
 
 			// init map
