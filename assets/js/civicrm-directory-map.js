@@ -157,7 +157,7 @@ var CiviCRM_Directory_Map = CiviCRM_Directory_Map || {};
 			// init info window
 			me.info_window = new google.maps.InfoWindow();
 
-			// handle clicks on map to close info winow
+			// handle clicks on map to close info window
 			google.maps.event.addListener( me.map, 'click', function() {
 				me.info_window.close();
 			});
