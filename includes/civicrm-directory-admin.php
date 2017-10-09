@@ -28,31 +28,13 @@ class CiviCRM_Directory_Admin {
 	public $plugin_version;
 
 	/**
-	 * Parent Page.
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @var str $parent_page The parent page reference.
-	 */
-	public $parent_page;
-
-	/**
 	 * General Settings page.
 	 *
-	 * @since 0.1
+	 * @since 0.2.5
 	 * @access public
-	 * @var str $settings The General Settings page reference.
+	 * @var str $settings_page The General Settings page reference.
 	 */
-	public $settings_general_page;
-
-	/**
-	 * Mapping Settings Page.
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @var str $sync_page The Mapping Settings page reference.
-	 */
-	public $settings_mapping_page;
+	public $settings_page;
 
 	/**
 	 * Settings data.
@@ -153,6 +135,23 @@ class CiviCRM_Directory_Admin {
 
 		}
 
+		// if the current version is less than 0.2.6 and we're upgrading to 0.2.6+
+		if (
+			version_compare( $this->plugin_version, '0.2.6', '<' ) AND
+			version_compare( CIVICRM_DIRECTORY_VERSION, '0.2.6', '>=' )
+		) {
+
+			// remove old settings
+			$this->setting_unset( 'group_id' );
+			$this->setting_unset( 'longitude' );
+			$this->setting_unset( 'latitude' );
+			$this->setting_unset( 'zoom' );
+
+			// save settings
+			$this->settings_save();
+
+		}
+
 		// store new version
 		$this->version_set();
 
@@ -189,92 +188,25 @@ class CiviCRM_Directory_Admin {
 		if ( ! current_user_can('manage_options') ) return false;
 
 		// add the General Settings page to the Settings menu
-		$this->parent_page = add_options_page(
-			__( 'CiviCRM Directory: General Settings', 'civicrm-directory' ), // page title
+		$this->settings_page = add_options_page(
+			__( 'CiviCRM Directory: Settings', 'civicrm-directory' ), // page title
 			__( 'CiviCRM Directory', 'civicrm-directory' ), // menu title
 			'manage_options', // required caps
-			'civicrm_directory_parent', // slug name
-			array( $this, 'page_settings_general' ) // callback
-		);
-
-		// add General Settings page
-		$this->settings_general_page = add_submenu_page(
-			'civicrm_directory_parent', // parent slug
-			__( 'CiviCRM Directory: General Settings', 'civicrm-directory' ), // page title
-			__( 'General Settings', 'civicrm-directory' ), // menu title
-			'manage_options', // required caps
-			'civicrm_directory_settings_general', // slug name
-			array( $this, 'page_settings_general' ) // callback
+			'civicrm_directory_settings', // slug name
+			array( $this, 'page_settings' ) // callback
 		);
 
 		// maybe save settings on page load
-		add_action( 'load-' . $this->settings_general_page, array( $this, 'settings_general_parse' ) );
+		add_action( 'load-' . $this->settings_page, array( $this, 'settings_general_parse' ) );
 
 		// add help text to UI
-		add_action( 'admin_head-' . $this->settings_general_page, array( $this, 'admin_head' ) );
-
-		// fix menu highlight
-		add_action( 'admin_head-' . $this->settings_general_page, array( $this, 'admin_menu_highlight' ), 50 );
+		add_action( 'admin_head-' . $this->settings_page, array( $this, 'admin_head' ) );
 
 		/*
 		// add scripts and styles
-		add_action( 'admin_print_scripts-' . $this->settings_general_page, array( $this, 'admin_js' ) );
-		add_action( 'admin_print_styles-' . $this->settings_general_page, array( $this, 'admin_css' ) );
+		add_action( 'admin_print_scripts-' . $this->settings_page, array( $this, 'admin_js' ) );
+		add_action( 'admin_print_styles-' . $this->settings_page, array( $this, 'admin_css' ) );
 		*/
-
-		// add Mapping Settings page
-		$this->settings_mapping_page = add_submenu_page(
-			'civicrm_directory_parent', // parent slug
-			__( 'CiviCRM Directory: Mapping Settings', 'civicrm-directory' ), // page title
-			__( 'Mapping Settings', 'civicrm-directory' ), // menu title
-			'manage_options', // required caps
-			'civicrm_directory_settings_mapping', // slug name
-			array( $this, 'page_settings_mapping' ) // callback
-		);
-
-		// maybe save settings on page load
-		add_action( 'load-' . $this->settings_mapping_page, array( $this, 'settings_mapping_parse' ) );
-
-		// add help text to UI
-		add_action( 'admin_head-' . $this->settings_mapping_page, array( $this, 'admin_head' ) );
-
-		// fix menu highlight
-		add_action( 'admin_head-' . $this->settings_mapping_page, array( $this, 'admin_menu_highlight' ), 50 );
-
-		/*
-		// add scripts and styles
-		add_action( 'admin_print_scripts-' . $this->settings_mapping_page, array( $this, 'admin_js' ) );
-		add_action( 'admin_print_styles-' . $this->settings_mapping_page, array( $this, 'admin_css' ) );
-		*/
-
-	}
-
-
-
-	/**
-	 * Tell WordPress to highlight the plugin's menu item, regardless of which
-	 * actual admin screen we are on.
-	 *
-	 * @since 0.1
-	 *
-	 * @global string $plugin_page
-	 * @global array $submenu
-	 */
-	public function admin_menu_highlight() {
-
-		global $plugin_page, $submenu_file;
-
-		// define subpages
-		$subpages = array(
-		 	'civicrm_directory_settings_general',
-		 	'civicrm_directory_settings_mapping',
-		 );
-
-		// This tweaks the Settings subnav menu to show only one menu item
-		if ( in_array( $plugin_page, $subpages ) ) {
-			$plugin_page = 'civicrm_directory_parent';
-			$submenu_file = 'civicrm_directory_parent';
-		}
 
 	}
 
@@ -307,14 +239,8 @@ class CiviCRM_Directory_Admin {
 	 */
 	public function admin_help( $screen ) {
 
-		// init page IDs
-		$pages = array(
-			$this->settings_general_page,
-			$this->settings_mapping_page,
-		);
-
 		// kick out if not our screen
-		if ( ! in_array( $screen->id, $pages ) ) {
+		if ( $screen->id != $this->settings_page ) {
 			return $screen;
 		}
 
@@ -392,19 +318,16 @@ class CiviCRM_Directory_Admin {
 	 *
 	 * @since 0.1
 	 */
-	public function page_settings_general() {
+	public function page_settings() {
 
 		// check user permissions
 		if ( ! current_user_can( 'manage_options' ) ) return;
 
-		// get admin page URLs
-		$urls = $this->page_get_urls();
+		// get admin page URL
+		$url = $this->page_get_url();
 
-		// get CiviCRM groups that could be Directories
-		$groups = $this->plugin->civi->groups_get();
-
-		// get the current CiviCRM group ID
-		$group_id = $this->setting_get( 'group_id' );
+		// Google Maps API key
+		$google_maps_key = $this->setting_get( 'google_maps_key' );
 
 		// include template file
 		include( CIVICRM_DIRECTORY_PATH . 'assets/templates/admin/settings-general.php' );
@@ -414,57 +337,24 @@ class CiviCRM_Directory_Admin {
 
 
 	/**
-	 * Show Mapping Settings page.
+	 * Get admin page URL.
 	 *
-	 * @since 0.1
+	 * @since 0.2.5
+	 *
+	 * @return array $admin_url The admin page URL.
 	 */
-	public function page_settings_mapping() {
-
-		// check user permissions
-		if ( ! current_user_can( 'manage_options' ) ) return;
-
-		// get admin page URLs
-		$urls = $this->page_get_urls();
-
-		// Google Maps API key
-		$google_maps_key = $this->setting_get( 'google_maps_key' );
-
-		// default map view location
-		$latitude = $this->setting_get( 'latitude' );
-		$longitude = $this->setting_get( 'longitude' );
-
-		// default zoom
-		$zoom = $this->setting_get( 'zoom' );
-
-		// include template file
-		include( CIVICRM_DIRECTORY_PATH . 'assets/templates/admin/settings-mapping.php' );
-
-	}
-
-
-
-	/**
-	 * Get admin page URLs.
-	 *
-	 * @since 0.1
-	 *
-	 * @return array $admin_urls The array of admin page URLs.
-	 */
-	public function page_get_urls() {
+	public function page_get_url() {
 
 		// only calculate once
-		if ( isset( $this->urls ) ) {
-			return $this->urls;
+		if ( isset( $this->url ) ) {
+			return $this->url;
 		}
 
-		// construct admin page URLs
-		$this->urls = array(
-			'general' => menu_page_url( 'civicrm_directory_settings_general', false ),
-			'mapping' => menu_page_url( 'civicrm_directory_settings_mapping', false ),
-		);
+		// construct admin page URL
+		$this->url = menu_page_url( 'civicrm_directory_settings', false );
 
 		// --<
-		return $this->urls;
+		return $this->url;
 
 	}
 
@@ -493,7 +383,7 @@ class CiviCRM_Directory_Admin {
 	/**
 	 * Maybe save general settings.
 	 *
-	 * This is the callback from 'load-' . $this->settings_general_page which determines
+	 * This is the callback from 'load-' . $this->settings_page which determines
 	 * if there are settings to be saved and parses them before calling the
 	 * actual save method.
 	 *
@@ -505,10 +395,10 @@ class CiviCRM_Directory_Admin {
 		if ( empty( $_POST ) ) return;
 
 		// check that we trust the source of the request
-		check_admin_referer( 'civicrm_directory_settings_general_action', 'civicrm_directory_nonce' );
+		check_admin_referer( 'civicrm_directory_settings_action', 'civicrm_directory_nonce' );
 
 		// check that our sumbit button was clicked
-		if ( ! isset( $_POST['civicrm_directory_settings_general_submit'] ) ) return;
+		if ( ! isset( $_POST['civicrm_directory_settings_submit'] ) ) return;
 
 		// okay, now update
 		$this->settings_general_update();
@@ -524,63 +414,6 @@ class CiviCRM_Directory_Admin {
 	 */
 	public function settings_general_update() {
 
-		// CiviCRM group ID
-		$group_id = $this->setting_get( 'group_id' );
-		if ( isset( $_POST['civicrm_directory_civicrm_group_id'] ) ) {
-			$group_id = absint( trim( $_POST['civicrm_directory_civicrm_group_id'] ) );
-		}
-
-		// store group ID
-		$this->setting_set( 'group_id', $group_id );
-
-		// save settings
-		$this->settings_save();
-
-		// construct General Settings page URL
-		$urls = $this->page_get_urls();
-		$redirect = add_query_arg( 'updated', 'true', $urls['general'] );
-
-		// prevent reload weirdness
-		wp_redirect( $redirect );
-
-	}
-
-
-
-	/**
-	 * Maybe save Mapping Settings.
-	 *
-	 * This is the callback from 'load-' . $this->settings_general_page which determines
-	 * if there are settings to be saved and parses them before calling the
-	 * actual save method.
-	 *
-	 * @since 0.1
-	 */
-	public function settings_mapping_parse() {
-
-		// bail if no post data
-		if ( empty( $_POST ) ) return;
-
-		// check that we trust the source of the request
-		check_admin_referer( 'civicrm_directory_settings_mapping_action', 'civicrm_directory_nonce' );
-
-		// check that our sumbit button was clicked
-		if ( ! isset( $_POST['civicrm_directory_settings_mapping_submit'] ) ) return;
-
-		// okay, now update
-		$this->settings_mapping_update();
-
-	}
-
-
-
-	/**
-	 * Update Mapping Settings.
-	 *
-	 * @since 0.1
-	 */
-	public function settings_mapping_update() {
-
 		// Google Maps API key
 		$google_maps_key = $this->setting_get( 'google_maps_key' );
 		if ( isset( $_POST['civicrm_directory_google_maps_key'] ) ) {
@@ -588,33 +421,12 @@ class CiviCRM_Directory_Admin {
 		}
 		$this->setting_set( 'google_maps_key', $google_maps_key );
 
-		// default latitude
-		$latitude = $this->setting_get( 'latitude' );
-		if ( isset( $_POST['civicrm_directory_latitude'] ) AND is_numeric( $_POST['civicrm_directory_latitude'] ) ) {
-			$latitude = floatval( trim( $_POST['civicrm_directory_latitude'] ) );
-		}
-		$this->setting_set( 'latitude', $latitude );
-
-		// default longitude
-		$longitude = $this->setting_get( 'longitude' );
-		if ( isset( $_POST['civicrm_directory_longitude'] ) AND is_numeric( $_POST['civicrm_directory_longitude'] ) ) {
-			$longitude = floatval( trim( $_POST['civicrm_directory_longitude'] ) );
-		}
-		$this->setting_set( 'longitude', $longitude );
-
-		// default zoom level
-		$zoom = $this->setting_get( 'zoom' );
-		if ( isset( $_POST['civicrm_directory_zoom'] ) AND is_numeric( $_POST['civicrm_directory_zoom'] ) ) {
-			$zoom = absint( trim( $_POST['civicrm_directory_zoom'] ) );
-		}
-		$this->setting_set( 'zoom', $zoom );
-
 		// save settings
 		$this->settings_save();
 
-		// construct Mapping Settings page URL
-		$urls = $this->page_get_urls();
-		$redirect = add_query_arg( 'updated', 'true', $urls['mapping'] );
+		// construct General Settings page URL
+		$url = $this->page_get_url();
+		$redirect = add_query_arg( 'updated', 'true', $url );
 
 		// prevent reload weirdness
 		wp_redirect( $redirect );
@@ -684,18 +496,8 @@ class CiviCRM_Directory_Admin {
 		// init return
 		$settings = array();
 
-		// default CiviCRM group ID
-		$settings['group_id'] = 0;
-
 		// default Google Maps key (empty)
 		$settings['google_maps_key'] = '';
-
-		// default map zoom level
-		$settings['zoom'] = 14;
-
-		// default map view location
-		$settings['latitude'] = 0;
-		$settings['longitude'] = 90;
 
 		/**
 		 * Allow defaults to be filtered.
