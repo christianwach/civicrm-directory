@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the CiviCRM Directory package.
 msgid ""
 msgstr ""
-"Project-Id-Version: CiviCRM Directory 0.2.5\n"
+"Project-Id-Version: CiviCRM Directory 0.2.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/civicrm-directory\n"
-"POT-Creation-Date: 2017-10-06 10:55:02+00:00\n"
+"POT-Creation-Date: 2017-10-09 10:53:41+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,64 +13,23 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
 #: assets/templates/admin/settings-general.php:6
-#: assets/templates/admin/settings-mapping.php:6
 msgid "CiviCRM Directory Settings"
 msgstr ""
 
-#: assets/templates/admin/settings-general.php:9
-#: assets/templates/admin/settings-mapping.php:9
-msgid "General"
+#: assets/templates/admin/settings-general.php:16
+msgid "Mapping Settings"
 msgstr ""
 
-#: assets/templates/admin/settings-general.php:10
-#: assets/templates/admin/settings-mapping.php:10
-msgid "Mapping"
-msgstr ""
-
-#: assets/templates/admin/settings-general.php:19
-#: includes/civicrm-directory-admin.php:204
-msgid "General Settings"
-msgstr ""
-
-#: assets/templates/admin/settings-general.php:24
-msgid "Default CiviCRM Group"
-msgstr ""
-
-#: assets/templates/admin/settings-general.php:27
-msgid "Select a Group"
-msgstr ""
-
-#: assets/templates/admin/settings-general.php:32
-msgid "Choose the default CiviCRM Group to which Directory Contacts belong. This can be overridden on individual Directories."
-msgstr ""
-
-#: assets/templates/admin/settings-general.php:41
-#: assets/templates/admin/settings-mapping.php:58
-msgid "Save Changes"
-msgstr ""
-
-#: assets/templates/admin/settings-mapping.php:19
-msgid "Mapping Defaults"
-msgstr ""
-
-#: assets/templates/admin/settings-mapping.php:21
+#: assets/templates/admin/settings-general.php:18
 msgid "Set defaults for Google Maps"
 msgstr ""
 
-#: assets/templates/admin/settings-mapping.php:26
+#: assets/templates/admin/settings-general.php:23
 msgid "Google Maps API Key"
 msgstr ""
 
-#: assets/templates/admin/settings-mapping.php:33
-msgid "Default Latitude"
-msgstr ""
-
-#: assets/templates/admin/settings-mapping.php:40
-msgid "Default Longitude"
-msgstr ""
-
-#: assets/templates/admin/settings-mapping.php:47
-msgid "Default Zoom Level"
+#: assets/templates/admin/settings-general.php:34
+msgid "Save Changes"
 msgstr ""
 
 #: assets/templates/theme/civicrm-directory/directory-browse.php:4
@@ -134,25 +93,16 @@ msgstr ""
 msgid "Search by Name"
 msgstr ""
 
-#: includes/civicrm-directory-admin.php:193
-#: includes/civicrm-directory-admin.php:203
-msgid "CiviCRM Directory: General Settings"
+#: includes/civicrm-directory-admin.php:192
+msgid "CiviCRM Directory: Settings"
 msgstr ""
 
-#: includes/civicrm-directory-admin.php:194
-#: includes/civicrm-directory-admin.php:324
+#: includes/civicrm-directory-admin.php:193
+#: includes/civicrm-directory-admin.php:250
 msgid "CiviCRM Directory"
 msgstr ""
 
-#: includes/civicrm-directory-admin.php:228
-msgid "CiviCRM Directory: Mapping Settings"
-msgstr ""
-
-#: includes/civicrm-directory-admin.php:229
-msgid "Mapping Settings"
-msgstr ""
-
-#: includes/civicrm-directory-admin.php:345
+#: includes/civicrm-directory-admin.php:271
 msgid "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vel iaculis leo. Fusce eget erat vitae justo vestibulum tincidunt efficitur id nunc. Vivamus id quam tempus, aliquam tortor nec, volutpat nisl. Ut venenatis aliquam enim, a placerat libero vehicula quis. Etiam neque risus, vestibulum facilisis erat a, tincidunt vestibulum nulla. Sed ultrices ante nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent maximus purus ac lacinia vulputate. Aenean ex quam, aliquet id feugiat et, cursus vel magna. Cras id congue ipsum, vel consequat libero."
 msgstr ""
 
