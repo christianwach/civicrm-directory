@@ -1,7 +1,7 @@
 /**
- * CiviCRM Directory Config Box Javascript.
+ * CiviCRM Directory Contacts Configuration Box Javascript.
  *
- * Implements functionality on the Config metabox.
+ * Implements functionality on the Contacts Configuration metabox.
  *
  * @package Civi_Directory
  */
@@ -9,14 +9,14 @@
 
 
 /**
- * Create CiviCRM Directory Config Box object.
+ * Create CiviCRM Directory Contacts Configuration Box object.
  *
  * This works as a "namespace" of sorts, allowing us to hang properties, methods
  * and "sub-namespaces" from it.
  *
  * @since 0.1.2
  */
-var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
+var CiviCRM_Directory_Contacts_Box = CiviCRM_Directory_Contacts_Box || {};
 
 
 
@@ -34,7 +34,7 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 	 *
 	 * @since 0.1.2
 	 */
-	CiviCRM_Directory_Config_Box.settings = new function() {
+	CiviCRM_Directory_Contacts_Box.settings = new function() {
 
 		// prevent reference collisions
 		var me = this;
@@ -65,8 +65,8 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 		 * @since 0.1.2
 		 */
 		this.init_localisation = function() {
-			if ( 'undefined' !== typeof CiviCRM_Directory_Config_Box_Settings ) {
-				me.localisation = CiviCRM_Directory_Config_Box_Settings.localisation;
+			if ( 'undefined' !== typeof CiviCRM_Directory_Contacts_Box_Settings ) {
+				me.localisation = CiviCRM_Directory_Contacts_Box_Settings.localisation;
 			}
 		};
 
@@ -91,8 +91,8 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 		 * @since 0.1.2
 		 */
 		this.init_settings = function() {
-			if ( 'undefined' !== typeof CiviCRM_Directory_Config_Box_Settings ) {
-				me.settings = CiviCRM_Directory_Config_Box_Settings.settings;
+			if ( 'undefined' !== typeof CiviCRM_Directory_Contacts_Box_Settings ) {
+				me.settings = CiviCRM_Directory_Contacts_Box_Settings.settings;
 			}
 		};
 
@@ -111,11 +111,11 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 	};
 
 	/**
-	 * Create Config_Box Object.
+	 * Create Contacts_Box Object.
 	 *
 	 * @since 0.1.2
 	 */
-	CiviCRM_Directory_Config_Box.box = new function() {
+	CiviCRM_Directory_Contacts_Box.box = new function() {
 
 		// prevent reference collisions
 		var me = this;
@@ -296,8 +296,8 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 	};
 
 	// do immediate init
-	CiviCRM_Directory_Config_Box.settings.init();
-	CiviCRM_Directory_Config_Box.box.init();
+	CiviCRM_Directory_Contacts_Box.settings.init();
+	CiviCRM_Directory_Contacts_Box.box.init();
 
 } )( jQuery );
 
@@ -311,7 +311,7 @@ var CiviCRM_Directory_Config_Box = CiviCRM_Directory_Config_Box || {};
 jQuery(document).ready(function($) {
 
 	// The DOM is loaded now
-	CiviCRM_Directory_Config_Box.box.dom_ready();
+	CiviCRM_Directory_Contacts_Box.box.dom_ready();
 
 }); // end document.ready()
 

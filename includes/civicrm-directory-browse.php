@@ -556,6 +556,14 @@ class CiviCRM_Directory_Browse {
  */
 function civicrm_directory_browser() {
 
+	$plugin = civicrm_directory();
+
+	// get browse-by-letter-enabled from post meta
+	$letter = $plugin->cpt_meta->letter_get();
+
+	// sanity check
+	if ( ! $letter ) return;
+
 	// render browse section now
 	civicrm_directory()->browse->insert_markup();
 

@@ -476,6 +476,14 @@ class CiviCRM_Directory_Search {
  */
 function civicrm_directory_search() {
 
+	$plugin = civicrm_directory();
+
+	// get search-enabled from post meta
+	$search = $plugin->cpt_meta->search_get();
+
+	// sanity check
+	if ( ! $search ) return;
+
 	// render search section now
 	civicrm_directory()->search->insert_markup();
 

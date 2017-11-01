@@ -54,6 +54,24 @@ class CiviCRM_Directory_CPT_Meta {
 	 */
 	public $mapping_meta_key = 'civicrm_directory_mapping';
 
+	/**
+	 * CiviCRM "Browse by First Letter" meta key.
+	 *
+	 * @since 0.2.6
+	 * @access public
+	 * @var str $letter_meta_key The meta key for the "Browse by First Letter" setting.
+	 */
+	public $letter_meta_key = 'civicrm_directory_letter';
+
+	/**
+	 * CiviCRM "Search Form" meta key.
+	 *
+	 * @since 0.2.6
+	 * @access public
+	 * @var str $letter_meta_key The meta key for the "Search Form" setting.
+	 */
+	public $search_meta_key = 'civicrm_directory_search';
+
 
 
 	/**
@@ -111,21 +129,21 @@ class CiviCRM_Directory_CPT_Meta {
 			'core' // vertical placement: options are 'core', 'high', 'low'
 		);
 
-		// add our Mapping meta box
+		// add our Configuration meta box
 		add_meta_box(
-			'civicrm_directory_mapping',
-			__( 'Directory Mapping', 'civicrm-directory' ),
-			array( $this, 'mapping_metabox' ),
+			'civicrm_directory_config',
+			__( 'Directory Configuration', 'civicrm-directory' ),
+			array( $this, 'config_metabox' ),
 			$this->post_type_name,
 			'normal', // column: options are 'normal' and 'side'
 			'core' // vertical placement: options are 'core', 'high', 'low'
 		);
 
-		// add our Config meta box
+		// add our Contacts Configuration meta box
 		add_meta_box(
 			'civicrm_directory_contact_types',
-			__( 'Directory Configuration', 'civicrm-directory' ),
-			array( $this, 'config_metabox' ),
+			__( 'Directory Contacts Configuration', 'civicrm-directory' ),
+			array( $this, 'contacts_metabox' ),
 			$this->post_type_name,
 			'normal', // column: options are 'normal' and 'side'
 			'core' // vertical placement: options are 'core', 'high', 'low'
@@ -216,16 +234,16 @@ class CiviCRM_Directory_CPT_Meta {
 
 
 	/**
-	 * Adds a metabox to CPT edit screens for Mapping preferences.
+	 * Adds a metabox to CPT edit screens for Configuration preferences.
 	 *
 	 * @since 0.2.4
 	 *
 	 * @param WP_Post $post The object for the current post/page.
 	 */
-	public function mapping_metabox( $post ) {
+	public function config_metabox( $post ) {
 
 		// Use nonce for verification
-		wp_nonce_field( 'civicrm_directory_mapping_box', 'civicrm_directory_mapping_nonce' );
+		wp_nonce_field( 'civicrm_directory_config_box', 'civicrm_directory_config_nonce' );
 
 		// get mapping setting from post meta
 		$mapping = $this->mapping_get( $post->ID );
@@ -237,7 +255,35 @@ class CiviCRM_Directory_CPT_Meta {
 		echo '<p>' .
 				'<label>' .
 					'<input type="checkbox" name="' . $this->mapping_meta_key . '" value="1"' . $checked . '> ' .
-					__( 'Choose whether or not this Directory shows a map.', 'civicrm-directory' ) .
+					__( 'This Directory shows a map.', 'civicrm-directory' ) .
+				'</label>' .
+			 '</p>';
+
+		// get first letter setting from post meta
+		$letter = $this->letter_get( $post->ID );
+
+		// browse by first letter enabled?
+		$checked = $letter ? ' checked="checked"' : '';
+
+		//  show checkbox
+		echo '<p>' .
+				'<label>' .
+					'<input type="checkbox" name="' . $this->letter_meta_key . '" value="1"' . $checked . '> ' .
+					__( 'This Directory shows a "Browse by First Letter" section.', 'civicrm-directory' ) .
+				'</label>' .
+			 '</p>';
+
+		// get "Search Form" setting from post meta
+		$search = $this->search_get( $post->ID );
+
+		// "Search Form" enabled?
+		$checked = $search ? ' checked="checked"' : '';
+
+		//  show checkbox
+		echo '<p>' .
+				'<label>' .
+					'<input type="checkbox" name="' . $this->search_meta_key . '" value="1"' . $checked . '> ' .
+					__( 'This Directory shows a Search Form.', 'civicrm-directory' ) .
 				'</label>' .
 			 '</p>';
 
@@ -280,24 +326,94 @@ class CiviCRM_Directory_CPT_Meta {
 
 
 
+	/**
+	 * Get the "Browse by First Letter" Enabled setting for a Directory ID.
+	 *
+	 * @since 0.2.6
+	 *
+	 * @param int $post_id The ID of the directory.
+	 * @return bool $letter True if "Browse by First Letter" is enabled for the Directory, false otherwise.
+	 */
+	public function letter_get( $post_id = null ) {
+
+		// use current post if none passed
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+
+		// set key
+		$db_key = '_' . $this->letter_meta_key;
+
+		// default to false
+		$letter = false;
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$letter = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// anything but '1' is "Browse by First Letter" off
+		if ( ! empty( $letter ) ) $letter = true;
+
+		// --<
+		return $letter;
+
+	}
+
+
+
+	/**
+	 * Get the "Search Form" Enabled setting for a Directory ID.
+	 *
+	 * @since 0.2.6
+	 *
+	 * @param int $post_id The ID of the directory.
+	 * @return bool $letter True if "Search Form" is enabled for the Directory, false otherwise.
+	 */
+	public function search_get( $post_id = null ) {
+
+		// use current post if none passed
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+
+		// set key
+		$db_key = '_' . $this->search_meta_key;
+
+		// default to false
+		$search = false;
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$search = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// anything but '1' is "Search Form" off
+		if ( ! empty( $search ) ) $search = true;
+
+		// --<
+		return $search;
+
+	}
+
+
+
 	// #########################################################################
 
 
 
 	/**
-	 * Adds a metabox to CPT edit screens for Configuration.
+	 * Adds a metabox to CPT edit screens for Contacts Configuration.
 	 *
 	 * @since 0.1
 	 *
 	 * @param WP_Post $post The object for the current post/page.
 	 */
-	public function config_metabox( $post ) {
+	public function contacts_metabox( $post ) {
 
 		// sanity check
 		if ( ! ( $post instanceof WP_Post ) ) return;
 
 		// Use nonce for verification
-		wp_nonce_field( 'civicrm_directory_config_box', 'civicrm_directory_config_nonce' );
+		wp_nonce_field( 'civicrm_directory_contacts_box', 'civicrm_directory_contacts_nonce' );
 
 		// ---------------------------------------------------------------------
 
@@ -423,7 +539,7 @@ class CiviCRM_Directory_CPT_Meta {
 		 * @param array $contact_fields The chosen fields stored in the post meta.
 		 * @param str $type The contact type for which fields should be retrieved.
 		 */
-		do_action( 'config_metabox_fields', $post, $contact_fields, 'Individual' );
+		do_action( 'contacts_metabox_fields', $post, $contact_fields, 'Individual' );
 
 		// close div
 		echo '</div>';
@@ -458,7 +574,7 @@ class CiviCRM_Directory_CPT_Meta {
 		 * @param array $contact_fields The chosen fields stored in the post meta.
 		 * @param str $type The contact type for which fields should be retrieved.
 		 */
-		do_action( 'config_metabox_fields', $post, $contact_fields, 'Household' );
+		do_action( 'contacts_metabox_fields', $post, $contact_fields, 'Household' );
 
 		// close div
 		echo '</div>';
@@ -493,7 +609,7 @@ class CiviCRM_Directory_CPT_Meta {
 		 * @param array $contact_fields The chosen fields stored in the post meta.
 		 * @param str $type The contact type for which fields should be retrieved.
 		 */
-		do_action( 'config_metabox_fields', $post, $contact_fields, 'Organization' );
+		do_action( 'contacts_metabox_fields', $post, $contact_fields, 'Organization' );
 
 		// close div
 		echo '</div>';
@@ -505,8 +621,8 @@ class CiviCRM_Directory_CPT_Meta {
 
 		// add our metabox javascript in the footer
 		wp_enqueue_script(
-			'civicrm_directory_config_box_js',
-			CIVICRM_DIRECTORY_URL . '/assets/js/civicrm-directory-config-box.js',
+			'civicrm_directory_contacts_box_js',
+			CIVICRM_DIRECTORY_URL . '/assets/js/civicrm-directory-contacts-box.js',
 			array( 'jquery' ),
 			CIVICRM_DIRECTORY_VERSION,
 			true
@@ -528,8 +644,8 @@ class CiviCRM_Directory_CPT_Meta {
 
 		// localise
 		wp_localize_script(
-			'civicrm_directory_config_box_js',
-			'CiviCRM_Directory_Config_Box_Settings',
+			'civicrm_directory_contacts_box_js',
+			'CiviCRM_Directory_Contacts_Box_Settings',
 			$vars
 		);
 
@@ -1238,12 +1354,12 @@ class CiviCRM_Directory_CPT_Meta {
 		// store our CiviCRM Group ID metadata
 		$this->save_group_id_meta( $post_obj );
 
-		// store our Mapping Enabled metadata
-		$this->save_mapping_meta( $post_obj );
+		// store our Configuration metadata
+		$this->save_config_meta( $post_obj );
 
 		// authenticate before proceeding
-		$nonce = isset( $_POST['civicrm_directory_config_nonce'] ) ? $_POST['civicrm_directory_config_nonce'] : '';
-		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_config_box' ) ) return;
+		$nonce = isset( $_POST['civicrm_directory_contacts_nonce'] ) ? $_POST['civicrm_directory_contacts_nonce'] : '';
+		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_contacts_box' ) ) return;
 
 		// store our CiviCRM Contact Types metadata
 		$this->save_contact_types_meta( $post_obj );
@@ -1282,23 +1398,41 @@ class CiviCRM_Directory_CPT_Meta {
 
 
 	/**
-	 * When a post is saved, this also saves the metadata.
+	 * When a post is saved, this also saves the Configuration metadata.
 	 *
 	 * @since 0.2.4
 	 *
 	 * @param WP_Post $post The object for the post.
 	 */
-	private function save_mapping_meta( $post ) {
+	private function save_config_meta( $post ) {
 
 		// authenticate
-		$nonce = isset( $_POST['civicrm_directory_mapping_nonce'] ) ? $_POST['civicrm_directory_mapping_nonce'] : '';
-		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_mapping_box' ) ) return;
+		$nonce = isset( $_POST['civicrm_directory_config_nonce'] ) ? $_POST['civicrm_directory_config_nonce'] : '';
+		if ( ! wp_verify_nonce( $nonce, 'civicrm_directory_config_box' ) ) return;
 
 		// define key
 		$db_key = '_' . $this->mapping_meta_key;
 
 		// get value
 		$value = isset( $_POST[$this->mapping_meta_key] ) ? absint( $_POST[$this->mapping_meta_key] ) : 0;
+
+		// save for this post
+		$this->_save_meta( $post, $db_key, $value );
+
+		// define key
+		$db_key = '_' . $this->letter_meta_key;
+
+		// get value
+		$value = isset( $_POST[$this->letter_meta_key] ) ? absint( $_POST[$this->letter_meta_key] ) : 0;
+
+		// save for this post
+		$this->_save_meta( $post, $db_key, $value );
+
+		// define key
+		$db_key = '_' . $this->search_meta_key;
+
+		// get value
+		$value = isset( $_POST[$this->search_meta_key] ) ? absint( $_POST[$this->search_meta_key] ) : 0;
 
 		// save for this post
 		$this->_save_meta( $post, $db_key, $value );
