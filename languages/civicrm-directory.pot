@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the CiviCRM Directory package.
 msgid ""
 msgstr ""
-"Project-Id-Version: CiviCRM Directory 0.2.6\n"
+"Project-Id-Version: CiviCRM Directory 0.2.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/civicrm-directory\n"
-"POT-Creation-Date: 2017-11-01 12:41:03+00:00\n"
+"POT-Creation-Date: 2017-11-16 16:32:54+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,7 +28,15 @@ msgstr ""
 msgid "Google Maps API Key"
 msgstr ""
 
-#: assets/templates/admin/settings-general.php:34
+#: assets/templates/admin/settings-general.php:30
+msgid "Default Google Maps height in pixels"
+msgstr ""
+
+#: assets/templates/admin/settings-general.php:33
+msgid "Individual Directories can override this setting."
+msgstr ""
+
+#: assets/templates/admin/settings-general.php:42
 msgid "Save Changes"
 msgstr ""
 
@@ -49,22 +57,22 @@ msgid "Custom"
 msgstr ""
 
 #: assets/templates/theme/civicrm-directory/directory-details.php:26
-#: includes/civicrm-directory-cpt-meta.php:809
+#: includes/civicrm-directory-cpt-meta.php:914
 msgid "Email"
 msgstr ""
 
 #: assets/templates/theme/civicrm-directory/directory-details.php:36
-#: includes/civicrm-directory-cpt-meta.php:808
+#: includes/civicrm-directory-cpt-meta.php:913
 msgid "Website"
 msgstr ""
 
 #: assets/templates/theme/civicrm-directory/directory-details.php:46
-#: includes/civicrm-directory-cpt-meta.php:807
+#: includes/civicrm-directory-cpt-meta.php:912
 msgid "Phone"
 msgstr ""
 
 #: assets/templates/theme/civicrm-directory/directory-details.php:56
-#: includes/civicrm-directory-cpt-meta.php:806
+#: includes/civicrm-directory-cpt-meta.php:911
 msgid "Address"
 msgstr ""
 
@@ -89,16 +97,16 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: includes/civicrm-directory-admin.php:192
+#: includes/civicrm-directory-admin.php:210
 msgid "CiviCRM Directory: Settings"
 msgstr ""
 
-#: includes/civicrm-directory-admin.php:193
-#: includes/civicrm-directory-admin.php:250
+#: includes/civicrm-directory-admin.php:211
+#: includes/civicrm-directory-admin.php:268
 msgid "CiviCRM Directory"
 msgstr ""
 
-#: includes/civicrm-directory-admin.php:271
+#: includes/civicrm-directory-admin.php:289
 msgid "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vel iaculis leo. Fusce eget erat vitae justo vestibulum tincidunt efficitur id nunc. Vivamus id quam tempus, aliquam tortor nec, volutpat nisl. Ut venenatis aliquam enim, a placerat libero vehicula quis. Etiam neque risus, vestibulum facilisis erat a, tincidunt vestibulum nulla. Sed ultrices ante nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent maximus purus ac lacinia vulputate. Aenean ex quam, aliquet id feugiat et, cursus vel magna. Cras id congue ipsum, vel consequat libero."
 msgstr ""
 
@@ -117,63 +125,67 @@ msgstr ""
 msgid "No results found for %s"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:125
+#: includes/civicrm-directory-cpt-meta.php:134
 msgid "CiviCRM Group"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:135
+#: includes/civicrm-directory-cpt-meta.php:144
 msgid "Directory Configuration"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:145
+#: includes/civicrm-directory-cpt-meta.php:154
 msgid "Directory Contacts Configuration"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:176
+#: includes/civicrm-directory-cpt-meta.php:185
 msgid "Choose the CiviCRM Group to which all Contacts for this Directory belong."
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:180
+#: includes/civicrm-directory-cpt-meta.php:189
 msgid "- Select a Group -"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:258
+#: includes/civicrm-directory-cpt-meta.php:267
 msgid "This Directory shows a map."
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:272
+#: includes/civicrm-directory-cpt-meta.php:280
+msgid "The height of the map in pixels:"
+msgstr ""
+
+#: includes/civicrm-directory-cpt-meta.php:297
 msgid "This Directory shows a \"Browse by First Letter\" section."
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:286
+#: includes/civicrm-directory-cpt-meta.php:311
 msgid "This Directory shows a Search Form."
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:427
+#: includes/civicrm-directory-cpt-meta.php:532
 msgid "Choose the kinds of CiviCRM Contact Types for the Contacts in this Directory. This is useful because if, for example, you know that all of the Contacts in this Directory will be Organisations then it makes searching the Directory more efficient. You can change this setting if you need to."
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:519
+#: includes/civicrm-directory-cpt-meta.php:624
 msgid "Fields for Individuals"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:554
+#: includes/civicrm-directory-cpt-meta.php:659
 msgid "Fields for Households"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:589
+#: includes/civicrm-directory-cpt-meta.php:694
 msgid "Fields for Organizations"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:684
+#: includes/civicrm-directory-cpt-meta.php:789
 msgid "Core Fields"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:755
+#: includes/civicrm-directory-cpt-meta.php:860
 msgid "Custom Fields"
 msgstr ""
 
-#: includes/civicrm-directory-cpt-meta.php:816
+#: includes/civicrm-directory-cpt-meta.php:921
 msgid "Other Fields"
 msgstr ""
 
@@ -274,7 +286,7 @@ msgstr ""
 msgid "Directory draft updated. <a target=\"_blank\" href=\"%s\">Preview directory</a>"
 msgstr ""
 
-#: includes/civicrm-directory-map.php:98
+#: includes/civicrm-directory-map.php:101
 msgid "View Profile"
 msgstr ""
 
