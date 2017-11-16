@@ -46,16 +46,25 @@ class CiviCRM_Directory_CPT_Meta {
 	public $group_id_meta_key = 'civicrm_directory_group_id';
 
 	/**
-	 * CiviCRM Mapping meta key.
+	 * Mapping Enabled meta key.
 	 *
 	 * @since 0.2.4
 	 * @access public
-	 * @var str $mapping_meta_key The meta key for the Mapping setting.
+	 * @var str $mapping_meta_key The meta key for the Mapping Enabled setting.
 	 */
 	public $mapping_meta_key = 'civicrm_directory_mapping';
 
 	/**
-	 * CiviCRM "Browse by First Letter" meta key.
+	 * Map Height meta key.
+	 *
+	 * @since 0.2.7
+	 * @access public
+	 * @var str $mapping_height_meta_key The meta key for the Map Height setting.
+	 */
+	public $mapping_height_meta_key = 'civicrm_directory_map_height';
+
+	/**
+	 * "Browse by First Letter" meta key.
 	 *
 	 * @since 0.2.6
 	 * @access public
@@ -64,7 +73,7 @@ class CiviCRM_Directory_CPT_Meta {
 	public $letter_meta_key = 'civicrm_directory_letter';
 
 	/**
-	 * CiviCRM "Search Form" meta key.
+	 * "Search Form" meta key.
 	 *
 	 * @since 0.2.6
 	 * @access public
@@ -254,10 +263,26 @@ class CiviCRM_Directory_CPT_Meta {
 		//  show checkbox
 		echo '<p>' .
 				'<label>' .
-					'<input type="checkbox" name="' . $this->mapping_meta_key . '" value="1"' . $checked . '> ' .
+					'<input type="checkbox" id="' . $this->mapping_meta_key . '" name="' . $this->mapping_meta_key . '" value="1"' . $checked . '> ' .
 					__( 'This Directory shows a map.', 'civicrm-directory' ) .
 				'</label>' .
 			 '</p>';
+
+		// show map config if enabled
+		if ( $mapping ) {
+
+			// get mapping height setting from post meta
+			$height = $this->mapping_height_get( $post->ID );
+
+			//  show input
+			echo '<p class="' . $this->mapping_height_meta_key . '">' .
+					'<label>' .
+						__( 'The height of the map in pixels:', 'civicrm-directory' ) .
+						' <input type="text" id="' . $this->mapping_height_meta_key . '" name="' . $this->mapping_height_meta_key . '" value="' . esc_attr( $height ) . '"/ > ' .
+					'</label>' .
+				 '</p>';
+
+		}
 
 		// get first letter setting from post meta
 		$letter = $this->letter_get( $post->ID );
@@ -286,6 +311,40 @@ class CiviCRM_Directory_CPT_Meta {
 					__( 'This Directory shows a Search Form.', 'civicrm-directory' ) .
 				'</label>' .
 			 '</p>';
+
+		// ---------------------------------------------------------------------
+
+		// add our metabox javascript in the footer
+		wp_enqueue_script(
+			'civicrm_directory_config_box_js',
+			CIVICRM_DIRECTORY_URL . '/assets/js/civicrm-directory-config-box.js',
+			array( 'jquery' ),
+			CIVICRM_DIRECTORY_VERSION,
+			true
+		);
+
+		// init localisation
+		$localisation = array(
+		);
+
+		// init settings
+		$settings = array(
+			'map_enabled' => $this->mapping_meta_key,
+			'map_height' => $this->mapping_height_meta_key,
+		);
+
+		// localisation array
+		$vars = array(
+			'localisation' => $localisation,
+			'settings' => $settings,
+		);
+
+		// localise
+		wp_localize_script(
+			'civicrm_directory_config_box_js',
+			'CiviCRM_Directory_Config_Box_Settings',
+			$vars
+		);
 
 	}
 
@@ -321,6 +380,52 @@ class CiviCRM_Directory_CPT_Meta {
 
 		// --<
 		return $mapping;
+
+	}
+
+
+
+	/**
+	 * Get the Map Height setting for a Directory ID.
+	 *
+	 * @since 0.2.7
+	 *
+	 * @param int $post_id The ID of the directory.
+	 * @return int|bool $height The hieght of the map if set, false otherwise.
+	 */
+	public function mapping_height_get( $post_id = null ) {
+
+		// use current post if none passed
+		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+
+		// set key
+		$db_key = '_' . $this->mapping_height_meta_key;
+
+		// default to false
+		$height = false;
+
+		// get value if the custom field already has one
+		$existing = get_post_meta( $post_id, $db_key, true );
+		if ( false !== $existing ) {
+			$height = get_post_meta( $post_id, $db_key, true );
+		}
+
+		// handle empty values by substituting default
+		if ( empty( $height ) ) {
+			$height = $this->plugin->admin->setting_get( 'google_maps_height' );
+		}
+
+		// cast as numeric in all cases
+		$height = absint( $height );
+
+		/**
+		 * Allow default map height to be filtered.
+		 *
+		 * @since 0.2.7
+		 *
+		 * @param int $height The height of the map in pixels.
+		 */
+		return apply_filters( 'civicrm_directory_map_height', $height );
 
 	}
 
@@ -1418,6 +1523,20 @@ class CiviCRM_Directory_CPT_Meta {
 
 		// save for this post
 		$this->_save_meta( $post, $db_key, $value );
+
+		// define key
+		$db_key = '_' . $this->mapping_height_meta_key;
+
+		// get height
+		$height = isset( $_POST[$this->mapping_height_meta_key] ) ? absint( $_POST[$this->mapping_height_meta_key] ) : 0;
+
+		// handle empty values by substituting default
+		if ( empty( $height ) OR $height === 0 ) {
+			$height = $this->plugin->admin->setting_get( 'google_maps_height' );
+		}
+
+		// save for this post
+		$this->_save_meta( $post, $db_key, $height );
 
 		// define key
 		$db_key = '_' . $this->letter_meta_key;

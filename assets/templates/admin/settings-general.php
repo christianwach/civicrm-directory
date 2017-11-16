@@ -22,7 +22,15 @@
 			<tr>
 				<th scope="row"><label class="civicrm_directory_settings_label" for="civicrm_directory_google_maps_key"><?php _e( 'Google Maps API Key', 'civicrm-directory' ); ?></label></th>
 				<td>
-					<input type="text" class="widefat" id="civicrm_directory_google_maps_key" name="civicrm_directory_google_maps_key" value="<?php esc_attr_e( $google_maps_key ); ?>" />
+					<input type="text" class="widefat" id="civicrm_directory_google_maps_key" name="civicrm_directory_google_maps_key" value="<?php echo esc_attr( $google_maps_key ); ?>" />
+				</td>
+			</tr>
+
+			<tr>
+				<th scope="row"><label class="civicrm_directory_settings_label" for="civicrm_directory_google_maps_height"><?php _e( 'Default Google Maps height in pixels', 'civicrm-directory' ); ?></label></th>
+				<td>
+					<input type="text" id="civicrm_directory_google_maps_height" name="civicrm_directory_google_maps_height" value="<?php echo esc_attr( $google_maps_height ); ?>" />
+					<p class="description"><?php _e( 'Individual Directories can override this setting.', 'civicrm-directory' ); ?></p>
 				</td>
 			</tr>
 
@@ -31,7 +39,7 @@
 		<hr>
 
 		<p class="submit">
-			<input class="button-primary" type="submit" id="civicrm_directory_settings_submit" name="civicrm_directory_settings_submit" value="<?php _e( 'Save Changes', 'civicrm-directory' ); ?>" />
+			<input class="button-primary" type="submit" id="civicrm_directory_settings_submit" name="civicrm_directory_settings_submit" value="<?php esc_attr_e( 'Save Changes', 'civicrm-directory' ); ?>" />
 		</p>
 
 	</form>

@@ -45,6 +45,9 @@ class CiviCRM_Directory_Map {
 	 */
 	public function insert_map( $data = array() ) {
 
+		// get map height from post meta
+		$height = $this->plugin->cpt_meta->mapping_height_get();
+
 		// get template
 		$template = $this->plugin->template->find_file( 'civicrm-directory/directory-map.php' );
 

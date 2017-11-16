@@ -152,6 +152,24 @@ class CiviCRM_Directory_Admin {
 
 		}
 
+		// if the current version is less than 0.2.8 and we're upgrading to 0.2.8+
+		if (
+			version_compare( $this->plugin_version, '0.2.8', '<' ) AND
+			version_compare( CIVICRM_DIRECTORY_VERSION, '0.2.8', '>=' )
+		) {
+
+			// get default Map Height
+			$defaults = $this->settings_get_default();
+			$height = $defaults['google_maps_height'];
+
+			// store setting
+			$this->setting_set( 'google_maps_height', $height );
+
+			// save settings
+			$this->settings_save();
+
+		}
+
 		// store new version
 		$this->version_set();
 
@@ -329,6 +347,9 @@ class CiviCRM_Directory_Admin {
 		// Google Maps API key
 		$google_maps_key = $this->setting_get( 'google_maps_key' );
 
+		// Google Maps Height
+		$google_maps_height = $this->setting_get( 'google_maps_height' );
+
 		// include template file
 		include( CIVICRM_DIRECTORY_PATH . 'assets/templates/admin/settings-general.php' );
 
@@ -421,6 +442,20 @@ class CiviCRM_Directory_Admin {
 		}
 		$this->setting_set( 'google_maps_key', $google_maps_key );
 
+		// Google Maps Height
+		$google_maps_height = $this->setting_get( 'google_maps_height' );
+		if ( isset( $_POST['civicrm_directory_google_maps_height'] ) ) {
+			$google_maps_height = absint( trim( $_POST['civicrm_directory_google_maps_height'] ) );
+		}
+
+		// substitute with default if empty
+		if ( empty( $google_maps_height ) OR $google_maps_height === 0 ) {
+			$defaults = $this->settings_get_default();
+			$google_maps_height = $defaults['google_maps_height'];
+		}
+
+		$this->setting_set( 'google_maps_height', $google_maps_height );
+
 		// save settings
 		$this->settings_save();
 
@@ -498,6 +533,9 @@ class CiviCRM_Directory_Admin {
 
 		// default Google Maps key (empty)
 		$settings['google_maps_key'] = '';
+
+		// default Google Maps Height in px (400)
+		$settings['google_maps_height'] = 400;
 
 		/**
 		 * Allow defaults to be filtered.
