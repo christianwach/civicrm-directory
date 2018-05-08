@@ -248,7 +248,7 @@ class CiviCRM_Directory_Browse {
 		foreach( $chars AS $char ) {
 
 			// set href
-			$href = $url . '/?civicrm_directory_first_letter=' . $char;
+			$href = add_query_arg( 'civicrm_directory_first_letter', $char, $url );
 
 			// maybe set additional class
 			$class = '';
