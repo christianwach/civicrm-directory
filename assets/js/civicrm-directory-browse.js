@@ -165,7 +165,7 @@ var CiviCRM_Directory_Browse = CiviCRM_Directory_Browse || {};
 
 			// init AJAX spinner
 			$('.civicrm_directory_browse').append(
-				' <img src="' + CiviCRM_Directory_Search.settings.get_setting( 'ajax_loader' ) + '" id="civicrm_directory_browse_loading" />'
+				' <img src="' + CiviCRM_Directory_Browse.settings.get_setting( 'ajax_loader' ) + '" id="civicrm_directory_browse_loading" />'
 			);
 
 			// hide spinner
