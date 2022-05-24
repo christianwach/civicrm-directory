@@ -188,6 +188,9 @@ class CiviCRM_Directory {
 	 */
 	public function include_files() {
 
+		// Load our functions.
+		require CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-functions.php';
+
 		// Load our classes.
 		require CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-civi.php';
 		require CIVICRM_DIRECTORY_PATH . 'includes/civicrm-directory-admin.php';

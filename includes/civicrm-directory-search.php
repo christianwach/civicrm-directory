@@ -468,25 +468,3 @@ class CiviCRM_Directory_Search {
 	}
 
 }
-
-/**
- * Render the search section for a directory.
- *
- * @since 0.1
- */
-function civicrm_directory_search() {
-
-	$plugin = civicrm_directory();
-
-	// Get search-enabled from post meta.
-	$search = $plugin->cpt_meta->search_get();
-
-	// Sanity check.
-	if ( ! $search ) {
-		return;
-	}
-
-	// Render search section now.
-	civicrm_directory()->search->insert_markup();
-
-}

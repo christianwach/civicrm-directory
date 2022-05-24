@@ -540,25 +540,3 @@ $class = ' current';
 	}
 
 }
-
-/**
- * Render the browse section for a directory.
- *
- * @since 0.1
- */
-function civicrm_directory_browser() {
-
-	$plugin = civicrm_directory();
-
-	// Get browse-by-letter-enabled from post meta.
-	$letter = $plugin->cpt_meta->letter_get();
-
-	// Sanity check.
-	if ( ! $letter ) {
-		return;
-	}
-
-	// Render browse section now.
-	civicrm_directory()->browse->insert_markup();
-
-}
