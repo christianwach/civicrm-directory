@@ -1,9 +1,22 @@
-<!-- assets/templates/theme/civicrm-directory/directory-search.php -->
+<?php
+/**
+ * Directory Search Template.
+ *
+ * Handles Directory Search markup.
+ *
+ * @package CiviCRM_Directory
+ * @since 0.1
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+?><!-- assets/templates/theme/civicrm-directory/directory-search.php -->
 <section class="search">
 
-	<h3><?php _e( 'Search', 'civicrm-directory' ); ?></h3>
+	<h3><?php esc_html_e( 'Search', 'civicrm-directory' ); ?></h3>
 
-	<p><?php _e( 'You can search by name or keyword.', 'civicrm-directory' ); ?></p>
+	<p><?php esc_html_e( 'You can search by name or keyword.', 'civicrm-directory' ); ?></p>
 
 	<form action="<?php echo $url; ?>" method="get" id="civicrm_directory_search">
 		<label for="civicrm_directory_search_string"><?php esc_html_e( 'Search by Name', 'civicrm-directory' ); ?></label>

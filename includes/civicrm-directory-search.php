@@ -1,9 +1,20 @@
 <?php
+/**
+ * Search Class.
+ *
+ * Handles search functionality.
+ *
+ * @package CiviCRM_Directory
+ * @since 0.1
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * CiviCRM Directory Search Class.
+ * Search Class.
  *
- * A class that encapsulates membership levels functionality.
+ * A class that encapsulates search functionality.
  *
  * @since 0.1
  */
@@ -18,8 +29,6 @@ class CiviCRM_Directory_Search {
 	 */
 	public $plugin;
 
-
-
 	/**
 	 * Constructor.
 	 *
@@ -29,12 +38,10 @@ class CiviCRM_Directory_Search {
 	 */
 	public function __construct( $parent ) {
 
-		// store
+		// Store plugin reference.
 		$this->plugin = $parent;
 
 	}
-
-
 
 	/**
 	 * Register WordPress hooks.
@@ -43,16 +50,14 @@ class CiviCRM_Directory_Search {
 	 */
 	public function register_hooks() {
 
-		// add AJAX handlers
-		add_action( 'wp_ajax_civicrm_directory_search', array( $this, 'get_data' ) );
-		add_action( 'wp_ajax_nopriv_civicrm_directory_search', array( $this, 'get_data' ) );
+		// Add AJAX handlers.
+		add_action( 'wp_ajax_civicrm_directory_search', [ $this, 'get_data' ] );
+		add_action( 'wp_ajax_nopriv_civicrm_directory_search', [ $this, 'get_data' ] );
 
-		// look for GET variable
-		add_action( 'init', array( $this, 'search_query_exists' ) );
+		// Look for GET variable.
+		add_action( 'init', [ $this, 'search_query_exists' ] );
 
 	}
-
-
 
 	/**
 	 * Test for search query.
@@ -61,24 +66,28 @@ class CiviCRM_Directory_Search {
 	 */
 	public function search_query_exists() {
 
-		// bail if not set
-		if ( ! isset( $_GET['civicrm_directory_search_string'] ) ) return;
+		// Bail if not set.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['civicrm_directory_search_string'] ) ) {
+			return;
+		}
 
-		// sanitize search query
-		$search = sanitize_text_field( trim( $_GET['civicrm_directory_search_string'] ) );
+		// Sanitize search query.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$search = sanitize_text_field( trim( wp_unslash( $_GET['civicrm_directory_search_string'] ) ) );
 
-		// bail if empty
-		if ( empty( $search ) ) return;
+		// Bail if empty.
+		if ( empty( $search ) ) {
+			return;
+		}
 
-		// override the initial map query
-		add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
+		// Override the initial map query.
+		add_filter( 'civicrm_directory_map_contacts', [ $this, 'map_query_filter' ] );
 
-		// give the listings some initial content
-		add_filter( 'civicrm_directory_listing_markup', array( $this, 'listing_markup' ) );
+		// Give the listings some initial content.
+		add_filter( 'civicrm_directory_listing_markup', [ $this, 'listing_markup' ] );
 
 	}
-
-
 
 	/**
 	 * Override the initial map query.
@@ -90,15 +99,15 @@ class CiviCRM_Directory_Search {
 	 */
 	public function map_query_filter( $contacts ) {
 
-		// sanitize search query
-		$search = sanitize_text_field( trim( $_GET['civicrm_directory_search_string'] ) );
+		// Sanitize search query.
+		$search = sanitize_text_field( trim( wp_unslash( $_GET['civicrm_directory_search_string'] ) ) );
 
-		// do query if it hasn't already been done
+		// Do query if it hasn't already been done.
 		if ( ! isset( $this->results ) ) {
 			$this->results = $this->get_results( get_the_ID(), $search );
 		}
 
-		// override if there are some results
+		// Override if there are some results.
 		if ( ! empty( $this->results ) ) {
 			$contacts = $this->results;
 		}
@@ -108,8 +117,6 @@ class CiviCRM_Directory_Search {
 
 	}
 
-
-
 	/**
 	 * Create the listing markup.
 	 *
@@ -118,26 +125,26 @@ class CiviCRM_Directory_Search {
 	 * @param array $data The configuration data.
 	 * @return array $data The configuration data.
 	 */
-	public function listing_markup( $data = array() ) {
+	public function listing_markup( $data = [] ) {
 
-		// sanitize search query
-		$search = sanitize_text_field( trim( $_GET['civicrm_directory_search_string'] ) );
+		// Sanitize search query.
+		$search = sanitize_text_field( trim( wp_unslash( $_GET['civicrm_directory_search_string'] ) ) );
 
-		// do query if it hasn't already been done
+		// Do query if it hasn't already been done.
 		if ( ! isset( $this->results ) ) {
 			$this->results = $this->get_results( get_the_ID(), $search );
 		}
 
-		// create markup if there are some results
+		// Create markup if there are some results.
 		if ( ! empty( $this->results ) ) {
 
-			// init markup
+			// Init markup.
 			$markup = '<h3>' . __( 'Results', 'civicrm-directory' ) . '</h3>';
 
-			// add listing
+			// Add listing.
 			$markup .= $this->get_listing_markup( $this->results, $post_id );
 
-			// add to array
+			// Add to array.
 			$data['listing'] = $markup;
 
 		}
@@ -147,8 +154,6 @@ class CiviCRM_Directory_Search {
 
 	}
 
-
-
 	/**
 	 * Insert the markup.
 	 *
@@ -156,23 +161,21 @@ class CiviCRM_Directory_Search {
 	 *
 	 * @param array $data The configuration data.
 	 */
-	public function insert_markup( $data = array() ) {
+	public function insert_markup( $data = [] ) {
 
-		// get URL to submit to
+		// Get URL to submit to.
 		$url = esc_url( get_permalink( get_the_ID() ) );
 
-		// get template
+		// Get template.
 		$template = $this->plugin->template->find_file( 'civicrm-directory/directory-search.php' );
 
-		// include the template part
-		include( $template );
+		// Include the template part.
+		include $template;
 
-		// enqueue Javascript
+		// Enqueue Javascript.
 		$this->enqueue_script( $data );
 
 	}
-
-
 
 	/**
 	 * Enqueue and configure Javascript.
@@ -183,32 +186,32 @@ class CiviCRM_Directory_Search {
 	 */
 	public function enqueue_script( $data ) {
 
-		// enqueue custom javascript
+		// Enqueue custom javascript.
 		wp_enqueue_script(
 			'civicrm-directory-search-js',
 			CIVICRM_DIRECTORY_URL . 'assets/js/civicrm-directory-search.js',
-			array( 'jquery' ),
+			[ 'jquery' ],
 			CIVICRM_DIRECTORY_VERSION,
-			true // in footer
+			true // In footer.
 		);
 
-		// init localisation
-		$localisation = array();
+		// Init localisation.
+		$localisation = [];
 
-		/// init settings
-		$settings = array(
+		/// Init settings.
+		$settings = [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'ajax_loader' => CIVICRM_DIRECTORY_URL . 'assets/images/ajax-loader.gif',
 			'post_id' => get_the_ID(),
-		);
+		];
 
-		// localisation array
-		$vars = array(
+		// Localisation array.
+		$vars = [
 			'localisation' => $localisation,
 			'settings' => $settings,
-		);
+		];
 
-		// localise the WordPress way
+		// Localise the WordPress way.
 		wp_localize_script(
 			'civicrm-directory-search-js',
 			'CiviCRM_Directory_Search_Settings',
@@ -217,8 +220,6 @@ class CiviCRM_Directory_Search {
 
 	}
 
-
-
 	/**
 	 * Get the CiviCRM data for the search string.
 	 *
@@ -226,68 +227,72 @@ class CiviCRM_Directory_Search {
 	 */
 	public function get_data() {
 
-		// get search
-		$search = isset( $_POST['search'] ) ? trim( $_POST['search'] ) : '';
+		// Get search.
+		$search = isset( $_POST['search'] ) ? trim( wp_unslash( $_POST['search'] ) ) : '';
 
-		// init data
-		$data = array(
+		// Init data.
+		$data = [
 			'search' => $search,
-		);
+		];
 
-		// get sanitised post ID
-		$post_id = isset( $_POST['post_id'] ) ? absint( trim( $_POST['post_id'] ) ) : '';
+		// Get sanitised post ID.
+		$post_id = isset( $_POST['post_id'] ) ? absint( trim( wp_unslash( $_POST['post_id'] ) ) ) : '';
 
-		// do query
+		// Do query.
 		$results = $this->get_results( $post_id, $search );
 
-		// build locations array
-		$locations = array();
-		foreach( $results AS $contact ) {
+		// Build locations array.
+		$locations = [];
+		foreach ( $results as $contact ) {
 
-			// construct address
-			$address_raw = array();
-			if ( ! empty( $contact['street_address'] ) ) $address_raw[] = $contact['street_address'];
-			if ( ! empty( $contact['city'] ) ) $address_raw[] = $contact['city'];
-			if ( ! empty( $contact['state_province_name'] ) ) $address_raw[] = $contact['state_province_name'];
+			// Construct address.
+			$address_raw = [];
+			if ( ! empty( $contact['street_address'] ) ) {
+				$address_raw[] = $contact['street_address'];
+			}
+			if ( ! empty( $contact['city'] ) ) {
+				$address_raw[] = $contact['city'];
+			}
+			if ( ! empty( $contact['state_province_name'] ) ) {
+				$address_raw[] = $contact['state_province_name'];
+			}
 			$address = implode( '<br>', $address_raw );
 
-			// add to locations
-			$locations[] = array(
+			// Add to locations.
+			$locations[] = [
 				'latitude' => $contact['geo_code_1'],
 				'longitude' => $contact['geo_code_2'],
 				'name' => $contact['display_name'],
 				'address' => $address,
 				'permalink' => esc_url( trailingslashit( get_permalink( $post_id ) ) . 'entry/' . $contact['id'] ),
-			);
+			];
 
 		}
 
-		// add to data array
+		// Add to data array.
 		$data['locations'] = $locations;
 
-		// init markup
+		// Init markup.
 		$markup = '';
 
-		// init markup
+		// Init markup.
 		if ( ! empty( $search ) ) {
 
-			// add heading
+			// Add heading.
 			$markup = '<h3>' . __( 'Results', 'civicrm-directory' ) . '</h3>';
 
-			// add listing
+			// Add listing.
 			$markup .= $this->get_listing_markup( $results, $post_id );
 
 		}
 
-		// add to data array
+		// Add to data array.
 		$data['listing'] = $markup;
 
-		// send data to browser
+		// Send data to browser.
 		$this->send_data( $data );
 
 	}
-
-
 
 	/**
 	 * Get the CiviCRM data for the search string.
@@ -300,26 +305,30 @@ class CiviCRM_Directory_Search {
 	 */
 	public function get_results( $post_id, $search ) {
 
-		// init return
-		$results = array();
+		// Init return.
+		$results = [];
 
-		// get plugin reference
+		// Get plugin reference.
 		$plugin = civicrm_directory();
 
-		// get group ID from post meta
+		// Get group ID from post meta.
 		$group_id = $plugin->cpt_meta->group_id_get( $post_id );
 
-		// sanity check
-		if ( empty( $group_id ) ) return $results;
+		// Sanity check.
+		if ( empty( $group_id ) ) {
+			return $results;
+		}
 
-		// get contact types from post meta
+		// Get contact types from post meta.
 		$contact_types = $plugin->cpt_meta->contact_types_get( $post_id );
 
-		// sanity check
-		if ( empty( $contact_types ) ) return $results;
+		// Sanity check.
+		if ( empty( $contact_types ) ) {
+			return $results;
+		}
 
-		// get individuals in this group filtered by first letter
-		$individuals = array();
+		// Get individuals in this group filtered by first letter.
+		$individuals = [];
 		if ( in_array( 'Individual', $contact_types ) ) {
 			$individuals = $plugin->civi->contacts_get_for_group(
 				$group_id,
@@ -330,8 +339,8 @@ class CiviCRM_Directory_Search {
 			);
 		}
 
-		// get households in this group filtered by first letter
-		$households = array();
+		// Get households in this group filtered by first letter.
+		$households = [];
 		if ( in_array( 'Household', $contact_types ) ) {
 			$households = $plugin->civi->contacts_get_for_group(
 				$group_id,
@@ -342,8 +351,8 @@ class CiviCRM_Directory_Search {
 			);
 		}
 
-		// get organisations in this group filtered by first letter
-		$organisations = array();
+		// Get organisations in this group filtered by first letter.
+		$organisations = [];
 		if ( in_array( 'Organization', $contact_types ) ) {
 			$organisations = $plugin->civi->contacts_get_for_group(
 				$group_id,
@@ -354,7 +363,7 @@ class CiviCRM_Directory_Search {
 			);
 		}
 
-		// combine the results
+		// Combine the results.
 		$results = array_merge( $individuals, $households, $organisations );
 
 		// --<
@@ -362,45 +371,44 @@ class CiviCRM_Directory_Search {
 
 	}
 
-
-
 	/**
 	 * Get the listing markup for the given results.
 	 *
 	 * @since 0.1.3
 	 *
 	 * @param array $results The array of contact data.
-	 * @param WP_Post $post The object for the current post/page.
+	 * @param int $post_id The numeric ID of the current post/page.
 	 * @return str $markup The listing markup.
 	 */
 	public function get_listing_markup( $results, $post_id ) {
 
-		// init return
+		// Init return.
 		$markup = '';
 
-		// if we have results
+		// If we have results.
 		if ( count( $results ) > 0 ) {
 
-			// build listings array
-			$listings = array();
-			foreach( $results AS $contact ) {
+			// Build listings array.
+			$listings = [];
+			foreach ( $results as $contact ) {
 				$listings[] = $this->get_item_markup( $contact, $post_id );
 			}
 
-			// build markup
+			// Build markup.
 			$markup .= '<ul><li>';
 			$markup .= implode( '</li><li>', $listings );
 			$markup .= '</li></ul>';
 
 		} else {
 
-			// contstruct message
+			// Construct message.
 			$message = sprintf(
+				/* translators: %s: The search string */
 				__( 'No results found for "%s"', 'civicrm-directory' ),
 				$search
 			);
 
-			// no results markup
+			// No results markup.
 			$markup .= '<p>' . $message . '</p>';
 
 		}
@@ -410,31 +418,27 @@ class CiviCRM_Directory_Search {
 
 	}
 
-
-
 	/**
 	 * Create markup for a listing item.
 	 *
 	 * @since 0.1.1
 	 *
 	 * @param array $contact The contact to create markup for.
-	 * @param WP_Post $post The object for the current post/page.
+	 * @param int $post_id The numeric ID of the current post/page.
 	 * @return str $markup The contact markup.
 	 */
 	public function get_item_markup( $contact, $post_id ) {
 
-		// construct permalink
+		// Construct permalink.
 		$permalink = esc_url( trailingslashit( get_permalink( $post_id ) ) . 'entry/' . $contact['id'] );
 
-		// build markup
+		// Build markup.
 		$markup = '<a href="' . $permalink . '">' . esc_html( $contact['display_name'] ) . '</a>';
 
 		// --<
 		return $markup;
 
 	}
-
-
 
 	/**
 	 * Send JSON data to the browser.
@@ -445,29 +449,25 @@ class CiviCRM_Directory_Search {
 	 */
 	private function send_data( $data ) {
 
-		// is this an AJAX request?
-		if ( defined( 'DOING_AJAX' ) AND DOING_AJAX ) {
+		// Is this an AJAX request?
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 
-			// set reasonable headers
-			header('Content-type: text/plain');
-			header("Cache-Control: no-cache");
-			header("Expires: -1");
+			// Set reasonable headers.
+			header( 'Content-type: text/plain' );
+			header( 'Cache-Control: no-cache' );
+			header( 'Expires: -1' );
 
-			// echo
+			// Echo.
 			echo json_encode( $data );
 
-			// die
+			// Die.
 			exit();
 
 		}
 
 	}
 
-
-
-} // class ends
-
-
+}
 
 /**
  * Render the search section for a directory.
@@ -478,17 +478,15 @@ function civicrm_directory_search() {
 
 	$plugin = civicrm_directory();
 
-	// get search-enabled from post meta
+	// Get search-enabled from post meta.
 	$search = $plugin->cpt_meta->search_get();
 
-	// sanity check
-	if ( ! $search ) return;
+	// Sanity check.
+	if ( ! $search ) {
+		return;
+	}
 
-	// render search section now
+	// Render search section now.
 	civicrm_directory()->search->insert_markup();
 
 }
-
-
-
-

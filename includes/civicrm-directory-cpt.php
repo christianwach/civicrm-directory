@@ -1,13 +1,24 @@
 <?php
+/**
+ * Custom Post Type Class.
+ *
+ * Handles registration of a Custom Post Type for CiviCRM Directory.
+ *
+ * @package CiviCRM_Directory
+ * @since 0.1
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * CiviCRM Directory Custom Post Type Class.
+ * Custom Post Type Class.
  *
  * A class that encapsulates a Custom Post Type for CiviCRM Directory. This is
  * used to provide multiple Directories per WordPress install, each of which has
  * a unique permalink and ID.
  *
- * @package CiviCRM_Directory
+ * @since 0.1
  */
 class CiviCRM_Directory_CPT {
 
@@ -29,8 +40,6 @@ class CiviCRM_Directory_CPT {
 	 */
 	public $post_type_name = 'directory';
 
-
-
 	/**
 	 * Constructor.
 	 *
@@ -40,12 +49,10 @@ class CiviCRM_Directory_CPT {
 	 */
 	public function __construct( $parent ) {
 
-		// store
+		// Store plugin reference.
 		$this->plugin = $parent;
 
 	}
-
-
 
 	/**
 	 * Register WordPress hooks.
@@ -54,18 +61,16 @@ class CiviCRM_Directory_CPT {
 	 */
 	public function register_hooks() {
 
-		// always register post type
-		add_action( 'init', array( $this, 'post_type_create' ) );
+		// Always register post type.
+		add_action( 'init', [ $this, 'post_type_create' ] );
 
-		// make sure our feedback is appropriate
-		add_filter( 'post_updated_messages', array( $this, 'post_type_messages' ) );
+		// Make sure our feedback is appropriate.
+		add_filter( 'post_updated_messages', [ $this, 'post_type_messages' ] );
 
-		// custom endpoints
-		add_action( 'init', array( $this, 'endpoints' ), 20 );
+		// Custom endpoints.
+		add_action( 'init', [ $this, 'endpoints' ], 20 );
 
 	}
-
-
 
 	/**
 	 * Actions to perform on plugin activation.
@@ -74,16 +79,14 @@ class CiviCRM_Directory_CPT {
 	 */
 	public function activate() {
 
-		// pass through
+		// Pass through.
 		$this->post_type_create();
 		$this->endpoints();
 
-		// go ahead and flush
+		// Go ahead and flush.
 		flush_rewrite_rules();
 
 	}
-
-
 
 	/**
 	 * Actions to perform on plugin deactivation (NOT deletion).
@@ -92,16 +95,12 @@ class CiviCRM_Directory_CPT {
 	 */
 	public function deactivate() {
 
-		// flush rules to reset
+		// Flush rules to reset.
 		flush_rewrite_rules();
 
 	}
 
-
-
 	// #########################################################################
-
-
 
 	/**
 	 * Create our Custom Post Type.
@@ -110,17 +109,17 @@ class CiviCRM_Directory_CPT {
 	 */
 	public function post_type_create() {
 
-		// only call this once
+		// Only call this once.
 		static $registered;
+		if ( $registered ) {
+			return;
+		}
 
-		// bail if already done
-		if ( $registered ) return;
+		// Set up the post type called "Directory".
+		register_post_type( $this->post_type_name, [
 
-		// set up the post type called "Directory"
-		register_post_type( $this->post_type_name, array(
-
-			// labels
-			'labels' => array(
+			// Labels.
+			'labels' => [
 				'name'               => __( 'Directories', 'civicrm-directory' ),
 				'singular_name'      => __( 'Directory', 'civicrm-directory' ),
 				'add_new'            => __( 'Add New', 'civicrm-directory' ),
@@ -133,9 +132,9 @@ class CiviCRM_Directory_CPT {
 				'not_found'          => __( 'No matching Directory found', 'civicrm-directory' ),
 				'not_found_in_trash' => __( 'No Directories found in Trash', 'civicrm-directory' ),
 				'menu_name'          => __( 'Directories', 'civicrm-directory' ),
-			),
+			],
 
-			// defaults
+			// Defaults.
 			'menu_icon'   => 'dashicons-list-view',
 			'description' => __( 'A directory post type', 'civicrm-directory' ),
 			'public' => true,
@@ -152,114 +151,111 @@ class CiviCRM_Directory_CPT {
 			'menu_position' => 25,
 			'map_meta_cap' => true,
 
-			// rewrite
-			'rewrite' => array(
+			// Rewrite.
+			'rewrite' => [
 				'slug' => 'directory',
-				'with_front' => false
-			),
+				'with_front' => false,
+			],
 
-			// supports
-			'supports' => array(
+			// Supports.
+			'supports' => [
 				'title',
 				'page-attributes',
-			),
+			],
 
-		) );
+		] );
 
-		//flush_rewrite_rules();
-
-		// flag
+		// Flag done.
 		$registered = true;
 
 	}
-
-
 
 	/**
 	 * Override messages for a custom post type.
 	 *
 	 * @since 0.1
 	 *
-	 * @param array $messages The existing messages
-	 * @return array $messages The modified messages
+	 * @param array $messages The existing messages.
+	 * @return array $messages The modified messages.
 	 */
 	public function post_type_messages( $messages ) {
 
-		// access relevant globals
+		// Access relevant globals.
 		global $post, $post_ID;
 
-		// define custom messages for our custom post type
-		$messages[$this->post_type_name] = array(
+		// Define custom messages for our custom post type.
+		$messages[ $this->post_type_name ] = [
 
-			// unused - messages start at index 1
+			// Unused - messages start at index 1.
 			0 => '',
 
-			// item updated
+			// Item updated.
 			1 => sprintf(
+				/* translators: %s: The URL of the directory */
 				__( 'Directory updated. <a href="%s">View directory</a>', 'civicrm-directory' ),
 				esc_url( get_permalink( $post_ID ) )
 			),
 
-			// custom fields
+			// Custom fields.
 			2 => __( 'Custom field updated.', 'civicrm-directory' ),
 			3 => __( 'Custom field deleted.', 'civicrm-directory' ),
 			4 => __( 'Directory updated.', 'civicrm-directory' ),
 
-			// item restored to a revision
+			// Item restored to a revision.
 			5 => isset( $_GET['revision'] ) ?
 
-					// revision text
+					// Revision text.
 					sprintf(
-						// translators: %s: date and time of the revision
+						/* translators: %s: date and time of the revision */
 						__( 'Directory restored to revision from %s', 'civicrm-directory' ),
 						wp_post_revision_title( (int) $_GET['revision'], false )
 					) :
 
-					// no revision
+					// No revision.
 					false,
 
-			// item published
+			// Item published.
 			6 => sprintf(
+				/* translators: %s: The URL of the directory */
 				__( 'Directory published. <a href="%s">View directory</a>', 'civicrm-directory' ),
 				esc_url( get_permalink( $post_ID ) )
 			),
 
-			// item saved
+			// Item saved.
 			7 => __( 'Directory saved.', 'civicrm-directory' ),
 
-			// item submitted
+			// Item submitted.
 			8 => sprintf(
+				/* translators: %s: The URL of the directory preview */
 				__( 'Directory submitted. <a target="_blank" href="%s">Preview directory</a>', 'civicrm-directory' ),
 				esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) )
 			),
 
-			// item scheduled
+			// Item scheduled.
 			9 => sprintf(
+				/* translators: 1: The date, 2: The URL of the preview */
 				__( 'Directory scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview directory</a>', 'civicrm-directory' ),
-				// translators: Publish box date format, see http://php.net/date
-				date_i18n( __( 'M j, Y @ G:i' ),
+				/* translators: Publish box date format, see https://php.net/date */
+				date_i18n( __( 'M j, Y @ G:i', 'civicrm-directory' ),
 				strtotime( $post->post_date ) ),
 				esc_url( get_permalink( $post_ID ) )
 			),
 
-			// draft updated
+			// Draft updated.
 			10 => sprintf(
+				/* translators: %s: The URL of the preview */
 				__( 'Directory draft updated. <a target="_blank" href="%s">Preview directory</a>', 'civicrm-directory' ),
 				esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) )
-			)
+			),
 
-		);
+		];
 
 		// --<
 		return $messages;
 
 	}
 
-
-
 	// #########################################################################
-
-
 
 	/**
 	 * Add our endpoints.
@@ -270,10 +266,10 @@ class CiviCRM_Directory_CPT {
 	 */
 	public function endpoints( $flush_rewrite_rules = false ) {
 
-		// let's add an endpoint for viewing entries
+		// Let's add an endpoint for viewing entries.
 		add_rewrite_endpoint( 'entry', EP_PERMALINK | EP_PAGES );
 
-		// maybe force flush
+		// Maybe force flush.
 		if ( $flush_rewrite_rules ) {
 			flush_rewrite_rules();
 		}
@@ -287,25 +283,24 @@ class CiviCRM_Directory_CPT {
 		 */
 		do_action( 'civicrm_directory_after_endpoints', $flush_rewrite_rules );
 
-		//flush_rewrite_rules();
-
 	}
-
-
 
 	/**
 	 * Add our query vars.
 	 *
 	 * @since 0.2.1
+	 *
+	 * @param array $query_vars The existing array of query vars.
+	 * @return array $query_vars The modified array of query vars.
 	 */
 	public function query_vars( $query_vars ) {
 
-		// sanity check
+		// Sanity check.
 		if ( ! is_array( $query_vars ) ) {
-			$query_vars = array();
+			$query_vars = [];
 		}
 
-		// add our query vars
+		// Add our query vars.
 		$query_vars[] = 'post_type';
 		$query_vars[] = 'pagename';
 		$query_vars[] = 'cividir_contact_id';
@@ -315,9 +310,4 @@ class CiviCRM_Directory_CPT {
 
 	}
 
-
-
-} // class ends
-
-
-
+}

@@ -1,11 +1,22 @@
 <?php
+/**
+ * Template Class.
+ *
+ * Handles templating functionality.
+ *
+ * @package CiviCRM_Directory
+ * @since 0.1
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * CiviCRM Directory Template Class.
+ * Template Class.
  *
  * A class that encapsulates templating functionality for CiviCRM Directory.
  *
- * @package CiviCRM_Directory
+ * @since 0.1
  */
 class CiviCRM_Directory_Template {
 
@@ -26,8 +37,6 @@ class CiviCRM_Directory_Template {
 	 * @var array $contact The requested contact data.
 	 */
 	public $contact = false;
-
-
 	/**
 	 * Constructor.
 	 *
@@ -37,12 +46,10 @@ class CiviCRM_Directory_Template {
 	 */
 	public function __construct( $parent ) {
 
-		// store
+		// Store plugin reference.
 		$this->plugin = $parent;
 
 	}
-
-
 
 	/**
 	 * Register WordPress hooks.
@@ -51,15 +58,13 @@ class CiviCRM_Directory_Template {
 	 */
 	public function register_hooks() {
 
-		// override some page elements
-		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ), 5 );
+		// Override some page elements.
+		add_action( 'pre_get_posts', [ $this, 'pre_get_posts' ], 5 );
 
-		// filter the content
-		add_filter( 'the_content', array( $this, 'directory_render' ) );
+		// Filter the content.
+		add_filter( 'the_content', [ $this, 'directory_render' ] );
 
 	}
-
-
 
 	/**
 	 * Actions to perform on plugin activation.
@@ -70,8 +75,6 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
 	/**
 	 * Actions to perform on plugin deactivation (NOT deletion).
 	 *
@@ -81,36 +84,36 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
 	// #########################################################################
-
-
 
 	/**
 	 * Check query for directory entry view request.
 	 *
 	 * @since 0.2.1
+	 *
+	 * @param object $query The current Posts query object.
 	 */
 	public function pre_get_posts( $query ) {
 
-		// front end and main query?
-		if ( ! is_admin() AND $query->is_main_query() ) {
+		// Front end and main query?
+		if ( ! is_admin() && $query->is_main_query() ) {
 
-			// are we viewing a contact?
+			// Are we viewing a contact?
 			$contact_id = $query->get( 'entry' );
 			if ( ! empty( $contact_id ) ) {
 
-				// sanity check
+				// Sanity check.
 				$contact_id = absint( $contact_id );
 
-				// reject failed conversions
-				if ( $contact_id == 0 ) return $query;
+				// Reject failed conversions.
+				if ( $contact_id == 0 ) {
+					return $query;
+				}
 
-				// set up contact once query is complete
-				add_action( 'wp', array( $this, 'entry_setup' ) );
+				// Set up contact once query is complete.
+				add_action( 'wp', [ $this, 'entry_setup' ] );
 
-				// store contact ID for retrieval in entry_setup()
+				// Store contact ID for retrieval in entry_setup().
 				$this->contact_id = $contact_id;
 
 			}
@@ -119,8 +122,6 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
 	/**
 	 * Register hooks and retrieve data for directory contact view.
 	 *
@@ -128,47 +129,52 @@ class CiviCRM_Directory_Template {
 	 */
 	public function entry_setup() {
 
-		// bail if we don't have a valid countact ID
-		if ( ! isset( $this->contact_id ) ) return;
-		if ( ! is_int( $this->contact_id ) ) return;
+		// Bail if we don't have a valid countact ID.
+		if ( ! isset( $this->contact_id ) ) {
+			return;
+		}
+		if ( ! is_int( $this->contact_id ) ) {
+			return;
+		}
 
-		// loop through the results and get group ID from post meta
+		// Loop through the results and get group ID from post meta.
 		if ( have_posts() ) {
-			while ( have_posts() ) : the_post();
+			while ( have_posts() ) :
+the_post();
 				global $post;
 				$group_id = $this->plugin->cpt_meta->group_id_get( $post->ID );
 			endwhile;
 		}
 
-		// reset loop
+		// Reset loop.
 		rewind_posts();
 
-		// sanity check
-		if ( empty( $group_id ) ) return $results;
+		// Sanity check.
+		if ( empty( $group_id ) ) {
+			return $results;
+		}
 
-		// restrict to group
-		$args = array(
+		// Restrict to group.
+		$args = [
 			'group_id' => $group_id,
-		);
+		];
 
-		// get contact
+		// Get contact.
 		$this->contact = $this->plugin->civi->contact_get_by_id( $this->contact_id, $args );
 
-		// filter the document title for themes that still use wp_title()
-		add_filter( 'wp_title', array( $this, 'document_title' ), 20, 3 );
+		// Filter the document title for themes that still use wp_title().
+		add_filter( 'wp_title', [ $this, 'document_title' ], 20, 3 );
 
-		// filter the document title for themes that support 'title-tag'
-		add_filter( 'document_title_parts', array( $this, 'document_title_parts' ), 20 );
+		// Filter the document title for themes that support 'title-tag'.
+		add_filter( 'document_title_parts', [ $this, 'document_title_parts' ], 20 );
 
-		// filter the title
-		add_filter( 'the_title', array( $this, 'the_title' ), 10 );
+		// Filter the title.
+		add_filter( 'the_title', [ $this, 'the_title' ], 10 );
 
-		// override the initial map query
-		add_filter( 'civicrm_directory_map_contacts', array( $this, 'map_query_filter' ) );
+		// Override the initial map query.
+		add_filter( 'civicrm_directory_map_contacts', [ $this, 'map_query_filter' ] );
 
 	}
-
-
 
 	/**
 	 * Override document title when viewing a contact in the directory.
@@ -181,15 +187,17 @@ class CiviCRM_Directory_Template {
 	 *
 	 * @param string $title The page title.
 	 * @param string $sep Title separator.
-	 * @param string $seplocation Location of the separator (left or right).
+	 * @param string $sep_location Location of the separator (left or right).
 	 * @return string $title The modified page title.
 	 */
 	public function document_title( $title, $sep, $sep_location ) {
 
-		// safety first
-		if ( ! isset( $this->contact['display_name'] ) ) return $title;
+		// Safety first.
+		if ( ! isset( $this->contact['display_name'] ) ) {
+			return $title;
+		}
 
-		// sep on right, so reverse the order
+		// Sep on right, so reverse the order.
 		if ( 'right' == $sep_location ) {
 			$title = $this->contact['display_name'] . " $sep " . $title;
 		} else {
@@ -201,30 +209,28 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
 	/**
 	 * Add the root network name when the sub-blog is a group blog.
 	 *
 	 * @since 3.8
 	 *
-	 * @param array $parts The existing title parts
-	 * @return array $parts The modified title parts
+	 * @param array $parts The existing title parts.
+	 * @return array $parts The modified title parts.
 	 */
 	public function document_title_parts( $parts ) {
 
-		// safety first
-		if ( ! isset( $this->contact['display_name'] ) ) return $parts;
+		// Safety first.
+		if ( ! isset( $this->contact['display_name'] ) ) {
+			return $parts;
+		}
 
-		// prepend the contact display name
-		$parts = array( 'name' => $this->contact['display_name'] ) + $parts;
+		// Prepend the contact display name.
+		$parts = [ 'name' => $this->contact['display_name'] ] + $parts;
 
 		// --<
 		return $parts;
 
 	}
-
-
 
 	/**
 	 * Override title of the directory page when viewing a contact.
@@ -238,14 +244,10 @@ class CiviCRM_Directory_Template {
 
 		global $wp_query;
 
-		// are we viewing a contact?
-		if (
-			! empty( $wp_query->query_vars['entry'] ) AND
-			is_singular( 'directory' ) AND
-			in_the_loop()
-		) {
+		// Are we viewing a contact?
+		if ( ! empty( $wp_query->query_vars['entry'] ) && is_singular( 'directory' ) && in_the_loop() ) {
 
-			// override title if we're successful
+			// Override title if we're successful.
 			if ( $this->contact !== false ) {
 				$title = $this->contact['display_name'];
 			}
@@ -257,8 +259,6 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
 	/**
 	 * Get the title of the directory page.
 	 *
@@ -269,24 +269,24 @@ class CiviCRM_Directory_Template {
 	 */
 	public function get_the_title( $post_id = null ) {
 
-		// use current post if none passed
-		if ( is_null( $post_id ) ) $post_id = get_the_ID();
+		// Use current post if none passed.
+		if ( is_null( $post_id ) ) {
+			$post_id = get_the_ID();
+		}
 
-		// remove filter
-		remove_filter( 'the_title', array( $this, 'the_title' ), 10 );
+		// Remove filter.
+		remove_filter( 'the_title', [ $this, 'the_title' ], 10 );
 
-		// get title
+		// Get title.
 		$title = get_the_title( $post_id );
 
-		// re-add filter
-		add_filter( 'the_title', array( $this, 'the_title' ), 10 );
+		// Re-add filter.
+		add_filter( 'the_title', [ $this, 'the_title' ], 10 );
 
 		// --<
 		return $title;
 
 	}
-
-
 
 	/**
 	 * Construct the markup for a contact.
@@ -297,256 +297,268 @@ class CiviCRM_Directory_Template {
 	 */
 	public function the_contact() {
 
-		// init return
+		// Init return.
 		$markup = '';
 
-		// bail if we don't have a contact
-		if ( $this->contact === false ) return $markup;
+		// Bail if we don't have a contact.
+		if ( $this->contact === false ) {
+			return $markup;
+		}
 
-		// grab contact type
+		// Grab contact type.
 		$contact_type = $this->contact['contact_type'];
 
-		// init contact types
-		$types = array( 'Contact', $contact_type );
+		// Init contact types.
+		$types = [ 'Contact', $contact_type ];
 
-		// get all public contact fields
+		// Get all public contact fields.
 		$all_contact_fields = $this->plugin->civi->contact_fields_get( $types, 'public' );
 
-		// build reference array
-		$core_refs = array();
-		foreach( $all_contact_fields AS $contact_field ) {
-			$core_refs[$contact_field['name']] = $contact_field['title'];
+		// Build reference array.
+		$core_refs = [];
+		foreach ( $all_contact_fields as $contact_field ) {
+			$core_refs[ $contact_field['name'] ] = $contact_field['title'];
 		}
 
-		// get contact custom fields
+		// Get contact custom fields.
 		$all_contact_custom_fields = $this->plugin->civi->contact_custom_fields_get( $types );
 
-		// extract just the reference data
-		$custom_field_refs = array();
-		foreach( $all_contact_custom_fields as $key => $value ) {
-			$custom_field_refs[$value['id']] = $value['label'];
+		// Extract just the reference data.
+		$custom_field_refs = [];
+		foreach ( $all_contact_custom_fields as $key => $value ) {
+			$custom_field_refs[ $value['id'] ] = $value['label'];
 		}
 
-		// fields that have associated option groups
-		$fields_with_optgroups = array( 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' );
+		// Fields that have associated option groups.
+		$fields_with_optgroups = [ 'Select', 'Radio', 'CheckBox', 'Multi-Select', 'AdvMulti-Select' ];
 
-		// fill out the content of the custom fields
-		$custom_option_refs = array();
-		foreach( $all_contact_custom_fields AS $key => $field ) {
+		// Fill out the content of the custom fields.
+		$custom_option_refs = [];
+		foreach ( $all_contact_custom_fields as $key => $field ) {
 
-			// if this field type doesn't have an option group
+			// If this field type doesn't have an option group.
 			if ( ! in_array( $field['html_type'], $fields_with_optgroups ) ) {
 
-				// grab data format
-				$custom_option_refs[$field['id']] = $field['data_type'];
+				// Grab data format.
+				$custom_option_refs[ $field['id'] ] = $field['data_type'];
 
 			} else {
 
-				// grab data from option group
-				if ( isset( $field['option_group_id'] ) AND ! empty( $field['option_group_id'] ) ) {
-					$custom_option_refs[$field['id']] = CRM_Core_OptionGroup::valuesByID( absint( $field['option_group_id'] ) );
+				// Grab data from option group.
+				if ( isset( $field['option_group_id'] ) && ! empty( $field['option_group_id'] ) ) {
+					$custom_option_refs[ $field['id'] ] = CRM_Core_OptionGroup::valuesByID( absint( $field['option_group_id'] ) );
 				}
 
 			}
 
 		}
 
-		// build reference array
-		$other_refs = array();
+		// Build reference array.
+		$other_refs = [];
 
-		// get all email types
+		// Get all email types.
 		$email_types = $this->plugin->civi->email_types_get();
 
-		// build reference array
-		foreach( $email_types AS $email_type ) {
-			$other_refs['email'][$email_type['key']] = $email_type['value'];
+		// Build reference array.
+		foreach ( $email_types as $email_type ) {
+			$other_refs['email'][ $email_type['key'] ] = $email_type['value'];
 		}
 
-		// get all website types
+		// Get all website types.
 		$website_types = $this->plugin->civi->website_types_get();
 
-		// build reference array
-		foreach( $website_types AS $website_type ) {
-			$other_refs['website'][$website_type['key']] = $website_type['value'];
+		// Build reference array.
+		foreach ( $website_types as $website_type ) {
+			$other_refs['website'][ $website_type['key'] ] = $website_type['value'];
 		}
 
-		// get all phone types
+		// Get all phone types.
 		$phone_types = $this->plugin->civi->phone_types_get();
 
-		// build reference array
-		foreach( $phone_types AS $phone_type ) {
-			$other_refs['phone'][$phone_type['key']] = $phone_type['value'];
+		// Build reference array.
+		foreach ( $phone_types as $phone_type ) {
+			$other_refs['phone'][ $phone_type['key'] ] = $phone_type['value'];
 		}
 
-		// get all address types
+		// Get all address types.
 		$address_types = $this->plugin->civi->address_types_get();
 
-		// build reference array
-		foreach( $address_types AS $address_type ) {
-			$other_refs['address']['locations'][$address_type['key']] = $address_type['value'];
+		// Build reference array.
+		foreach ( $address_types as $address_type ) {
+			$other_refs['address']['locations'][ $address_type['key'] ] = $address_type['value'];
 		}
 
-		// get all address fields
+		// Get all address fields.
 		$address_fields = $this->plugin->civi->address_fields_get();
 
-		// build reference array
-		foreach( $address_fields AS $address_field ) {
-			$other_refs['address']['fields'][$address_field['name']] = $address_field['title'];
+		// Build reference array.
+		foreach ( $address_fields as $address_field ) {
+			$other_refs['address']['fields'][ $address_field['name'] ] = $address_field['title'];
 		}
 
-		// get contact fields data
+		// Get contact fields data.
 		$contact_fields = $this->plugin->cpt_meta->contact_fields_get();
 
-		// init args
-		$args = array(
-			'returns' => array(),
-			'api.Email.get' => array(),
-			'api.Website.get' => array(),
-			'api.Phone.get' => array(),
-			'api.Address.get' => array(),
-		);
+		// Init args.
+		$args = [
+			'returns' => [],
+			'api.Email.get' => [],
+			'api.Website.get' => [],
+			'api.Phone.get' => [],
+			'api.Address.get' => [],
+		];
 
-		// build fields-to-return
-		$fields_core = isset( $contact_fields[$contact_type]['core'] ) ? $contact_fields[$contact_type]['core'] : array();
-		foreach( $fields_core AS $key => $field ) {
+		// Build fields-to-return.
+		$fields_core = isset( $contact_fields[ $contact_type ]['core'] ) ? $contact_fields[ $contact_type ]['core'] : [];
+		foreach ( $fields_core as $key => $field ) {
 			$args['returns'][] = $field;
 		}
-		$fields_custom = isset( $contact_fields[$contact_type]['custom'] ) ? $contact_fields[$contact_type]['custom'] : array();
-		foreach( $fields_custom AS $field ) {
+		$fields_custom = isset( $contact_fields[ $contact_type ]['custom'] ) ? $contact_fields[ $contact_type ]['custom'] : [];
+		foreach ( $fields_custom as $field ) {
 			$args['returns'][] = 'custom_' . $field;
 		}
 
-		// build chained API calls
-		$fields_other = isset( $contact_fields[$contact_type]['other'] ) ? $contact_fields[$contact_type]['other'] : array();
-		foreach( $fields_other AS $field ) {
+		// Build chained API calls.
+		$fields_other = isset( $contact_fields[ $contact_type ]['other'] ) ? $contact_fields[ $contact_type ]['other'] : [];
+		foreach ( $fields_other as $field ) {
 
 			if ( $field == 'email' ) {
-				foreach( $contact_fields[$contact_type]['email']['enabled'] AS $email ) {
+				foreach ( $contact_fields[ $contact_type ]['email']['enabled'] as $email ) {
 					$args['api.Email.get'][] = $email;
 				}
 			}
 
 			if ( $field == 'website' ) {
-				foreach( $contact_fields[$contact_type]['website']['enabled'] AS $website ) {
+				foreach ( $contact_fields[ $contact_type ]['website']['enabled'] as $website ) {
 					$args['api.Website.get'][] = $website;
 				}
 			}
 
 			if ( $field == 'phone' ) {
-				foreach( $contact_fields[$contact_type]['phone']['enabled'] AS $loc_type ) {
-					$args['api.Phone.get'][$loc_type] = $contact_fields[$contact_type]['phone'][$loc_type];
+				foreach ( $contact_fields[ $contact_type ]['phone']['enabled'] as $loc_type ) {
+					$args['api.Phone.get'][ $loc_type ] = $contact_fields[ $contact_type ]['phone'][ $loc_type ];
 				}
 			}
 
 			if ( $field == 'address' ) {
-				foreach( $contact_fields[$contact_type]['address']['enabled'] AS $loc_type ) {
-					$args['api.Address.get'][$loc_type] = $contact_fields[$contact_type]['address'][$loc_type];
+				foreach ( $contact_fields[ $contact_type ]['address']['enabled'] as $loc_type ) {
+					$args['api.Address.get'][ $loc_type ] = $contact_fields[ $contact_type ]['address'][ $loc_type ];
 				}
 			}
 
 		}
 
-		// restrict to group
+		// Restrict to group.
 		$args['group_id'] = $this->plugin->cpt_meta->group_id_get( get_the_ID() );
 
-		// get contact again, this time with custom fields etc
+		// Get contact again, this time with custom fields etc.
 		$contact_data = $this->plugin->civi->contact_get_by_id( $this->contact['contact_id'], $args );
 
-		// init template var
-		$contact = array();
+		// Init template var.
+		$contact = [];
 
-		// build core data array
-		foreach( $fields_core AS $field ) {
-			if ( ! empty( $contact_data[$field] ) ) {
-				$contact['core'][] = array(
-					'label' => $core_refs[$field],
-					'value' => $contact_data[$field],
-				);
+		// Build core data array.
+		foreach ( $fields_core as $field ) {
+			if ( ! empty( $contact_data[ $field ] ) ) {
+				$contact['core'][] = [
+					'label' => $core_refs[ $field ],
+					'value' => $contact_data[ $field ],
+				];
 			}
 		}
 
-		// build custom data array
-		foreach( $fields_custom AS $field_id ) {
-			if ( ! empty( $contact_data['custom_' . $field_id] ) ) {
-				if ( is_array( $custom_option_refs[$field_id] ) ) {
-					$value = $custom_option_refs[$field_id][$contact_data['custom_' . $field_id]];
+		// Build custom data array.
+		foreach ( $fields_custom as $field_id ) {
+			if ( ! empty( $contact_data[ 'custom_' . $field_id ] ) ) {
+				if ( is_array( $custom_option_refs[ $field_id ] ) ) {
+					$value = $custom_option_refs[ $field_id ][ $contact_data[ 'custom_' . $field_id ] ];
 				} else {
-					$value = $contact_data['custom_' . $field_id];
+					$value = $contact_data[ 'custom_' . $field_id ];
 				}
-				$contact['custom'][] = array(
-					'label' => $custom_field_refs[$field_id],
+				$contact['custom'][] = [
+					'label' => $custom_field_refs[ $field_id ],
 					'value' => $value,
-				);
+				];
 			}
 		}
 
-		// build other data arrays
-		foreach( $fields_other AS $field ) {
+		// Build other data arrays.
+		foreach ( $fields_other as $field ) {
 
 			if ( $field == 'email' ) {
-				foreach( $contact_data['api.Email.get']['values'] AS $item ) {
+				foreach ( $contact_data['api.Email.get']['values'] as $item ) {
 					if ( ! empty( $item['email'] ) ) {
-						$contact[$field][$item['location_type_id']] = array(
-							'label' => $other_refs[$field][$item['location_type_id']],
+						$contact[ $field ][ $item['location_type_id'] ] = [
+							'label' => $other_refs[ $field ][ $item['location_type_id'] ],
 							'value' => $item['email'],
-						);
+						];
 					}
 				}
 			}
 
 			if ( $field == 'website' ) {
-				foreach( $contact_data['api.Website.get']['values'] AS $item ) {
+				foreach ( $contact_data['api.Website.get']['values'] as $item ) {
 					if ( ! empty( $item['url'] ) ) {
-						$contact[$field][$item['website_type_id']] = array(
-							'label' => $other_refs[$field][$item['website_type_id']],
+						$contact[ $field ][ $item['website_type_id'] ] = [
+							'label' => $other_refs[ $field ][ $item['website_type_id'] ],
 							'value' => $item['url'],
-						);
+						];
 					}
 				}
 			}
 
 			if ( $field == 'phone' ) {
-				foreach( $contact_data['api.Phone.get']['values'] AS $item ) {
+				foreach ( $contact_data['api.Phone.get']['values'] as $item ) {
 					if ( ! empty( $item['phone'] ) ) {
-						$contact[$field][$item['location_type_id']] = array(
-							'label' => $other_refs['email'][$item['location_type_id']],
-							'value' => $other_refs[$field][$item['phone_type_id']] . ': ' . $item['phone'],
-						);
+						$contact[ $field ][ $item['location_type_id'] ] = [
+							'label' => $other_refs['email'][ $item['location_type_id'] ],
+							'value' => $other_refs[ $field ][ $item['phone_type_id'] ] . ': ' . $item['phone'],
+						];
 					}
 				}
 			}
 
 			if ( $field == 'address' ) {
 
-				// init data for this address
-				foreach( $contact_fields[$contact_type][$field]['enabled'] AS $location_type_id ) {
+				// Init data for this address.
+				foreach ( $contact_fields[ $contact_type ][ $field ]['enabled'] as $location_type_id ) {
 
-					$fields = $contact_fields[$contact_type][$field][$location_type_id];
+					$fields = $contact_fields[ $contact_type ][ $field ][ $location_type_id ];
 
-					$contact[$field][$location_type_id] = array(
-						'label' => $other_refs[$field]['locations'][$location_type_id],
-						'address' => array(),
-					);
+					$contact[ $field ][ $location_type_id ] = [
+						'label' => $other_refs[ $field ]['locations'][ $location_type_id ],
+						'address' => [],
+					];
 
-					foreach( $contact_data['api.Address.get']['values'] AS $item ) {
+					foreach ( $contact_data['api.Address.get']['values'] as $item ) {
 
-						foreach( $item AS $key => $value ) {
+						foreach ( $item as $key => $value ) {
 
-							// skip nested queries
-							if ( $key == 'state_province_id.name' ) continue;
-							if ( $key == 'country_id.name' ) continue;
+							// Skip nested queries.
+							if ( $key == 'state_province_id.name' ) {
+								continue;
+							}
+							if ( $key == 'country_id.name' ) {
+								continue;
+							}
 
-							// skip if not asked for
-							if ( ! in_array( $key, $contact_fields[$contact_type][$field][$location_type_id] ) ) continue;
-							if ( $location_type_id != $item['location_type_id'] ) continue;
+							// Skip if not asked for.
+							if ( ! in_array( $key, $contact_fields[ $contact_type ][ $field ][ $location_type_id ] ) ) {
+								continue;
+							}
+							if ( $location_type_id != $item['location_type_id'] ) {
+								continue;
+							}
 
-							// skip if empty
-							if ( empty( $value ) ) continue;
+							// Skip if empty.
+							if ( empty( $value ) ) {
+								continue;
+							}
 
-							// init label
-							$label = $other_refs[$field]['fields'][$key];
+							// Init label.
+							$label = $other_refs[ $field ]['fields'][ $key ];
 
-							// handle some fields differently
+							// Handle some fields differently.
 							if ( $key == 'state_province_id' ) {
 								$value = $item['state_province_id.name'];
 								$label = __( 'State/Province', 'civicrm-directory' );
@@ -556,19 +568,19 @@ class CiviCRM_Directory_Template {
 								$label = __( 'Country', 'civicrm-directory' );
 							}
 
-							// add to data array
-							$contact[$field][$location_type_id]['address'][] = array(
+							// Add to data array.
+							$contact[ $field ][ $location_type_id ]['address'][] = [
 								'label' => $label,
 								'value' => $value,
-							);
+							];
 
 						}
 
 					}
 
-					// unset if empty
-					if ( empty( $contact[$field][$location_type_id]['address'] ) ) {
-						unset( $contact[$field][$location_type_id] );
+					// Unset if empty.
+					if ( empty( $contact[ $field ][ $location_type_id ]['address'] ) ) {
+						unset( $contact[ $field ][ $location_type_id ] );
 					}
 
 				}
@@ -577,15 +589,15 @@ class CiviCRM_Directory_Template {
 
 		}
 
-		// use template
+		// Use template.
 		$file = 'civicrm-directory/directory-details.php';
 
-		// get template
+		// Get template.
 		$template = $this->find_file( $file );
 
-		// buffer the template part
+		// Buffer the template part.
 		ob_start();
-		include( $template );
+		include $template;
 		$markup = ob_get_contents();
 		ob_end_clean();
 
@@ -593,8 +605,6 @@ class CiviCRM_Directory_Template {
 		return $markup;
 
 	}
-
-
 
 	/**
 	 * Override the initial map query.
@@ -606,9 +616,9 @@ class CiviCRM_Directory_Template {
 	 */
 	public function map_query_filter( $contacts ) {
 
-		// override if viewing a contact
+		// Override if viewing a contact.
 		if ( $this->contact !== false ) {
-			$contacts = array( $this->contact );
+			$contacts = [ $this->contact ];
 		}
 
 		// --<
@@ -616,41 +626,39 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
 	/**
 	 * Callback filter to display a Directory.
 	 *
 	 * @param str $content The existing content.
 	 * @return str $content The modified content.
 	 */
-	function directory_render( $content ) {
+	public function directory_render( $content ) {
 
 		global $wp_query;
 
-		// only on canonical Directory pages
+		// Only on canonical Directory pages.
 		if ( ! is_singular( $this->plugin->cpt->post_type_name ) ) {
 			return $content;
 		}
 
-		// only for our post type
+		// Only for our post type.
 		if ( get_post_type( get_the_ID() ) !== $this->plugin->cpt->post_type_name ) {
 			return $content;
 		}
 
-		// are we viewing a contact?
+		// Are we viewing a contact?
 		if ( ! empty( $this->contact ) ) {
 			$file = 'civicrm-directory/directory-contact.php';
 		} else {
 			$file = 'civicrm-directory/directory-index.php';
 		}
 
-		// get template
+		// Get template.
 		$template = $this->find_file( $file );
 
-		// buffer the template part
+		// Buffer the template part.
 		ob_start();
-		include( $template );
+		include $template;
 		$content = ob_get_contents();
 		ob_end_clean();
 
@@ -659,8 +667,6 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
 	/**
 	 * Insert the listing markup.
 	 *
@@ -668,7 +674,7 @@ class CiviCRM_Directory_Template {
 	 *
 	 * @param array $data The configuration data.
 	 */
-	public function insert_markup( $data = array() ) {
+	public function insert_markup( $data = [] ) {
 
 		/**
 		 * Data can be amended (or created) by callbacks for this filter.
@@ -680,19 +686,17 @@ class CiviCRM_Directory_Template {
 		 */
 		$data = apply_filters( 'civicrm_directory_listing_markup', $data );
 
-		// init template vars
+		// Init template vars.
 		$listing = isset( $data['listing'] ) ? $data['listing'] : '';
 		$feedback = isset( $data['feedback'] ) ? $data['feedback'] : '';
 
-		// get template
+		// Get template.
 		$template = $this->find_file( 'civicrm-directory/directory-listing.php' );
 
-		// include the template part
-		include( $template );
+		// Include the template part.
+		include $template;
 
 	}
-
-
 
 	/**
 	 * Find a template given a relative path.
@@ -704,20 +708,20 @@ class CiviCRM_Directory_Template {
 	 * @param str $template_path The relative path to the template.
 	 * @return str|bool $full_path The absolute path to the template, or false on failure.
 	 */
-	function find_file( $template_path ) {
+	public function find_file( $template_path ) {
 
-		// get stack
+		// Get stack.
 		$stack = $this->template_stack();
 
-		// constuct templates array
-		$templates = array();
-		foreach( $stack As $location ) {
+		// Constuct templates array.
+		$templates = [];
+		foreach ( $stack as $location ) {
 			$templates[] = trailingslashit( $location ) . $template_path;
 		}
 
-		// let's look for it
+		// Let's look for it.
 		$full_path = false;
-		foreach ( $templates AS $template ) {
+		foreach ( $templates as $template ) {
 			if ( file_exists( $template ) ) {
 				$full_path = $template;
 				break;
@@ -729,8 +733,6 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
 	/**
 	 * Construct template stack.
 	 *
@@ -738,15 +740,15 @@ class CiviCRM_Directory_Template {
 	 *
 	 * @return array $stack The stack of locations to look for a template in.
 	 */
-	function template_stack() {
+	public function template_stack() {
 
-		// define paths
+		// Define paths.
 		$template_dir = get_stylesheet_directory();
 		$parent_template_dir = get_template_directory();
 		$plugin_template_directory = CIVICRM_DIRECTORY_PATH . 'assets/templates/theme';
 
-		// construct stack
-		$stack = array( $template_dir, $parent_template_dir, $plugin_template_directory );
+		// Construct stack.
+		$stack = [ $template_dir, $parent_template_dir, $plugin_template_directory ];
 
 		/**
 		 * Allow stack to be filtered.
@@ -758,7 +760,7 @@ class CiviCRM_Directory_Template {
 		 */
 		$stack = apply_filters( 'civicrm_directory_template_stack', $stack );
 
-		// sanity check
+		// Sanity check.
 		$stack = array_unique( $stack );
 
 		// --<
@@ -766,11 +768,7 @@ class CiviCRM_Directory_Template {
 
 	}
 
-
-
-} // class ends
-
-
+}
 
 /**
  * Render the listing section for a directory.
@@ -779,12 +777,10 @@ class CiviCRM_Directory_Template {
  */
 function civicrm_directory_listing() {
 
-	// render browse section now
+	// Render browse section now.
 	civicrm_directory()->template->insert_markup();
 
 }
-
-
 
 /**
  * Echoes the permalink for a directory.
@@ -795,12 +791,10 @@ function civicrm_directory_listing() {
  */
 function civicrm_directory_url( $post_id = null ) {
 
-	// echo permalink
+	// Echo permalink.
 	echo civicrm_directory_url_get( $post_id );
 
 }
-
-
 
 /**
  * Return the permalink for a directory.
@@ -812,18 +806,18 @@ function civicrm_directory_url( $post_id = null ) {
  */
 function civicrm_directory_url_get( $post_id = null ) {
 
-	// use current post if none passed
-	if ( is_null( $post_id ) ) $post_id = get_the_ID();
+	// Use current post if none passed.
+	if ( is_null( $post_id ) ) {
+		$post_id = get_the_ID();
+	}
 
-	// get permalink
+	// Get permalink.
 	$url = esc_url( get_permalink( $post_id ) );
 
 	// --<
 	return $url;
 
 }
-
-
 
 /**
  * Echo the title of a directory.
@@ -834,12 +828,10 @@ function civicrm_directory_url_get( $post_id = null ) {
  */
 function civicrm_directory_title( $post_id = null ) {
 
-	// echo title
+	// Echo title.
 	echo civicrm_directory_title_get( $post_id );
 
 }
-
-
 
 /**
  * Return the title of a directory.
@@ -851,15 +843,13 @@ function civicrm_directory_title( $post_id = null ) {
  */
 function civicrm_directory_title_get( $post_id = null ) {
 
-	// pass to template object
+	// Pass to template object.
 	$title = civicrm_directory()->template->get_the_title( $post_id );
 
 	// --<
 	return $title;
 
 }
-
-
 
 /**
  * Echo the markup for a contact.
@@ -868,12 +858,10 @@ function civicrm_directory_title_get( $post_id = null ) {
  */
 function civicrm_directory_contact_details() {
 
-	// echo contact details
+	// Echo contact details.
 	echo civicrm_directory_contact_details_get();
 
 }
-
-
 
 /**
  * Gets the markup for a contact.
@@ -884,10 +872,7 @@ function civicrm_directory_contact_details() {
  */
 function civicrm_directory_contact_details_get() {
 
-	// render browse section now
+	// Render browse section now.
 	return civicrm_directory()->template->the_contact();
 
 }
-
-
-

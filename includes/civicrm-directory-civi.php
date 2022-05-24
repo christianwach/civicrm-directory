@@ -1,7 +1,18 @@
 <?php
+/**
+ * CiviCRM Class.
+ *
+ * Handles functionality that interacts with CiviCRM.
+ *
+ * @package CiviCRM_Directory
+ * @since 0.1
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * CiviCRM Directory CiviCRM Class.
+ * CiviCRM Class.
  *
  * A class that encapsulates functionality that interacts with CiviCRM.
  *
@@ -25,11 +36,11 @@ class CiviCRM_Directory_Civi {
 	 * @access public
 	 * @var array $contact_fields_common The common public contact fields.
 	 */
-	public $contact_fields_common = array(
+	public $contact_fields_common = [
 		'nick_name',
 		'email',
 		'source',
-	);
+	];
 
 	/**
 	 * Contact fields to make available on front end.
@@ -38,7 +49,7 @@ class CiviCRM_Directory_Civi {
 	 * @access public
 	 * @var array $contact_fields_individual The public contact fields for Individuals.
 	 */
-	public $contact_fields_individual = array(
+	public $contact_fields_individual = [
 		'prefix_id',
 		'first_name',
 		'last_name',
@@ -48,7 +59,7 @@ class CiviCRM_Directory_Civi {
 		'gender_id',
 		'birth_date',
 		'current_employer',
-	);
+	];
 
 	/**
 	 * Contact fields for Organisations to make available on front end.
@@ -57,11 +68,11 @@ class CiviCRM_Directory_Civi {
 	 * @access public
 	 * @var array $contact_fields_organization The public contact fields for Organisations.
 	 */
-	public $contact_fields_organization = array(
+	public $contact_fields_organization = [
 		'legal_name',
 		'organization_name',
-		'sic_code'
-	);
+		'sic_code',
+	];
 
 	/**
 	 * Contact fields for Households to make available on front end.
@@ -70,11 +81,9 @@ class CiviCRM_Directory_Civi {
 	 * @access public
 	 * @var array $contact_fields_household The public contact fields for Households.
 	 */
-	public $contact_fields_household = array(
+	public $contact_fields_household = [
 		'household_name',
-	);
-
-
+	];
 
 	/**
 	 * Constructor.
@@ -85,12 +94,10 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function __construct( $parent ) {
 
-		// store
+		// Store plugin reference.
 		$this->plugin = $parent;
 
 	}
-
-
 
 	/**
 	 * Initialise CiviCRM if necessary.
@@ -101,20 +108,21 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function initialize() {
 
-		// try and init CiviCRM
-		if ( ! function_exists( 'civi_wp' ) ) return false;
-		if ( ! civi_wp()->initialize() ) return false;
+		// Try and init CiviCRM.
+		if ( ! function_exists( 'civi_wp' ) ) {
+			return false;
+		}
+
+		if ( ! civi_wp()->initialize() ) {
+			return false;
+		}
 
 		// --<
 		return true;
 
 	}
 
-
-
 	//##########################################################################
-
-
 
 	/**
 	 * Get all CiviCRM groups.
@@ -125,29 +133,31 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function groups_get() {
 
-		// init return
-		$groups = array();
+		// Init return.
+		$groups = [];
 
-		// try and init CiviCRM
-		if ( ! $this->initialize() ) return $groups;
+		// Try and init CiviCRM.
+		if ( ! $this->initialize() ) {
+			return $groups;
+		}
 
-		// define params to get all groups
-		$params = array(
+		// Define params to get all groups.
+		$params = [
 			'version' => 3,
 			'is_active' => 1,
 			'is_hidden' => 0,
-			'options' => array(
-				'limit' => '0', // no limit
-			),
-		);
+			'options' => [
+				'limit' => '0', // No limit.
+			],
+		];
 
-		// get all groups
+		// Get all groups.
 		$all_groups = civicrm_api( 'group', 'get', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$all_groups['is_error'] == 0 AND
-			isset( $all_groups['values'] ) AND
+			$all_groups['is_error'] == 0 &&
+			isset( $all_groups['values'] ) &&
 			count( $all_groups['values'] ) > 0
 		) {
 			$groups = $all_groups['values'];
@@ -158,11 +168,7 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	//##########################################################################
-
-
 
 	/**
 	 * Get contacts in a specified CiviCRM group.
@@ -183,43 +189,47 @@ class CiviCRM_Directory_Civi {
 	 * @param str $query The filter query string.
 	 * @return array $contacts The contacts in the CiviCRM group.
 	 */
-	public function contacts_get_for_group( $group_id, $types = array(), $mode = 'all', $field = '', $query = '' ) {
+	public function contacts_get_for_group( $group_id, $types = [], $mode = 'all', $field = '', $query = '' ) {
 
-		// init return
-		$contacts = array();
+		// Init return.
+		$contacts = [];
 
-		// try and init CiviCRM
-		if ( ! $this->initialize() ) return $contacts;
+		// Try and init CiviCRM.
+		if ( ! $this->initialize() ) {
+			return $contacts;
+		}
 
-		// get contacts in group
-		$params = array(
+		// Get contacts in group.
+		$params = [
 			'version' => 3,
-			'group' => array( 'IN' => array( $group_id ) ),
-			'options' => array(
-				'limit' => '0', // no limit
-			),
-		);
+			'group' => [
+				'IN' => [ $group_id ],
+			],
+			'options' => [
+				'limit' => '0', // No limit.
+			],
+		];
 
-		// amend params by type
+		// Amend params by type.
 		if ( ! empty( $types ) ) {
 
-			// was a string passed?
-			if ( ! is_array( $types ) AND is_string( $types ) ) {
-				$types = array( $types );
+			// Was a string passed?
+			if ( ! is_array( $types ) && is_string( $types ) ) {
+				$types = [ $types ];
 			}
 
-			// add param
-			$params['contact_type'] = array( 'IN' => $types );
+			// Add param.
+			$params['contact_type'] = [ 'IN' => $types ];
 
 		}
 
-		// amend params by mode
-		switch( $mode ) {
-			case 'first_letter' :
-				$params[$field] = array( 'LIKE' => $query . '%' );
+		// Amend params by mode.
+		switch ( $mode ) {
+			case 'first_letter':
+				$params[ $field ] = [ 'LIKE' => $query . '%' ];
 				break;
-			case 'name' :
-				$params[$field] = array( 'LIKE' => '%' . $query . '%' );
+			case 'name':
+				$params[ $field ] = [ 'LIKE' => '%' . $query . '%' ];
 				break;
 		}
 
@@ -240,13 +250,13 @@ class CiviCRM_Directory_Civi {
 			$params, $group_id, $types, $mode, $field, $query
 		);
 
-		// get result
+		// Get result.
 		$result = civicrm_api( 'contact', 'get', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 			$contacts = $result['values'];
@@ -274,11 +284,7 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	//##########################################################################
-
-
 
 	/**
 	 * Get CiviCRM contact data by contact ID.
@@ -289,111 +295,113 @@ class CiviCRM_Directory_Civi {
 	 * @param array $args Additional arguments to refine retrieval of a CiviCRM contact.
 	 * @return mixed $civi_contact The array of data for the CiviCRM Contact, or false if not found.
 	 */
-	public function contact_get_by_id( $contact_id, $args = array() ) {
+	public function contact_get_by_id( $contact_id, $args = [] ) {
 
-		// try and init CiviCRM
-		if ( ! $this->initialize() ) return false;
-
-		// define params to get a contact
-		$params = array(
-			'version' => 3,
-			'contact_id' => $contact_id,
-		);
-
-		// maybe add group
-		if ( isset( $args['group_id'] ) ) {
-			$params['group'] = array( 'IN' => array( $args['group_id'] ) );
+		// Try and init CiviCRM.
+		if ( ! $this->initialize() ) {
+			return false;
 		}
 
-		// do we have any arguments?
+		// Define params to get a contact.
+		$params = [
+			'version' => 3,
+			'contact_id' => $contact_id,
+		];
+
+		// Maybe add group.
+		if ( isset( $args['group_id'] ) ) {
+			$params['group'] = [ 'IN' => [ $args['group_id'] ] ];
+		}
+
+		// Do we have any arguments?
 		if ( ! empty( $args ) ) {
 
-			// maybe construct returns query
+			// Maybe construct returns query.
 			if ( isset( $args['returns'] ) ) {
 
-				// construct returns array
-				$returns = array();
-				foreach( $args['returns'] AS $field_id ) {
+				// Construct returns array.
+				$returns = [];
+				foreach ( $args['returns'] as $field_id ) {
 					$returns[] = $field_id;
 				}
 
-				// add to params
+				// Add to params.
 				$params['return'] = $returns;
 
 			}
 
-			// maybe construct email query
+			// Maybe construct email query.
 			if ( isset( $args['api.Email.get'] ) ) {
 
-				$email = array();
-				foreach( $args['api.Email.get'] AS $field_id ) {
+				$email = [];
+				foreach ( $args['api.Email.get'] as $field_id ) {
 					$email[] = $field_id;
 				}
 
-				// add to params if we have some types
+				// Add to params if we have some types.
 				if ( ! empty( $email ) ) {
-					$params['api.Email.get'] = array(
-						'location_type_id' => array( 'IN' => $email ),
-						'return' => array( 'location_type_id', 'email' ),
-					);
+					$params['api.Email.get'] = [
+						'location_type_id' => [ 'IN' => $email ],
+						'return' => [ 'location_type_id', 'email' ],
+					];
 				}
 
 			}
 
-			// maybe construct website query
+			// Maybe construct website query.
 			if ( isset( $args['api.Website.get'] ) ) {
 
-				$website = array();
-				foreach( $args['api.Website.get'] AS $field_id ) {
+				$website = [];
+				foreach ( $args['api.Website.get'] as $field_id ) {
 					$website[] = $field_id;
 				}
 
-				// add to params if we have some types
+				// Add to params if we have some types.
 				if ( ! empty( $website ) ) {
-					$params['api.Website.get'] = array(
-						'website_type_id' => array( 'IN' => $website ),
-						'return' => array( 'website_type_id', 'url' ),
-					);
+					$params['api.Website.get'] = [
+						'website_type_id' => [ 'IN' => $website ],
+						'return' => [ 'website_type_id', 'url' ],
+					];
 				}
 
 			}
 
-			// maybe construct phone query
+			// Maybe construct phone query.
 			if ( isset( $args['api.Phone.get'] ) ) {
 
-				$location_types = array();
-				foreach( $args['api.Phone.get'] AS $loc_type_id => $fields ) {
+				$location_types = [];
+				foreach ( $args['api.Phone.get'] as $loc_type_id => $fields ) {
 					$location_types[] = $loc_type_id;
 				}
 
-				$location_fields = array( 'location_type_id' );
-				foreach( $args['api.Phone.get'] AS $loc_type_id => $fields ) {
-					foreach( $fields AS $field ) {
+				$location_fields = [ 'location_type_id' ];
+				foreach ( $args['api.Phone.get'] as $loc_type_id => $fields ) {
+					foreach ( $fields as $field ) {
 						$location_fields[] = $field;
 					}
 				}
 
-				// add to params if we have some types
-				if ( ! empty( $location_types ) AND ! empty( $location_fields ) ) {
-					$params['api.Phone.get'] = array(
-						'location_type_id' => array( 'IN' => $location_types ),
+				// Add to params if we have some types.
+				if ( ! empty( $location_types ) && ! empty( $location_fields ) ) {
+					$params['api.Phone.get'] = [
+						'location_type_id' => [ 'IN' => $location_types ],
 						'return' => array_unique( $location_fields ),
-					);
+					];
 				}
 
 			}
 
-			// maybe construct address query
+			// Maybe construct address query.
 			if ( isset( $args['api.Address.get'] ) ) {
 
-				$location_types = array();
-				foreach( $args['api.Address.get'] AS $loc_type_id => $fields ) {
+				$location_types = [];
+				foreach ( $args['api.Address.get'] as $loc_type_id => $fields ) {
 					$location_types[] = $loc_type_id;
 				}
 
-				$location_fields = array( 'location_type_id' );
-				foreach( $args['api.Address.get'] AS $loc_type_id => $fields ) {
-					foreach( $fields AS $field ) {
+				$location_fields = [ 'location_type_id' ];
+				foreach ( $args['api.Address.get'] as $loc_type_id => $fields ) {
+					foreach ( $fields as $field ) {
 						$location_fields[] = $field;
 						if ( $field == 'country_id' ) {
 							$location_fields[] = 'country_id.name';
@@ -404,35 +412,39 @@ class CiviCRM_Directory_Civi {
 					}
 				}
 
-				// add to params if we have some types
-				if ( ! empty( $location_types ) AND ! empty( $location_fields ) ) {
-					$params['api.Address.get'] = array(
-						'location_type_id' => array( 'IN' => $location_types ),
+				// Add to params if we have some types.
+				if ( ! empty( $location_types ) && ! empty( $location_fields ) ) {
+					$params['api.Address.get'] = [
+						'location_type_id' => [ 'IN' => $location_types ],
 						'return' => array_unique( $location_fields ),
-					);
+					];
 				}
 
 			}
 
 		}
 
-		// use API
+		// Use API.
 		$contact_data = civicrm_api( 'contact', 'get', $params );
 
-		// bail if we get any errors
-		if ( $contact_data['is_error'] == 1 ) return false;
-		if ( ! isset( $contact_data['values'] ) ) return false;
-		if ( count( $contact_data['values'] ) === 0 ) return false;
+		// Bail if we get any errors.
+		if ( $contact_data['is_error'] == 1 ) {
+			return false;
+		}
+		if ( ! isset( $contact_data['values'] ) ) {
+			return false;
+		}
+		if ( count( $contact_data['values'] ) === 0 ) {
+			return false;
+		}
 
-		// get contact
+		// Get contact.
 		$contact = array_shift( $contact_data['values'] );
 
 		// --<
 		return $contact;
 
 	}
-
-
 
 	/**
 	 * Get top-level CiviCRM contact types.
@@ -443,30 +455,32 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function contact_types_get_all() {
 
-		// init return
-		$contact_types = array();
+		// Init return.
+		$contact_types = [];
 
-		// try and init CiviCRM
-		if ( ! $this->initialize() ) return $contact_types;
+		// Try and init CiviCRM.
+		if ( ! $this->initialize() ) {
+			return $contact_types;
+		}
 
-		// define params to get all contact types
-		$params = array(
+		// Define params to get all contact types.
+		$params = [
 			'version' => 3,
 			'sequential' => 1,
 			'is_active' => 1,
-			'parent_id' => array( 'IS NULL' => 1 ),
-			'options' => array(
-				'limit' => '0', // no limit
-			),
-		);
+			'parent_id' => [ 'IS NULL' => 1 ],
+			'options' => [
+				'limit' => '0', // No limit.
+			],
+		];
 
-		// get all contact_types
+		// Get all contact_types.
 		$result = civicrm_api( 'ContactType', 'get', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 			$contact_types = $result['values'];
@@ -476,8 +490,6 @@ class CiviCRM_Directory_Civi {
 		return $contact_types;
 
 	}
-
-
 
 	/**
 	 * Get all CiviCRM contact types, nested by parent.
@@ -491,48 +503,50 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function contact_types_get_nested() {
 
-		// init return
-		$contact_types = array();
+		// Init return.
+		$contact_types = [];
 
-		// try and init CiviCRM
-		if ( ! $this->initialize() ) return $contact_types;
+		// Try and init CiviCRM.
+		if ( ! $this->initialize() ) {
+			return $contact_types;
+		}
 
-		// define params to get all contact types
-		$params = array(
+		// Define params to get all Contact Types.
+		$params = [
 			'version' => 3,
 			'sequential' => 1,
 			'is_active' => 1,
-			'options' => array(
-				'limit' => '0', // no limit
-			),
-		);
+			'options' => [
+				'limit' => '0', // No limit.
+			],
+		];
 
-		// get all contact_types
+		// Get all Contact Types.
 		$result = civicrm_api( 'ContactType', 'get', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 			$contact_types = $result['values'];
 		}
 
-		// let's get the top level types
-		$top_level = array();
-		foreach( $contact_types AS $contact_type ) {
+		// Let's get the top level types.
+		$top_level = [];
+		foreach ( $contact_types as $contact_type ) {
 			if ( ! isset( $contact_type['parent_id'] ) ) {
 				$top_level[] = $contact_type;
 			}
 		}
 
-		// make a nested array
-		$nested = array();
-		foreach( $top_level AS $item ) {
-			$item['children'] = array();
-			foreach( $contact_types AS $contact_type ) {
-				if ( isset( $contact_type['parent_id'] ) AND $contact_type['parent_id'] == $item['id'] ) {
+		// Make a nested array.
+		$nested = [];
+		foreach ( $top_level as $item ) {
+			$item['children'] = [];
+			foreach ( $contact_types as $contact_type ) {
+				if ( isset( $contact_type['parent_id'] ) && $contact_type['parent_id'] == $item['id'] ) {
 					$item['children'][] = $contact_type;
 				}
 			}
@@ -544,11 +558,7 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	//##########################################################################
-
-
 
 	/**
 	 * Get the standard fields for a CiviCRM Contact.
@@ -559,42 +569,44 @@ class CiviCRM_Directory_Civi {
 	 * @param str $filter Token by which to filter the array of fields.
 	 * @return array $fields The array of fields.
 	 */
-	public function contact_fields_get( $types = array( 'Contact' ), $filter = 'none' ) {
+	public function contact_fields_get( $types = [ 'Contact' ], $filter = 'none' ) {
 
-		// init return
-		$fields = array();
+		// Init return.
+		$fields = [];
 
-		// try and init CiviCRM
-		if ( ! $this->initialize() ) return $fields;
+		// Try and init CiviCRM.
+		if ( ! $this->initialize() ) {
+			return $fields;
+		}
 
-		// construct params
-		$params = array(
+		// Construct params.
+		$params = [
 			'version' => 3,
-			'options' => array(
-				'limit' => '0', // no limit
-			),
-		);
+			'options' => [
+				'limit' => '0', // No limit.
+			],
+		];
 
-		// hit the API
+		// Hit the API.
 		$result = civicrm_api( 'Contact', 'getfields', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 
-			// check for no filter
+			// Check for no filter.
 			if ( $filter == 'none' ) {
 
-				// grab all of them
+				// Grab all of them.
 				$fields = $result['values'];
 
-			// check public filter
+			// Check public filter.
 			} elseif ( $filter == 'public' ) {
 
-				// check against different field sets per type
+				// Check against different field sets per type.
 				if ( in_array( 'Individual', $types ) ) {
 					$contact_fields = $this->contact_fields_individual;
 				}
@@ -606,7 +618,7 @@ class CiviCRM_Directory_Civi {
 				}
 				$contact_fields = array_merge( $contact_fields, $this->contact_fields_common );
 
-				// skip all but those defined in our contact fields arrays
+				// Skip all but those defined in our contact fields arrays.
 				foreach ( $result['values'] as $key => $value ) {
 					if ( in_array( $value['name'], $contact_fields ) ) {
 						$fields[] = $value;
@@ -622,8 +634,6 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	/**
 	 * Get the custom fields for a CiviCRM Contact.
 	 *
@@ -632,13 +642,15 @@ class CiviCRM_Directory_Civi {
 	 * @param array $types The field types of the fields to retrieve.
 	 * @return array $custom_fields The array of custom fields.
 	 */
-	public function contact_custom_fields_get( $types = array( 'Contact' ) ) {
+	public function contact_custom_fields_get( $types = [ 'Contact' ] ) {
 
-		// init return
-		$custom_fields = array();
+		// Init return.
+		$custom_fields = [];
 
-		// try and init CiviCRM
-		if ( ! $this->initialize() ) return $custom_fields;
+		// Try and init CiviCRM.
+		if ( ! $this->initialize() ) {
+			return $custom_fields;
+		}
 
 		/**
 		 * Allow filtering of the contact types.
@@ -650,37 +662,37 @@ class CiviCRM_Directory_Civi {
 		 */
 		$types = apply_filters( 'civicrm_directory_contact_custom_fields_get_types', $types );
 
-		// construct params
-		$params = array(
+		// Construct params.
+		$params = [
 			'version' => 3,
 			'sequential' => 1,
 			'is_active' => 1,
-			'extends' => array( 'IN' => $types ),
-			'api.CustomField.get' => array(
+			'extends' => [ 'IN' => $types ],
+			'api.CustomField.get' => [
 				'is_active' => 1,
-				'options' => array(
-					'limit' => '0', // no limit
-				),
-			),
-			'options' => array(
-				'limit' => '0', // no limit
-			),
-		);
+				'options' => [
+					'limit' => '0', // No limit.
+				],
+			],
+			'options' => [
+				'limit' => '0', // No limit.
+			],
+		];
 
-		// hit the API
+		// Hit the API.
 		$result = civicrm_api( 'CustomGroup', 'get', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 
-			// we only need the results from the chained API data
-			foreach( $result['values'] as $key => $value ) {
-				foreach( $value['api.CustomField.get']['values'] as $key => $value ) {
-					$custom_fields[$key] = $value;
+			// We only need the results from the chained API data.
+			foreach ( $result['values'] as $key => $value ) {
+				foreach ( $value['api.CustomField.get']['values'] as $key => $value ) {
+					$custom_fields[ $key ] = $value;
 				}
 			}
 
@@ -691,8 +703,6 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	/**
 	 * Get the types of email.
 	 *
@@ -702,23 +712,23 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function email_types_get() {
 
-		// init return
-		$email_types = array();
+		// Init return.
+		$email_types = [];
 
-		// construct params to get all email types
-		$params = array(
+		// Construct params to get all email types.
+		$params = [
 			'version' => 3,
 			'sequential' => 1,
 			'field' => 'location_type_id',
-		);
+		];
 
-		// hit the API
+		// Hit the API.
 		$result = civicrm_api( 'Email', 'getoptions', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 			$email_types = $result['values'];
@@ -729,8 +739,6 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	/**
 	 * Get the types of website.
 	 *
@@ -740,23 +748,23 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function website_types_get() {
 
-		// init return
-		$website_types = array();
+		// Init return.
+		$website_types = [];
 
-		// construct params to get all website types
-		$params = array(
+		// Construct params to get all website types.
+		$params = [
 			'version' => 3,
 			'sequential' => 1,
 			'field' => 'website_type_id',
-		);
+		];
 
-		// hit the API
+		// Hit the API.
 		$result = civicrm_api( 'Website', 'getoptions', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 			$website_types = $result['values'];
@@ -767,8 +775,6 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	/**
 	 * Get the types of phone.
 	 *
@@ -778,23 +784,23 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function phone_types_get() {
 
-		// init return
-		$phone_types = array();
+		// Init return.
+		$phone_types = [];
 
-		// construct params to get all phone types
-		$params = array(
+		// Construct params to get all phone types.
+		$params = [
 			'version' => 3,
 			'sequential' => 1,
 			'field' => 'phone_type_id',
-		);
+		];
 
-		// hit the API
+		// Hit the API.
 		$result = civicrm_api( 'Phone', 'getoptions', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 			$phone_types = $result['values'];
@@ -805,8 +811,6 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	/**
 	 * Get the types of address.
 	 *
@@ -816,23 +820,23 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function address_types_get() {
 
-		// init return
-		$address_types = array();
+		// Init return.
+		$address_types = [];
 
-		// construct params to get all address types
-		$params = array(
+		// Construct params to get all address types.
+		$params = [
 			'version' => 3,
 			'sequential' => 1,
 			'field' => 'location_type_id',
-		);
+		];
 
-		// hit the API
+		// Hit the API.
 		$result = civicrm_api( 'Address', 'getoptions', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 			$address_types = $result['values'];
@@ -843,8 +847,6 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
 	/**
 	 * Get the data for the address fields.
 	 *
@@ -854,22 +856,22 @@ class CiviCRM_Directory_Civi {
 	 */
 	public function address_fields_get() {
 
-		// init return
-		$address_fields = array();
+		// Init return.
+		$address_fields = [];
 
-		// construct params to get all address fields
-		$params = array(
+		// Construct params to get all address fields.
+		$params = [
 			'version' => 3,
 			'sequential' => 1,
-		);
+		];
 
-		// hit the API
+		// Hit the API.
 		$result = civicrm_api( 'Address', 'getfields', $params );
 
-		// override return if we get some
+		// Override return if we get some.
 		if (
-			$result['is_error'] == 0 AND
-			isset( $result['values'] ) AND
+			$result['is_error'] == 0 &&
+			isset( $result['values'] ) &&
 			count( $result['values'] ) > 0
 		) {
 			$address_fields = $result['values'];
@@ -880,9 +882,4 @@ class CiviCRM_Directory_Civi {
 
 	}
 
-
-
-} // class ends
-
-
-
+}

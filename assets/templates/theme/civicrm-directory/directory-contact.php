@@ -1,4 +1,17 @@
-<!-- assets/templates/theme/civicrm-directory/directory-contact.php -->
+<?php
+/**
+ * Directory Contact Template.
+ *
+ * Handles Directory Contact markup.
+ *
+ * @package CiviCRM_Directory
+ * @since 0.1
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+?><!-- assets/templates/theme/civicrm-directory/directory-contact.php -->
 <div class="civicrm-directory directory-contact">
 
 	<p class="civicrm-directory-nav"><a href="<?php civicrm_directory_url(); ?>">&larr; <?php echo sprintf( __( 'Back to %s', 'civicrm-directory' ), civicrm_directory_title_get() ); ?></a></p>
@@ -12,6 +25,3 @@
 	</section><!-- /.listing -->
 
 </div><!-- /.civicrm-directory -->
-
-
-

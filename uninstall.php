@@ -1,28 +1,20 @@
-<?php /*
-================================================================================
-CiviCRM Directory Uninstaller
-================================================================================
-AUTHOR: Christian Wach <needle@haystack.co.uk>
---------------------------------------------------------------------------------
-NOTES
-=====
+<?php
+/**
+ * CiviCRM Directory Uninstaller
+ *
+ * Handles uninstallation.
+ *
+ * @package CiviCRM_Directory
+ * @since 0.1
+ */
 
+// Kick out if uninstall not called from WordPress.
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+	exit();
+}
 
---------------------------------------------------------------------------------
-*/
-
-
-
-// kick out if uninstall not called from WordPress
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) exit();
-
-
-
-// delete installed flag
+// Delete installed flag.
 delete_option( 'civicrm_directory_version' );
 
-// delete settings
+// Delete settings.
 delete_option( 'civicrm_directory_settings' );
-
-
-

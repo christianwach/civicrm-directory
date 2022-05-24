@@ -1,7 +1,18 @@
 <?php
+/**
+ * Map Class.
+ *
+ * Handles mapping functionality.
+ *
+ * @package CiviCRM_Directory
+ * @since 0.1
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * CiviCRM Directory Map Class.
+ * Map Class.
  *
  * A class that encapsulates mapping functionality.
  *
@@ -18,8 +29,6 @@ class CiviCRM_Directory_Map {
 	 */
 	public $plugin;
 
-
-
 	/**
 	 * Initialises this object.
 	 *
@@ -29,12 +38,10 @@ class CiviCRM_Directory_Map {
 	 */
 	public function __construct( $parent ) {
 
-		// store
+		// Store plugin reference.
 		$this->plugin = $parent;
 
 	}
-
-
 
 	/**
 	 * Insert the map markup.
@@ -43,23 +50,21 @@ class CiviCRM_Directory_Map {
 	 *
 	 * @param array $data The configuration data for the map.
 	 */
-	public function insert_map( $data = array() ) {
+	public function insert_map( $data = [] ) {
 
-		// get map height from post meta
+		// Get map height from post meta.
 		$height = $this->plugin->cpt_meta->mapping_height_get();
 
-		// get template
+		// Get template.
 		$template = $this->plugin->template->find_file( 'civicrm-directory/directory-map.php' );
 
-		// include the template part
-		include( $template );
+		// Include the template part.
+		include $template;
 
-		// enqueue Javascript
+		// Enqueue Javascript.
 		$this->enqueue_script( $data );
 
 	}
-
-
 
 	/**
 	 * Enqueue and configure Javascript needed for mapping functionality.
@@ -70,38 +75,38 @@ class CiviCRM_Directory_Map {
 	 */
 	public function enqueue_script( $data ) {
 
-		// set key if not provided
+		// Set key if not provided.
 		if ( ! isset( $data['key'] ) ) {
 			$data['key'] = $this->plugin->admin->setting_get( 'google_maps_key' );
 		}
 
-		// register Google Maps
+		// Register Google Maps.
 		wp_register_script(
 			'civicrm-directory-googlemap-js',
 			set_url_scheme( 'https://maps.googleapis.com/maps/api/js?v=3.exp&key=' . $data['key'] ),
-			array(),
+			[],
 			CIVICRM_DIRECTORY_VERSION,
-			true // in footer
+			true // In footer.
 		);
 
-		// enqueue Google Maps script
+		// Enqueue Google Maps script.
 		wp_enqueue_script( 'civicrm-directory-googlemap-js' );
 
-		// enqueue custom javascript
+		// Enqueue custom javascript.
 		wp_enqueue_script(
 			'civicrm-directory-map-js',
 			CIVICRM_DIRECTORY_URL . 'assets/js/civicrm-directory-map.js',
-			array( 'civicrm-directory-googlemap-js', 'jquery' ),
+			[ 'civicrm-directory-googlemap-js', 'jquery' ],
 			CIVICRM_DIRECTORY_VERSION,
-			true // in footer
+			true // In footer.
 		);
 
-		// init localisation
-		$localisation = array(
+		// Init localisation.
+		$localisation = [
 			'info_window_link_title' => __( 'View Profile', 'civicrm-directory' ),
-		);
+		];
 
-		// make sure we have latitude and longitude
+		// Make sure we have latitude and longitude.
 		if ( ! isset( $data['latitude'] ) ) {
 			$data['latitude'] = $this->plugin->admin->setting_get( 'latitude' );
 		}
@@ -109,14 +114,14 @@ class CiviCRM_Directory_Map {
 			$data['longitude'] = $this->plugin->admin->setting_get( 'longitude' );
 		}
 
-		// make sure we have an initial zoom level
+		// Make sure we have an initial zoom level.
 		if ( ! isset( $data['zoom'] ) ) {
 			$data['zoom'] = $this->plugin->admin->setting_get( 'zoom' );
 		}
 
-		// check data for locations
+		// Check data for locations.
 		if ( ! isset( $data['locations'] ) ) {
-			$data['locations'] = array();
+			$data['locations'] = [];
 		}
 
 		/**
@@ -124,24 +129,24 @@ class CiviCRM_Directory_Map {
 		 *
 		 * @since 0.1
 		 *
-		 * @param array The default settings array
-		 * @return array The modified settings array
+		 * @param array The default settings array.
+		 * @return array The modified settings array.
 		 */
-		$settings = apply_filters( 'civicrm_directory_js_settings', array(
+		$settings = apply_filters( 'civicrm_directory_js_settings', [
 			'zoom' => $data['zoom'],
 			'pin_image_url' => '',
 			'latitude' => $data['latitude'],
 			'longitude' => $data['longitude'],
 			'locations' => $data['locations'],
-		) );
+		] );
 
-		// localisation array
-		$vars = array(
+		// Localisation array.
+		$vars = [
 			'localisation' => $localisation,
 			'settings' => $settings,
-		);
+		];
 
-		// localise the WordPress way
+		// Localise the WordPress way.
 		wp_localize_script(
 			'civicrm-directory-map-js',
 			'CiviCRM_Directory_Map_Settings',
@@ -150,9 +155,7 @@ class CiviCRM_Directory_Map {
 
 	}
 
-} // class ends
-
-
+}
 
 /**
  * Render a map for a directory.
@@ -163,25 +166,31 @@ function civicrm_directory_map() {
 
 	$plugin = civicrm_directory();
 
-	// get mapping-enabled from post meta
+	// Get mapping-enabled from post meta.
 	$mapping = $plugin->cpt_meta->mapping_get();
 
-	// sanity check
-	if ( ! $mapping ) return;
+	// Sanity check.
+	if ( ! $mapping ) {
+		return;
+	}
 
-	// get group ID from post meta
+	// Get group ID from post meta.
 	$group_id = $plugin->cpt_meta->group_id_get();
 
-	// sanity check
-	if ( empty( $group_id ) ) return;
+	// Sanity check.
+	if ( empty( $group_id ) ) {
+			return;
+	}
 
-	// get contact types from post meta
+	// Get contact types from post meta.
 	$contact_types = $plugin->cpt_meta->contact_types_get();
 
-	// sanity check
-	if ( empty( $contact_types ) ) return;
+	// Sanity check.
+	if ( empty( $contact_types ) ) {
+		return;
+	}
 
-	// get contacts in this group
+	// Get contacts in this group.
 	$contacts = $plugin->civi->contacts_get_for_group( $group_id, $contact_types, 'all', '', '' );
 
 	/**
@@ -194,37 +203,40 @@ function civicrm_directory_map() {
 	 */
 	$contacts = apply_filters( 'civicrm_directory_map_contacts', $contacts );
 
-	// build locations array
-	$locations = array();
-	foreach( $contacts AS $contact ) {
+	// Build locations array.
+	$locations = [];
+	foreach ( $contacts as $contact ) {
 
-		// construct address
-		$address_raw = array();
-		if ( ! empty( $contact['street_address'] ) ) $address_raw[] = $contact['street_address'];
-		if ( ! empty( $contact['city'] ) ) $address_raw[] = $contact['city'];
-		if ( ! empty( $contact['state_province_name'] ) ) $address_raw[] = $contact['state_province_name'];
+		// Construct address.
+		$address_raw = [];
+		if ( ! empty( $contact['street_address'] ) ) {
+			$address_raw[] = $contact['street_address'];
+		}
+		if ( ! empty( $contact['city'] ) ) {
+			$address_raw[] = $contact['city'];
+		}
+		if ( ! empty( $contact['state_province_name'] ) ) {
+			$address_raw[] = $contact['state_province_name'];
+		}
 		$address = implode( '<br>', $address_raw );
 
-		// add to locations
-		$locations[] = array(
+		// Add to locations.
+		$locations[] = [
 			'latitude' => $contact['geo_code_1'],
 			'longitude' => $contact['geo_code_2'],
 			'name' => $contact['display_name'],
 			'address' => $address,
 			'permalink' => esc_url( trailingslashit( get_permalink( get_the_ID() ) ) . 'entry/' . $contact['id'] ),
-		);
+		];
 
 	}
 
-	// construct data array
-	$data = array(
+	// Construct data array.
+	$data = [
 		'locations' => $locations,
-	);
+	];
 
-	// render map now
+	// Render map now.
 	$plugin->map->insert_map( $data );
 
 }
-
-
-
