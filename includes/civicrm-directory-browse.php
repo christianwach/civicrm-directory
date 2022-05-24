@@ -562,4 +562,3 @@ function civicrm_directory_browser() {
 	civicrm_directory()->browse->insert_markup();
 
 }
-

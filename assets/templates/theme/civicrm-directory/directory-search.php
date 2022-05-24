@@ -25,6 +25,3 @@ defined( 'ABSPATH' ) || exit;
 	</form>
 
 </section><!-- /.search -->
-
-
-
